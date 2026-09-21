@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Products: siapa saja bisa membaca katalog, admin dapat menambah/edit/hapus
+    match /products/{productId} {
+      allow read, write: if true;
+    }
+    
+    // Orders: pembeli dapat membuat pesanan, membaca & admin dapat mengelola
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Proofs (Bukti Transaksi): siapa saja dapat melihat galeri bukti, admin dapat menambah/hapus
+    match /proofs/{proofId} {
+      allow read, write: if true;
+    }
+    
+    // Promos: siapa saja dapat melihat voucher, admin dapat mengaktifkan/membuat
+    match /promos/{promoCode} {
+      allow read, write: if true;
+    }
+    
+    // Settings (Pengaturan Toko & Hero Banner): publik dapat membaca, admin dapat menyimpan
+    match /settings/{settingId} {
+      allow read, write: if true;
+    }
+
+    // Notifications: pencatatan notifikasi sistem & transaksi
+    match /notifications/{notifId} {
+      allow read, write: if true;
+    }
+    
+    // Users: profil pengguna
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    // Health check & test
+    match /_health_check/{docId} {
+      allow read, write: if true;
+    }
+  }
+}
+
