@@ -129,8 +129,14 @@ export function subscribeToOrders(onUpdate: (orders: AdminOrder[]) => void): Uns
 
 export async function saveOrderToFirestore(order: AdminOrder): Promise<void> {
   try {
+    const cleanOrderData: Record<string, any> = {};
+    for (const [key, value] of Object.entries(order)) {
+      if (value !== undefined) {
+        cleanOrderData[key] = value;
+      }
+    }
     await setDoc(doc(db, 'orders', order.id), {
-      ...order,
+      ...cleanOrderData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });

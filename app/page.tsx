@@ -7,7 +7,7 @@ import LiveTicker from '@/components/storefront/LiveTicker';
 import ProductGrid from '@/components/storefront/ProductGrid';
 import ProductModal from '@/components/storefront/ProductModal';
 import CartModal from '@/components/storefront/CartModal';
-import CheckoutModal from '@/components/storefront/CheckoutModal';
+import CheckoutModal, { type CheckoutCustomerData } from '@/components/storefront/CheckoutModal';
 import UserOrdersModal from '@/components/storefront/UserOrdersModal';
 import AccountModal from '@/components/storefront/AccountModal';
 import AuthModal from '@/components/storefront/AuthModal';
@@ -99,13 +99,26 @@ export default function StorefrontPage() {
     setCheckoutOpen(true);
   }, []);
 
-  const handleConfirmPaid = useCallback((username: string, phone?: string, email?: string, name?: string) => {
+  const handleConfirmPaid = useCallback((data: CheckoutCustomerData) => {
     if (cart.cart.length === 0) return;
 
     // Fire confetti safely
     if (typeof window !== 'undefined') {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     }
+
+    const {
+      username,
+      gamePassword,
+      has2FA,
+      twoFAType,
+      phone,
+      email,
+      name,
+      paymentConfirmationType,
+      paymentUniqueCode,
+      paymentProofImage,
+    } = data;
 
     // Build order
     const orderNumber = `FM-${Math.floor(10000 + Math.random() * 90000)}`;
@@ -116,14 +129,22 @@ export default function StorefrontPage() {
     const adminOrderData: AdminOrder = {
       id: orderNumber,
       customer: customerDisplayName,
+      customerEmail: customerEmail || undefined,
       phone: contactPhone,
       inGameId: username || 'Pelanggan Online',
+      gamePassword: gamePassword || undefined,
+      has2FA: has2FA,
+      twoFAType: has2FA ? twoFAType : undefined,
+      agreedToTerms: true,
+      paymentConfirmationType,
+      paymentUniqueCode: paymentUniqueCode || undefined,
+      paymentProofImage: paymentProofImage || undefined,
       product: cart.cart.map(i => `${i.title} (${i.quantity}x)`).join(', '),
       variantName: cart.cart.map(i => i.variantName || 'Standar').join(', '),
       amount: cart.finalTotal,
       date: 'Baru Saja',
       status: 'Diproses',
-      payment: 'QRIS Instan',
+      payment: paymentConfirmationType === 'proof_photo' ? 'QRIS (Bukti Transfer)' : 'QRIS (Kode Unik)',
     };
 
     // Save directly to Firestore
@@ -149,8 +170,14 @@ export default function StorefrontPage() {
       currentStep: 3,
       estimatedTime: '~5-15 menit',
       customerNote: `Pesanan sedang diproses untuk ID: ${username || 'Pelanggan Online'}`,
-      securityNotice: 'Transaksi Anda dijamin garansi uang kembali 100% jika terjadi kendala.',
+      securityNotice: 'Data akun game Anda dienkripsi aman dan transaksi dijamin garansi uang kembali 100%.',
       inGameId: username || 'Pelanggan Online',
+      gamePassword: gamePassword || undefined,
+      has2FA: has2FA,
+      twoFAType: has2FA ? twoFAType : undefined,
+      paymentConfirmationType,
+      paymentUniqueCode: paymentUniqueCode || undefined,
+      paymentProofImage: paymentProofImage || undefined,
     }));
 
     addUserOrders(newUserOrders);

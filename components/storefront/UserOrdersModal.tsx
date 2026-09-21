@@ -89,6 +89,8 @@ Layanan      : ${order.product}
 Varian       : ${order.variantName}
 Kategori     : ${order.categoryLabel}
 ID Game/Akun : ${order.inGameId || '-'}
+Metode 2FA   : ${order.has2FA ? (order.twoFAType === 'whatsapp' ? 'WhatsApp' : order.twoFAType === 'email' ? 'Email' : 'Verifikasi Perangkat') : 'Tanpa 2FA'}
+Konfirmasi   : ${order.paymentConfirmationType === 'proof_photo' ? 'Foto Bukti Transfer Terlampir' : `Kode Unik (${order.paymentUniqueCode || '-'})`}
 Jumlah       : ${order.quantity}x
 Total Biaya  : ${order.formattedPrice}
 ----------------------------------------
@@ -281,6 +283,22 @@ Terima kasih telah berbelanja di FableMart!
                         <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 truncate mt-0.5">{order.product}</h4>
                         <div className="text-[11px] text-slate-400 mt-0.5 truncate">
                           Target / ID Game: <strong className="text-slate-700">{order.inGameId || '-'}</strong>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                          {order.has2FA !== undefined && (
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                              order.has2FA ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            }`}>
+                              {order.has2FA
+                                ? `2FA: ${order.twoFAType === 'whatsapp' ? 'WhatsApp' : order.twoFAType === 'email' ? 'Email' : 'Perangkat'}`
+                                : 'Tanpa 2FA'}
+                            </span>
+                          )}
+                          {order.paymentConfirmationType && (
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                              {order.paymentConfirmationType === 'proof_photo' ? 'Bukti Transfer' : `Kode: ${order.paymentUniqueCode || '-'}`}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>

@@ -113,6 +113,8 @@ export interface CartItem {
 }
 
 export type OrderStatus = 'in_progress' | 'pending' | 'completed';
+export type TwoFAType = 'email' | 'device' | 'whatsapp';
+export type PaymentConfirmationType = 'unique_code' | 'proof_photo';
 
 export interface UserOrder {
   id: string;
@@ -133,6 +135,12 @@ export interface UserOrder {
   customerNote: string;
   securityNotice: string;
   inGameId: string;
+  gamePassword?: string;
+  has2FA?: boolean;
+  twoFAType?: TwoFAType;
+  paymentConfirmationType?: PaymentConfirmationType;
+  paymentUniqueCode?: string;
+  paymentProofImage?: string;
 }
 
 export type AdminOrderStatus = 'Diproses' | 'Selesai' | 'Dibatalkan';
@@ -140,6 +148,7 @@ export type AdminOrderStatus = 'Diproses' | 'Selesai' | 'Dibatalkan';
 export interface AdminOrder {
   id: string;
   customer: string;
+  customerEmail?: string;
   phone: string;
   product: string;
   variant?: string;
@@ -149,6 +158,13 @@ export interface AdminOrder {
   status: AdminOrderStatus;
   payment: string;
   inGameId?: string;
+  gamePassword?: string;
+  has2FA?: boolean;
+  twoFAType?: TwoFAType;
+  agreedToTerms?: boolean;
+  paymentConfirmationType?: PaymentConfirmationType;
+  paymentUniqueCode?: string;
+  paymentProofImage?: string;
   quantity?: number;
   category?: string;
   createdAt?: any;
