@@ -1,9 +1,10 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { subscribeToStoreSettings, saveStoreSettingsToFirestore, defaultStoreSettings } from '@/lib/firebaseSync';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, storage } from '@/lib/firebase';
 import { doc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { ShieldCheck, Crown, UserCheck } from 'lucide-react';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ShieldCheck, Crown, UserCheck, Upload, Trash2, QrCode, RefreshCw } from 'lucide-react';
 import type { StoreSettings } from '@/lib/types';
 
 interface SettingsTabProps {
@@ -14,6 +15,8 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
   const [settings, setSettings] = useState<StoreSettings>(defaultStoreSettings);
   const [promoteEmail, setPromoteEmail] = useState('');
   const [promoting, setPromoting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Real-time sync with Cloud Firestore settings/store
   useEffect(() => {
@@ -27,6 +30,90 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
     await saveStoreSettingsToFirestore(settings);
     showToast('✓ Pengaturan toko berhasil disimpan ke Cloud Firestore!');
   }
+
+  // Compress image on canvas so it loads instantly for buyers (<100KB)
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const maxDim = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('❌ Harap pilih file gambar (PNG, JPG, atau WEBP).');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // 1. Optimize image locally first
+      const compressedDataUrl = await compressImage(file);
+      let finalUrl = compressedDataUrl;
+
+      // 2. Try uploading to Firebase Storage if active
+      try {
+        const response = await fetch(compressedDataUrl);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `branding/qris_${Date.now()}.jpg`);
+        const snapshot = await uploadBytes(storageRef, blob, {
+          contentType: 'image/jpeg',
+        });
+        finalUrl = await getDownloadURL(snapshot.ref);
+      } catch (storageErr) {
+        console.warn('Firebase Storage not available, using compressed Data URL directly:', storageErr);
+      }
+
+      setSettings(s => ({ ...s, qrisImage: finalUrl }));
+      showToast('✓ Foto QRIS berhasil diunggah! Klik "Simpan Pengaturan" untuk menerapkan.');
+    } catch (err: any) {
+      console.error('Failed to process QRIS image:', err);
+      showToast('❌ Gagal memproses gambar: ' + (err.message || 'Error'));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   async function handlePromoteSelf() {
     if (!auth.currentUser) {
@@ -140,7 +227,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
       </div>
 
       {/* Store Settings Form */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-5 space-y-4">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-5 space-y-5">
         <div>
           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Nama Toko</label>
           <input
@@ -151,6 +238,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
             placeholder="Nama toko Anda"
           />
         </div>
+
         <div>
           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Nomor WhatsApp CS</label>
           <div className="flex items-center gap-2">
@@ -165,6 +253,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
           </div>
           <p className="text-[10px] text-slate-400 mt-1">Format: 62xxxxxxxxxx (tanpa + atau spasi)</p>
         </div>
+
         <div>
           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Tagline / Subtitle Toko</label>
           <textarea
@@ -175,16 +264,113 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
             placeholder="Tagline utama toko Anda..."
           />
         </div>
-        <div>
-          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">URL / Link Gambar QRIS Pembayaran</label>
-          <input
-            type="url"
-            value={settings.qrisImage || ''}
-            onChange={e => setSettings(s => ({ ...s, qrisImage: e.target.value }))}
-            className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
-            placeholder="https://... URL gambar QRIS toko Anda"
-          />
-          <p className="text-[10px] text-slate-400 mt-1">Gambar ini akan otomatis ditampilkan di jendela checkout pelanggan.</p>
+
+        {/* QRIS Upload Section */}
+        <div className="pt-3 border-t border-slate-100 space-y-3">
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+              <QrCode size={14} className="text-purple-600" />
+              <span>Foto QRIS Pembayaran Toko (Unggah Gambar)</span>
+            </label>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Unggah foto barcode QRIS (dari BCA, GoPay, OVO, Dana, ShopeePay, dll). Foto akan langsung ditampilkan di jendela pembayaran checkout pelanggan.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+            {/* Preview Box */}
+            <div className="relative w-36 h-36 rounded-2xl border-2 border-dashed border-slate-300 bg-white flex flex-col items-center justify-center overflow-hidden shrink-0 shadow-xs group">
+              {settings.qrisImage ? (
+                <>
+                  <img
+                    src={settings.qrisImage}
+                    alt="QRIS Preview"
+                    className="w-full h-full object-contain p-2"
+                  />
+                  <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-1.5 bg-white rounded-lg text-slate-700 hover:text-purple-600 transition shadow cursor-pointer"
+                      title="Ganti Foto"
+                    >
+                      <RefreshCw size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSettings(s => ({ ...s, qrisImage: '' }))}
+                      className="p-1.5 bg-white rounded-lg text-slate-700 hover:text-red-600 transition shadow cursor-pointer"
+                      title="Hapus Foto"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center p-3">
+                  <QrCode size={36} className="mx-auto text-slate-300 mb-1" />
+                  <span className="text-[9px] font-semibold text-slate-400 block">Belum ada QRIS</span>
+                </div>
+              )}
+            </div>
+
+            {/* Upload Controls */}
+            <div className="flex-1 space-y-2.5">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-60 active:scale-95"
+                >
+                  {uploading ? (
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Upload size={14} />
+                  )}
+                  <span>{uploading ? 'Mengunggah & Mengompres...' : settings.qrisImage ? 'Ganti Foto QRIS' : 'Pilih Foto QRIS'}</span>
+                </button>
+
+                {settings.qrisImage && (
+                  <button
+                    type="button"
+                    onClick={() => setSettings(s => ({ ...s, qrisImage: '' }))}
+                    className="px-3 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold transition cursor-pointer"
+                  >
+                    Hapus Foto
+                  </button>
+                )}
+              </div>
+
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                Mendukung <strong>PNG, JPG, WEBP</strong>. Foto otomatis dioptimalkan agar ringan (&lt;100KB) dan tajam saat pelanggan checkout.
+              </p>
+
+              {/* Advanced option: URL link */}
+              <details className="text-[10px] text-slate-400 pt-1">
+                <summary className="cursor-pointer hover:text-slate-600 font-semibold">
+                  Atau masukkan URL / Link gambar eksternal
+                </summary>
+                <div className="mt-2">
+                  <input
+                    type="url"
+                    value={settings.qrisImage || ''}
+                    onChange={e => setSettings(s => ({ ...s, qrisImage: e.target.value }))}
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-mono"
+                    placeholder="https://... URL gambar QRIS eksternal"
+                  />
+                </div>
+              </details>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -192,7 +378,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
-          className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+          className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition shadow-md cursor-pointer active:scale-95"
         >
           💾 Simpan Pengaturan
         </button>

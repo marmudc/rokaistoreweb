@@ -166,6 +166,7 @@ export default function CheckoutModal({
                 src={qrisImage}
                 alt="QRIS FableMart"
                 fill
+                unoptimized
                 sizes="(max-width: 640px) 192px, 208px"
                 loading="lazy"
                 className="object-contain rounded-xl"
