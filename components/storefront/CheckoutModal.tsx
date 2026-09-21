@@ -70,6 +70,8 @@ export default function CheckoutModal({
 
   // Multi-step state: 1 = Formulir Data & Akun Game, 2 = Pembayaran & Konfirmasi
   const [step, setStep] = useState<1 | 2>(1);
+  const prevOpenRef = useRef(false);
+  const modalContentRef = useRef<HTMLDivElement>(null);
 
   // Form Fields - Step 1
   const [phone, setPhone] = useState('');
@@ -98,7 +100,8 @@ export default function CheckoutModal({
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    if (open) {
+    // Only reset state and prefill fields when modal is freshly opened
+    if (open && !prevOpenRef.current) {
       setStep(1);
       setErrorMessage('');
       setAgreedToTerms(false);
@@ -119,6 +122,7 @@ export default function CheckoutModal({
         setPhone(profile?.phone || '');
       }
     }
+    prevOpenRef.current = open;
   }, [open, user, userProfile, profile]);
 
   if (!open) return null;
@@ -223,22 +227,17 @@ export default function CheckoutModal({
       return;
     }
 
-    // Save default inGameId for future convenience
-    if (user) {
-      updateProfileData({
-        defaultInGameId: gameUsername.trim(),
-        phone: phone.trim(),
-      }).catch(() => {});
-    }
-    updateProfile({
-      ...profile,
-      defaultInGameId: gameUsername.trim(),
-      name: name.trim() || profile.name,
-      email: email.trim() || profile.email,
-      phone: phone.trim() || profile.phone,
-    }).catch(() => {});
-
     setStep(2);
+    if (modalContentRef.current) {
+      modalContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleBackToStep1 = () => {
+    setStep(1);
+    if (modalContentRef.current) {
+      modalContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   // Step 2 Submission -> Confirm Paid
@@ -254,6 +253,21 @@ export default function CheckoutModal({
       setErrorMessage('Harap unggah Foto Bukti Pembayaran / Struk transfer Anda.');
       return;
     }
+
+    // Save default inGameId for future convenience upon final order submission
+    if (user) {
+      updateProfileData({
+        defaultInGameId: gameUsername.trim(),
+        phone: phone.trim(),
+      }).catch(() => {});
+    }
+    updateProfile({
+      ...profile,
+      defaultInGameId: gameUsername.trim(),
+      name: name.trim() || profile.name,
+      email: email.trim() || profile.email,
+      phone: phone.trim() || profile.phone,
+    }).catch(() => {});
 
     const payload: CheckoutCustomerData = {
       username: gameUsername.trim(),
@@ -296,7 +310,7 @@ export default function CheckoutModal({
         <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={onClose} />
 
         {/* Modal Card */}
-        <div className="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto max-h-[94vh] modal-pop-in flex flex-col">
+        <div ref={modalContentRef} className="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto max-h-[94vh] modal-pop-in flex flex-col">
           {/* Top Step Progress Bar */}
           <div className="h-1.5 w-full bg-slate-100 shrink-0">
             <div
@@ -586,32 +600,35 @@ export default function CheckoutModal({
 
                 {/* 4. Rules & Terms Checkbox */}
                 <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2">
-                  <div className="flex items-start gap-2.5">
+                  <div
+                    onClick={() => {
+                      if (!agreedToTerms) setTermsModalOpen(true);
+                      else setAgreedToTerms(false);
+                    }}
+                    className="flex items-start gap-2.5 cursor-pointer select-none"
+                  >
                     <input
                       type="checkbox"
                       id="checkout-terms"
                       checked={agreedToTerms}
-                      onChange={e => {
-                        if (!agreedToTerms) {
-                          setTermsModalOpen(true);
-                        } else {
-                          setAgreedToTerms(e.target.checked);
-                        }
-                      }}
-                      className="w-4 h-4 mt-0.5 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer"
+                      onChange={() => {}}
+                      className="w-4 h-4 mt-0.5 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer pointer-events-none"
                     />
-                    <label htmlFor="checkout-terms" className="text-xs text-slate-700 leading-snug cursor-pointer select-none">
+                    <div className="text-xs text-slate-700 leading-snug">
                       Saya telah membaca, yakin, dan menyetujui{' '}
                       <button
                         type="button"
-                        onClick={() => setTermsModalOpen(true)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTermsModalOpen(true);
+                        }}
                         className="font-black text-purple-700 hover:underline inline-flex items-center gap-0.5 cursor-pointer"
                       >
                         <span>Syarat, Ketentuan &amp; Konsekuensi Layanan</span>
                         <FileText size={12} />
                       </button>{' '}
                       termasuk menerima segala konsekuensi di luar lingkup pengerjaan resmi toko.
-                    </label>
+                    </div>
                   </div>
                   {!agreedToTerms && (
                     <p className="text-[10px] text-amber-700 ml-6">
@@ -819,7 +836,7 @@ export default function CheckoutModal({
 
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={handleBackToStep1}
                     className="w-full py-2 text-slate-500 hover:text-slate-800 text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <ArrowLeft size={13} />
