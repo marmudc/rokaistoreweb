@@ -34,7 +34,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const ADMIN_EMAILS = [
-  'admin@fablemart.com',
+  'admin@rokai.store',
   (process.env.NEXT_PUBLIC_ADMIN_EMAIL || '').toLowerCase().trim(),
 ].filter(Boolean);
 

@@ -4,8 +4,8 @@ import type {
 } from './types';
 
 export const storeInfo: StoreInfo = {
-  name: "FableMart.",
-  subtitle: "Marketplace terpercaya untuk kebutuhan Joki CDID, Blox Fruits, Robux & Gamepass, serta Joki Akun Roblox. Transaksi aman, legal & proses instan.",
+  name: "Rokai Store",
+  subtitle: "Marketplace profesional untuk kebutuhan Roblox. Transaksi aman, legal, dan proses instan.",
   whatsappNumber: "6281234567890",
   qrisImage: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400&auto=format&fit=crop&q=80"
 };
