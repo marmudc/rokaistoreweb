@@ -7,6 +7,7 @@ import type { AdminOrder, UserOrder } from '@/lib/types';
 export const defaultUserOrders: UserOrder[] = [];
 
 export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
+  const isUnpaid = o.status === 'Belum Dibayar';
   const isPending = o.status === 'Menunggu Konfirmasi' || o.status === 'Menunggu Verifikasi';
   const isQueued = o.status === 'Antrian';
   const isInProgress = o.status === 'Dalam Proses' || o.status === 'Diproses';
@@ -22,7 +23,17 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
   let estimatedTime = '~1-5 menit verifikasi';
   let customerNote = 'Bukti pembayaran telah berhasil dikirim ke admin. Mohon tunggu verifikasi admin sebelum pesanan masuk antrean pengerjaan.';
 
-  if (isPending) {
+  if (isUnpaid) {
+    status = 'unpaid';
+    statusTitle = '⚠️ Belum Dibayar (Pembayaran Ditolak)';
+    statusBadgeColor = 'bg-rose-50 text-rose-700 border-rose-300 font-extrabold shadow-xs';
+    statusPulseColor = 'bg-rose-500';
+    currentStep = 1;
+    estimatedTime = 'Menunggu Pembayaran Ulang';
+    customerNote = o.issueReason
+      ? `Pembayaran ditolak admin: "${o.issueReason}". Silakan lakukan pembayaran ulang dengan bukti transfer yang sah.`
+      : 'Pembayaran ditolak admin karena bukti transfer tidak sah atau mutasi tidak ditemukan. Silakan kirimkan bukti pembayaran yang sah.';
+  } else if (isPending) {
     status = 'pending';
     statusTitle = 'Menunggu Konfirmasi Pembayaran';
     statusBadgeColor = 'bg-amber-50 text-amber-800 border-amber-200';
@@ -101,6 +112,7 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
     paymentConfirmationType: o.paymentConfirmationType,
     paymentUniqueCode: o.paymentUniqueCode,
     paymentProofImage: o.paymentProofImage,
+    paymentRejected: o.paymentRejected ?? (o.status === 'Belum Dibayar'),
     issueReason: o.issueReason,
   };
 }

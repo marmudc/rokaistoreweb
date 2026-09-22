@@ -39,6 +39,7 @@ export default function AdminPage() {
     resolveIssue,
     markComplete,
     cancelOrder,
+    rejectPaymentProof,
     deleteOrder,
     togglePromo,
     addPromo,
@@ -200,6 +201,7 @@ export default function AdminPage() {
             <ConfirmationsTab
               adminOrders={adminOrders}
               onApprovePayment={approvePayment}
+              onRejectProof={rejectPaymentProof}
               onCancel={cancelOrder}
               onDelete={deleteOrder}
               showToast={showToast}

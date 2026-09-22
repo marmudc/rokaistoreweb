@@ -19,12 +19,14 @@ import {
   X,
   FileCheck,
   AlertCircle,
+  AlertTriangle,
   Inbox,
 } from 'lucide-react';
 
 interface ConfirmationsTabProps {
   adminOrders: AdminOrder[];
   onApprovePayment: (id: string) => void;
+  onRejectProof?: (id: string, reason: string) => void;
   onCancel?: (id: string) => void;
   onDelete: (id: string) => void;
   showToast: (msg: string) => void;
@@ -33,6 +35,7 @@ interface ConfirmationsTabProps {
 export default function ConfirmationsTab({
   adminOrders,
   onApprovePayment,
+  onRejectProof,
   onCancel,
   onDelete,
   showToast,
@@ -40,6 +43,9 @@ export default function ConfirmationsTab({
   const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
+  const [rejectingOrder, setRejectingOrder] = useState<AdminOrder | null>(null);
+  const [selectedReason, setSelectedReason] = useState('Bukti transfer tidak sah / tidak ditemukan dalam mutasi rekening');
+  const [customReason, setCustomReason] = useState('');
 
   // Filter ONLY orders awaiting payment verification / confirmation
   const pendingOrders = adminOrders.filter(
@@ -361,15 +367,17 @@ export default function ConfirmationsTab({
                     <span>✓ Setujui Pembayaran &amp; Masukkan ke Antrean Order</span>
                   </button>
 
-                  {onCancel && (
+                  {(onRejectProof || onCancel) && (
                     <button
                       onClick={() => {
-                        onCancel(order.id);
-                        showToast(`Pesanan ${order.id} ditolak / dibatalkan`);
+                        setRejectingOrder(order);
+                        setSelectedReason('Bukti transfer tidak sah / tidak ditemukan dalam mutasi rekening');
+                        setCustomReason('');
                       }}
-                      className="px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition cursor-pointer border border-amber-200"
+                      className="px-3.5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition cursor-pointer border border-rose-200 flex items-center gap-1.5"
                     >
-                      Tolak Bukti
+                      <AlertTriangle size={13} />
+                      <span>Tolak Bukti (Tidak Sah)</span>
                     </button>
                   )}
 
@@ -445,6 +453,119 @@ export default function ConfirmationsTab({
                 className="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition cursor-pointer"
               >
                 Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Payment Proof Modal */}
+      {rejectingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative max-w-lg w-full bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2 text-rose-700 font-black text-sm">
+                <AlertTriangle size={18} />
+                <span>Tolak Bukti Pembayaran #{rejectingOrder.id}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRejectingOrder(null)}
+                className="w-7 h-7 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Order summary info */}
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-xs space-y-1">
+              <div className="flex justify-between text-slate-600">
+                <span>Pelanggan:</span>
+                <span className="font-bold text-slate-800">{rejectingOrder.customer} ({rejectingOrder.inGameId})</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Layanan:</span>
+                <span className="font-bold text-purple-700">{rejectingOrder.product}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Tagihan:</span>
+                <span className="font-black text-pink-600">Rp {rejectingOrder.amount.toLocaleString('id-ID')}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Pesanan ini akan <strong>dibatalkan &amp; otomatis dihapus</strong> dari daftar konfirmasi antrean admin, dan dikembalikan ke status <strong className="text-rose-600 font-bold">&quot;Belum Dibayar&quot;</strong>. Pelanggan akan menerima notifikasi peringatan resmi dan petunjuk bayar ulang.
+            </p>
+
+            {/* Quick Presets */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Pilih Alasan Penolakan:
+              </label>
+              <div className="flex flex-col gap-1.5">
+                {[
+                  'Bukti transfer tidak sah / tidak ditemukan dalam mutasi rekening',
+                  'Nominal transfer tidak sesuai dengan total tagihan pesanan',
+                  'Foto bukti struk transfer buram, palsu, atau hasil editan',
+                  'Kode unik transaksi tidak valid atau kedaluwarsa',
+                ].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      setSelectedReason(preset);
+                      setCustomReason('');
+                    }}
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold text-left transition border cursor-pointer ${
+                      selectedReason === preset && !customReason
+                        ? 'bg-rose-50 border-rose-300 text-rose-800 font-bold ring-1 ring-rose-200'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    • {preset}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Input */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                Atau Tuliskan Alasan Kustom:
+              </label>
+              <textarea
+                rows={2}
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
+                placeholder="Alasan khusus penolakan pembayaran..."
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-300 resize-none font-medium"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setRejectingOrder(null)}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const finalReason = customReason.trim() || selectedReason.trim();
+                  if (onRejectProof) {
+                    onRejectProof(rejectingOrder.id, finalReason);
+                  } else if (onCancel) {
+                    onCancel(rejectingOrder.id);
+                  }
+                  showToast(`✓ Bukti pesanan #${rejectingOrder.id} ditolak. Pesanan dikembalikan ke Belum Dibayar.`);
+                  setRejectingOrder(null);
+                }}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black text-xs transition shadow-md shadow-rose-600/25 cursor-pointer active:scale-95 flex items-center gap-1.5"
+              >
+                <AlertTriangle size={14} />
+                <span>Tolak Pembayaran &amp; Kembalikan ke Belum Dibayar</span>
               </button>
             </div>
           </div>

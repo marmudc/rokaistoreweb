@@ -27,6 +27,7 @@ import type {
   UserProfile,
   ProofItem,
   Category,
+  PaymentConfirmationType,
 } from './types';
 
 // ==========================================
@@ -175,6 +176,55 @@ export async function updateOrderStatusInFirestore(
     await updateDoc(doc(db, 'orders', orderId), updatePayload);
   } catch (err) {
     console.error('Failed to update order status in Firestore:', err);
+    throw err;
+  }
+}
+
+export async function rejectOrderPaymentInFirestore(
+  orderId: string,
+  rejectionReason: string
+): Promise<void> {
+  try {
+    const updatePayload: Record<string, any> = {
+      status: 'Belum Dibayar',
+      issueReason: rejectionReason,
+      paymentRejected: true,
+      updatedAt: serverTimestamp(),
+    };
+    await updateDoc(doc(db, 'orders', orderId), updatePayload);
+  } catch (err) {
+    console.error('Failed to reject order payment in Firestore:', err);
+    throw err;
+  }
+}
+
+export async function resubmitOrderPaymentInFirestore(
+  orderId: string,
+  data: {
+    paymentConfirmationType: PaymentConfirmationType;
+    paymentUniqueCode?: string;
+    paymentProofImage?: string;
+  }
+): Promise<void> {
+  try {
+    const updatePayload: Record<string, any> = {
+      status: 'Menunggu Konfirmasi',
+      paymentConfirmationType: data.paymentConfirmationType,
+      paymentRejected: false,
+      issueReason: '',
+      updatedAt: serverTimestamp(),
+    };
+    if (data.paymentUniqueCode) {
+      updatePayload.paymentUniqueCode = data.paymentUniqueCode;
+      updatePayload.paymentProofImage = null;
+    }
+    if (data.paymentProofImage) {
+      updatePayload.paymentProofImage = data.paymentProofImage;
+      updatePayload.paymentUniqueCode = null;
+    }
+    await updateDoc(doc(db, 'orders', orderId), updatePayload);
+  } catch (err) {
+    console.error('Failed to resubmit order payment in Firestore:', err);
     throw err;
   }
 }

@@ -6,6 +6,7 @@ import {
   saveOrderToFirestore,
   updateOrderStatusInFirestore,
   deleteOrderFromFirestore,
+  rejectOrderPaymentInFirestore,
   savePromoToFirestore,
   togglePromoInFirestore,
   deletePromoFromFirestore,
@@ -160,6 +161,36 @@ export function useAdminOrders() {
     });
   }, []);
 
+  const rejectPaymentProof = useCallback(async (orderId: string, reason?: string) => {
+    const defaultReason = reason?.trim() || 'Bukti pembayaran tidak sah atau tidak ditemukan pada mutasi rekening toko.';
+
+    // Optimistic UI update - changes status to 'Belum Dibayar', removing it from pending confirmations
+    setAdminOrders(prev =>
+      prev.map(o =>
+        o.id === orderId
+          ? {
+              ...o,
+              status: 'Belum Dibayar' as const,
+              issueReason: defaultReason,
+              paymentRejected: true,
+            }
+          : o
+      )
+    );
+
+    // Save to Firestore
+    await rejectOrderPaymentInFirestore(orderId, defaultReason);
+
+    // High priority notification to customer
+    await addNotificationToFirestore({
+      title: `Pembayaran Pesanan #${orderId} Ditolak ⚠️`,
+      message: `Bukti pembayaran Anda dinyatakan TIDAK SAH oleh admin: "${defaultReason}". Status pesanan kembali ke Belum Dibayar. Silakan lakukan pembayaran ulang.`,
+      type: 'order',
+      linkAction: 'open_orders',
+      orderId,
+    });
+  }, []);
+
   const deleteOrder = useCallback(async (orderId: string) => {
     setAdminOrders(prev => prev.filter(o => o.id !== orderId));
     await deleteOrderFromFirestore(orderId);
@@ -258,6 +289,7 @@ export function useAdminOrders() {
     resolveIssue,
     markComplete,
     cancelOrder,
+    rejectPaymentProof,
     deleteOrder,
     addOrder,
     saveOrders,

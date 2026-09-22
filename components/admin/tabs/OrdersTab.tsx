@@ -71,9 +71,9 @@ export default function OrdersTab({
     }
   };
 
-  // Only display confirmed orders in this tab (orders not in pending confirmation)
+  // Only display confirmed orders in this tab (orders not in pending confirmation and not unpaid)
   const confirmedOrders = adminOrders.filter(
-    o => o.status !== 'Menunggu Konfirmasi' && o.status !== 'Menunggu Verifikasi'
+    o => o.status !== 'Menunggu Konfirmasi' && o.status !== 'Menunggu Verifikasi' && o.status !== 'Belum Dibayar'
   );
 
   const filtered = filter === 'all'

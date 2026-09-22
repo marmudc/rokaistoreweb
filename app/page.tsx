@@ -28,7 +28,7 @@ import type { UserOrdersFilter } from '@/components/storefront/UserOrdersModal';
 import { storeInfo, valueProps } from '@/lib/storeData';
 import { subscribeToStoreSettings, saveOrderToFirestore, defaultStoreSettings } from '@/lib/firebaseSync';
 import { addNotification } from '@/lib/notifications';
-import { ShieldCheck, Clock, MessageSquareText } from 'lucide-react';
+import { ShieldCheck, Clock, MessageSquareText, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const valueIcons: Record<string, React.ReactNode> = {
   'shield-check': <ShieldCheck size={20} />,
@@ -246,6 +246,36 @@ export default function StorefrontPage() {
       />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-8 sm:space-y-12">
+        {/* Unpaid Order Alert Banner */}
+        {userOrders.some(o => o.status === 'unpaid') && (
+          <div className="bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 text-white py-2.5 px-4 rounded-2xl shadow-lg border border-rose-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-300">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 border border-white/30 shadow-xs">
+                <AlertTriangle size={18} className="text-amber-300 animate-pulse" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-black tracking-tight">
+                  Perhatian: Bukti Pembayaran Tidak Sah &amp; Ditolak Admin
+                </p>
+                <p className="text-[11px] text-white/90 leading-tight truncate">
+                  Terdapat pesanan yang dikembalikan ke status Belum Dibayar. Silakan lakukan pembayaran ulang.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setOrdersFilter('unpaid');
+                setFocusOrderId(userOrders.find(o => o.status === 'unpaid')?.id || null);
+                setOrdersOpen(true);
+              }}
+              className="px-4 py-1.5 rounded-xl bg-white text-rose-700 text-xs font-black shadow hover:bg-rose-50 transition cursor-pointer self-end sm:self-auto shrink-0 active:scale-95 flex items-center gap-1.5"
+            >
+              <span>Buka Pesanan &amp; Bayar Ulang</span>
+              <ArrowRight size={13} />
+            </button>
+          </div>
+        )}
+
         {/* Hero Banner */}
         <HeroSection
           onCategoryFilter={handleHeroCategoryFilter}
@@ -353,6 +383,7 @@ export default function StorefrontPage() {
         }}
         showToast={showToast}
         whatsappNumber={waNumber}
+        qrisImage={storeSettings.qrisImage || storeInfo.qrisImage}
         initialFilter={ordersFilter}
         focusOrderId={focusOrderId}
         onTrackOrder={trackOrder}
