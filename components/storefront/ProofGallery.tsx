@@ -7,9 +7,10 @@ import { ShieldCheck, Star } from 'lucide-react';
 
 interface ProofGalleryProps {
   initialLimit?: number;
+  storeName?: string;
 }
 
-export default function ProofGallery({ initialLimit = 4 }: ProofGalleryProps) {
+export default function ProofGallery({ initialLimit = 4, storeName }: ProofGalleryProps) {
   const [proofs, setProofs] = useState<ProofItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -62,7 +63,7 @@ export default function ProofGallery({ initialLimit = 4 }: ProofGalleryProps) {
             </span>
           </div>
           <p className="text-[11px] text-slate-400 font-medium">
-            Semua pesanan diverifikasi langsung oleh tim FableMart ({filtered.length} dari {proofs.length} bukti ditampilkan)
+            Semua pesanan diverifikasi langsung oleh tim {storeName ? storeName.replace(/\.$/, '') : 'kami'} ({filtered.length} dari {proofs.length} bukti ditampilkan)
           </p>
         </div>
 

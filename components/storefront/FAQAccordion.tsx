@@ -3,14 +3,19 @@ import React, { useState } from 'react';
 import { faqItems } from '@/lib/storeData';
 import { ChevronDown } from 'lucide-react';
 
-export default function FAQAccordion() {
+interface FAQAccordionProps {
+  storeName?: string;
+}
+
+export default function FAQAccordion({ storeName }: FAQAccordionProps) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const cleanName = storeName ? storeName.replace(/\.$/, '') : 'toko kami';
 
   return (
     <div>
       <div className="mb-4 sm:mb-5">
         <h2 className="text-base sm:text-lg font-black text-slate-900">Pertanyaan yang Sering Ditanyakan</h2>
-        <p className="text-[11px] text-slate-400 font-medium">Jawaban lengkap atas kekhawatiran umum pelanggan FableMart</p>
+        <p className="text-[11px] text-slate-400 font-medium">Jawaban lengkap atas kekhawatiran umum pelanggan {cleanName}</p>
       </div>
       <div className="space-y-2.5 sm:space-y-3">
         {faqItems.map(faq => {

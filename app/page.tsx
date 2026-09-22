@@ -14,6 +14,7 @@ import AuthModal from '@/components/storefront/AuthModal';
 import AutoAccountModal from '@/components/storefront/AutoAccountModal';
 import ProofGallery from '@/components/storefront/ProofGallery';
 import FAQAccordion from '@/components/storefront/FAQAccordion';
+import Footer from '@/components/storefront/Footer';
 import Toast from '@/components/ui/Toast';
 import StorefrontLoader from '@/components/ui/StorefrontLoader';
 import { useRole } from '@/hooks/useRole';
@@ -268,7 +269,7 @@ export default function StorefrontPage() {
         <LiveTicker />
 
         {/* Product Grid */}
-        <div ref={productGridRef}>
+        <div ref={productGridRef} id="products-section">
           <ProductGrid
             onOpenProduct={handleOpenProduct}
             initialCategory={heroCategory}
@@ -278,33 +279,27 @@ export default function StorefrontPage() {
         </div>
 
         {/* Proof Gallery */}
-        <ProofGallery />
+        <div id="proof-section">
+          <ProofGallery storeName={storeName} />
+        </div>
 
         {/* FAQ */}
-        <FAQAccordion />
+        <div id="faq-section">
+          <FAQAccordion storeName={storeName} />
+        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-12 sm:mt-16 border-t border-slate-200/80 bg-white">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-600 to-purple-600 flex items-center justify-center shadow-sm">
-                <span className="text-white font-black text-xs">F</span>
-              </div>
-              <div>
-                <p className="font-black text-slate-900 text-sm">{storeName}</p>
-                <p className="text-[10px] text-slate-400">Marketplace Gaming &amp; Creative Assets</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-[11px] text-slate-500">
-              <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer" className="hover:text-emerald-600 transition font-medium">WhatsApp CS</a>
-              <span className="text-slate-200">•</span>
-              <span>© 2026 FableMart.</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Synchronized Storefront Footer */}
+      <Footer
+        storeName={storeName}
+        storeSettings={storeSettings}
+        onOpenOrders={() => {
+          setOrdersFilter('all');
+          setOrdersOpen(true);
+        }}
+        onOpenCart={() => setCartOpen(true)}
+        onOpenAccount={() => setAccountOpen(true)}
+      />
 
       {/* Modals */}
       {selectedProduct && (
