@@ -39,7 +39,7 @@ const valueIcons: Record<string, React.ReactNode> = {
 
 export default function StorefrontPage() {
   const { role, isAdmin } = useRole();
-  const { user, userProfile, autoRegisterGuest } = useAuth();
+  const { user, userProfile } = useAuth();
   const { adminPromos } = useAdminOrders();
   const cart = useCart(adminPromos);
   const { userOrders, activeCount, addUserOrders, trackOrder } = useUserOrders();
@@ -176,6 +176,7 @@ export default function StorefrontPage() {
       date: 'Baru Saja',
       status: 'Menunggu Konfirmasi',
       payment: paymentConfirmationType === 'proof_photo' ? 'QRIS (Bukti Transfer)' : 'QRIS (Kode Unik)',
+      userId: user?.uid || (customerEmail ? `guest_${customerEmail.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}` : undefined),
     };
 
     // Save directly to Firestore
@@ -226,12 +227,8 @@ export default function StorefrontPage() {
 
     setCheckoutOpen(false);
 
-    // If guest customer and provided email, auto-create guest record and prompt AutoAccountModal
+    // If guest customer and provided email, prompt AutoAccountModal
     if (!user && customerEmail) {
-      autoRegisterGuest(customerEmail, customerDisplayName, username, contactPhone).catch(err => {
-        console.error('Failed autoRegisterGuest:', err);
-      });
-
       setTimeout(() => {
         setAutoAccountData({
           customerName: customerDisplayName,
@@ -247,7 +244,7 @@ export default function StorefrontPage() {
         setOrdersOpen(true);
       }, 800);
     }
-  }, [cart, addUserOrders, showToast, user, userProfile, autoRegisterGuest]);
+  }, [cart, addUserOrders, showToast, user, userProfile]);
 
   return (
     <div className="min-h-screen bg-[#fafbfc]">

@@ -185,6 +185,7 @@ export interface AdminOrder {
   category?: string;
   createdAt?: any;
   updatedAt?: any;
+  userId?: string;
 }
 
 export interface PromoCode {

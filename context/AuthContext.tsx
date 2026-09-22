@@ -28,7 +28,6 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfileData: (data: Partial<UserProfile>) => Promise<void>;
-  autoRegisterGuest: (email: string, name: string, inGameId: string, phone: string) => Promise<void>;
   formatAuthError: (error: any) => string;
 }
 
@@ -295,38 +294,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserProfile(prev => prev ? { ...prev, ...data } : null);
   };
 
-  // 8. Auto-create guest user record on checkout
-  const autoRegisterGuest = async (email: string, name: string, inGameId: string, phone: string) => {
-    if (!email.trim()) return;
-    const guestId = `guest_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
-    const guestDocRef = doc(db, 'users', guestId);
-    const snap = await getDoc(guestDocRef);
+  // 8. (Removed) Auto-create guest user record on checkout to prevent duplicate users in Firestore
 
-    if (!snap.exists()) {
-      const guestProfile: UserProfile = {
-        uid: guestId,
-        name: name.trim() || 'Pembeli',
-        email: email.trim(),
-        defaultInGameId: inGameId.trim(),
-        phone: phone.trim(),
-        role: 'customer',
-        provider: 'guest_checkout',
-        isGuestAutoCreated: true,
-        soundEnabled: true,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      };
-      await setDoc(guestDocRef, guestProfile);
-    } else {
-      // Update with latest inGameId or phone if missing
-      await updateDoc(guestDocRef, {
-        name: name.trim() || snap.data().name,
-        defaultInGameId: inGameId.trim() || snap.data().defaultInGameId,
-        phone: phone.trim() || snap.data().phone,
-        updatedAt: serverTimestamp(),
-      });
-    }
-  };
 
   return (
     <AuthContext.Provider
@@ -341,7 +310,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resetPassword,
         logout,
         updateProfileData,
-        autoRegisterGuest,
         formatAuthError,
       }}
     >
