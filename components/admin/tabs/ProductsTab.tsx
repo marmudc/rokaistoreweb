@@ -5,11 +5,13 @@ import {
   saveProductToFirestore,
   deleteProductFromFirestore,
   deleteAllProductsFromFirestore,
+  subscribeToStoreSettings,
+  defaultCategoriesList,
 } from '@/lib/firebaseSync';
 import { addNotification } from '@/lib/notifications';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import type { Product, ProductVariant } from '@/lib/types';
+import type { Product, ProductVariant, Category } from '@/lib/types';
 import ProductIcon from '@/components/ui/ProductIcon';
 import {
   Edit3,
@@ -31,18 +33,19 @@ interface ProductsTabProps {
   showToast: (msg: string) => void;
 }
 
-const categoryOptions = [
-  { value: 'cdid', label: 'ROBLOX CDID', badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/60' },
-  { value: 'bloxfruits', label: 'BLOX FRUITS', badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/60' },
-  { value: 'robux', label: 'ROBUX & GAMEPASS', badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/60' },
-  { value: 'joki', label: 'JOKI & AKUN', badgeColor: 'bg-purple-50 text-purple-700 border-purple-200/60' },
-  { value: 'roblox', label: 'ROBLOX LAINNYA', badgeColor: 'bg-sky-50 text-sky-700 border-sky-200/60' },
-];
-
 export default function ProductsTab({ showToast }: ProductsTabProps) {
   const [catalog, setCatalog] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>(defaultCategoriesList);
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  const categoryOptions = useMemo(() => {
+    return categories.map(c => ({
+      value: c.id,
+      label: c.label,
+      badgeColor: c.badgeColor || 'bg-slate-50 text-slate-700 border-slate-200/60',
+    }));
+  }, [categories]);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,12 +66,20 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   const [imageLoadError, setImageLoadError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Real-time sync with Cloud Firestore products collection
+  // Real-time sync with Cloud Firestore products collection and store settings
   useEffect(() => {
     const unsub = subscribeToProducts((prods) => {
       setCatalog(prods);
     });
-    return () => unsub();
+    const unsubSettings = subscribeToStoreSettings((settings) => {
+      if (settings.categories && settings.categories.length > 0) {
+        setCategories(settings.categories);
+      }
+    });
+    return () => {
+      unsub();
+      unsubSettings();
+    };
   }, []);
 
   // Compress image on canvas for blazing fast loading (<100KB)
@@ -159,7 +170,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   const openAddModal = () => {
     setEditingProduct(null);
     setFormTitle('');
-    setFormCategory('cdid');
+    setFormCategory(categoryOptions[0]?.value || 'cdid');
     setFormDescription('Layanan resmi Roblox, pengerjaan cepat, dan garansi transaksi 100% aman.');
     setFormFeatures(['Proses Cepat & Terpercaya', 'Garansi Uang Kembali']);
     setFormNewFeature('');
@@ -287,7 +298,11 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
     }
 
     const defaultVar = formVariants.find(v => v.isDefault) || formVariants[0];
-    const cat = categoryOptions.find(c => c.value === formCategory) || categoryOptions[0];
+    const cat = categoryOptions.find(c => c.value === formCategory) || categoryOptions[0] || {
+      value: formCategory,
+      label: formCategory,
+      badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/60',
+    };
 
     const iconType =
       formCategory === 'cdid' || formCategory === 'roblox'

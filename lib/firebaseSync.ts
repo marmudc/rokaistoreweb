@@ -14,7 +14,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { storeInfo } from './storeData';
+import { storeInfo, categories } from './storeData';
 import type {
   Product,
   AdminOrder,
@@ -26,6 +26,7 @@ import type {
   AppNotification,
   UserProfile,
   ProofItem,
+  Category,
 } from './types';
 
 // ==========================================
@@ -34,11 +35,14 @@ import type {
 
 export const defaultPromosList: PromoCode[] = [];
 
+export const defaultCategoriesList: Category[] = categories.filter((c) => c.id !== 'all');
+
 export const defaultStoreSettings: StoreSettings = {
   storeName: storeInfo.name,
   whatsappNumber: storeInfo.whatsappNumber,
   subtitle: storeInfo.subtitle,
   qrisImage: storeInfo.qrisImage,
+  categories: defaultCategoriesList,
 };
 
 // ==========================================
@@ -263,7 +267,11 @@ export function subscribeToStoreSettings(onUpdate: (settings: StoreSettings) => 
     docRef,
     (snap) => {
       if (snap.exists()) {
-        onUpdate(snap.data() as StoreSettings);
+        const data = snap.data() as StoreSettings;
+        if (!data.categories || !Array.isArray(data.categories) || data.categories.length === 0) {
+          data.categories = defaultCategoriesList;
+        }
+        onUpdate(data);
       } else {
         saveStoreSettingsToFirestore(defaultStoreSettings).catch(() => {});
         onUpdate(defaultStoreSettings);
@@ -278,10 +286,17 @@ export function subscribeToStoreSettings(onUpdate: (settings: StoreSettings) => 
 
 export async function saveStoreSettingsToFirestore(settings: StoreSettings): Promise<void> {
   try {
-    await setDoc(doc(db, 'settings', 'store'), {
+    const rawData: Record<string, any> = {
       ...settings,
       updatedAt: serverTimestamp(),
+    };
+    const cleanData: Record<string, any> = {};
+    Object.keys(rawData).forEach((key) => {
+      if (rawData[key] !== undefined) {
+        cleanData[key] = rawData[key];
+      }
     });
+    await setDoc(doc(db, 'settings', 'store'), cleanData);
   } catch (err) {
     console.error('Failed to save store settings to Firestore:', err);
     throw err;

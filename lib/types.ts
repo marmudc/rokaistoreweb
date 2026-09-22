@@ -37,6 +37,7 @@ export interface Product {
 export interface Category {
   id: string;
   label: string;
+  badgeColor?: string;
 }
 
 export interface HeroSlide {
@@ -198,6 +199,7 @@ export interface StoreSettings {
   whatsappNumber: string;
   subtitle: string;
   qrisImage?: string;
+  categories?: Category[];
 }
 
 export type NotificationType = 'order' | 'promo' | 'system';

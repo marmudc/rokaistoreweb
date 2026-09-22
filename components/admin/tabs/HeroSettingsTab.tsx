@@ -1,8 +1,13 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { heroThemes } from '@/lib/storeData';
-import { subscribeToHeroSettings, saveHeroSettingsToFirestore } from '@/lib/firebaseSync';
-import type { HeroSlide } from '@/lib/types';
+import {
+  subscribeToHeroSettings,
+  saveHeroSettingsToFirestore,
+  subscribeToStoreSettings,
+  defaultCategoriesList,
+} from '@/lib/firebaseSync';
+import type { HeroSlide, Category } from '@/lib/types';
 import { Plus, Trash2, Edit3, X, Sparkles, Eye, Layers } from 'lucide-react';
 
 interface HeroSettingsTabProps {
@@ -33,6 +38,7 @@ const tagIconMap: Record<string, string> = {
 
 export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
   const [slides, setSlides] = useState<HeroSlide[]>([]);
+  const [categories, setCategories] = useState<Category[]>(defaultCategoriesList);
   const [theme, setTheme] = useState('cyber');
   const [activeSlideIdx, setActiveSlideIdx] = useState(0);
 
@@ -48,13 +54,21 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
     categoryFilter: 'all',
   });
 
-  // Real-time sync with Cloud Firestore settings/hero
+  // Real-time sync with Cloud Firestore settings/hero & store settings
   useEffect(() => {
-    const unsub = subscribeToHeroSettings((data) => {
+    const unsubHero = subscribeToHeroSettings((data) => {
       setSlides(data.slides || []);
       if (data.theme) setTheme(data.theme);
     });
-    return () => unsub();
+    const unsubSettings = subscribeToStoreSettings((s) => {
+      if (s.categories && s.categories.length > 0) {
+        setCategories(s.categories);
+      }
+    });
+    return () => {
+      unsubHero();
+      unsubSettings();
+    };
   }, []);
 
   const activeSlide = slides[activeSlideIdx] || slides[0];
@@ -332,11 +346,11 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
                         className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
                       >
                         <option value="all">Semua Kategori</option>
-                        <option value="cdid">Roblox CDID</option>
-                        <option value="bloxfruits">Blox Fruits</option>
-                        <option value="robux">Robux &amp; Gamepass</option>
-                        <option value="joki">Joki &amp; Akun</option>
-                        <option value="roblox">Roblox Lainnya</option>
+                        {categories.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.label}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -558,11 +572,11 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
                     >
                       <option value="all">Semua Kategori</option>
-                      <option value="cdid">Roblox CDID</option>
-                      <option value="bloxfruits">Blox Fruits</option>
-                      <option value="robux">Robux &amp; Gamepass</option>
-                      <option value="joki">Joki &amp; Akun</option>
-                      <option value="roblox">Roblox Lainnya</option>
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>

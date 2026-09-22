@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
 import { categories } from '@/lib/storeData';
-import { subscribeToProducts } from '@/lib/firebaseSync';
-import type { Product } from '@/lib/types';
+import { subscribeToProducts, subscribeToStoreSettings } from '@/lib/firebaseSync';
+import type { Product, Category } from '@/lib/types';
 import ProductIcon from '@/components/ui/ProductIcon';
 import { Search, X } from 'lucide-react';
 
@@ -20,6 +20,7 @@ export default function ProductGrid({
   onSearchChange: externalOnSearchChange,
 }: ProductGridProps) {
   const [currentCategory, setCurrentCategory] = useState(initialCategory);
+  const [categoriesList, setCategoriesList] = useState<Category[]>(categories);
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,14 +32,23 @@ export default function ProductGrid({
     }
   }, [initialCategory]);
 
-  // Real-time sync with Cloud Firestore products collection
+  // Real-time sync with Cloud Firestore products collection & store settings
   useEffect(() => {
     const unsub = subscribeToProducts((prods) => {
       setAllProducts(prods);
       setLoading(false);
     });
 
-    return () => unsub();
+    const unsubSettings = subscribeToStoreSettings((settings) => {
+      if (settings.categories && settings.categories.length > 0) {
+        setCategoriesList([{ id: 'all', label: 'Semua' }, ...settings.categories]);
+      }
+    });
+
+    return () => {
+      unsub();
+      unsubSettings();
+    };
   }, []);
 
   const activeSearchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
@@ -100,7 +110,7 @@ export default function ProductGrid({
 
       {/* Category Tabs */}
       <div className="flex items-center gap-2 mb-4 sm:mb-5 overflow-x-auto no-scrollbar pb-1">
-        {categories.map(cat => (
+        {categoriesList.map(cat => (
           <button
             key={cat.id}
             onClick={() => setCurrentCategory(cat.id)}

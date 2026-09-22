@@ -78,11 +78,11 @@ export const liveTransactions: LiveTransaction[] = [];
 
 export const categories: Category[] = [
   { id: "all", label: "Semua" },
-  { id: "cdid", label: "Roblox CDID" },
-  { id: "bloxfruits", label: "Blox Fruits" },
-  { id: "robux", label: "Robux & Gamepass" },
-  { id: "joki", label: "Joki & Akun" },
-  { id: "roblox", label: "Lainnya" }
+  { id: "cdid", label: "Roblox CDID", badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200/60" },
+  { id: "bloxfruits", label: "Blox Fruits", badgeColor: "bg-amber-50 text-amber-700 border-amber-200/60" },
+  { id: "robux", label: "Robux & Gamepass", badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200/60" },
+  { id: "joki", label: "Joki & Akun", badgeColor: "bg-purple-50 text-purple-700 border-purple-200/60" },
+  { id: "roblox", label: "Lainnya", badgeColor: "bg-sky-50 text-sky-700 border-sky-200/60" }
 ];
 
 export const products: Product[] = [];
