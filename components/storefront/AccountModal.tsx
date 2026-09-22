@@ -296,12 +296,12 @@ export default function AccountModal({
                   type="text"
                   value={profile.defaultInGameId || ''}
                   onChange={e => setProfile(p => ({ ...p, defaultInGameId: e.target.value }))}
-                  placeholder="Contoh: gamer_roblox88 / username Minecraft"
+                  placeholder="Contoh: gamer_roblox88 / ID Roblox"
                   className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-mono"
                 />
               </div>
               <p className="text-[10px] text-slate-400 mt-1">
-                ID game ini akan otomatis terisi setiap kali Anda checkout pesanan di FableMart.
+                ID Roblox ini akan otomatis terisi setiap kali Anda checkout pesanan.
               </p>
             </div>
 

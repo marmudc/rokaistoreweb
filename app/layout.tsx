@@ -3,8 +3,8 @@ import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'FableMart. — Joki CDID, Minecraft, Desain UI/UX',
-  description: 'Marketplace terpercaya untuk kebutuhan Joki CDID, Setup Modded Server, dan aset desain UI/UX. Transaksi aman, proses instan.',
+  title: 'FableMart. — Spesialis Roblox: Joki CDID, Blox Fruits, Robux & Gamepass',
+  description: 'Marketplace terpercaya untuk kebutuhan Roblox: Joki CDID, Blox Fruits, Robux & Gamepass, serta Joki Akun Roblox. Transaksi aman, legal & proses instan.',
 };
 
 export default function RootLayout({

@@ -32,9 +32,11 @@ interface ProductsTabProps {
 }
 
 const categoryOptions = [
-  { value: 'roblox', label: 'ROBLOX CDID', badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/60' },
-  { value: 'minecraft', label: 'MINECRAFT', badgeColor: 'bg-sky-50 text-sky-700 border-sky-200/60' },
-  { value: 'design', label: 'DESAIN & VISUAL', badgeColor: 'bg-pink-50 text-pink-700 border-pink-200/60' },
+  { value: 'cdid', label: 'ROBLOX CDID', badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/60' },
+  { value: 'bloxfruits', label: 'BLOX FRUITS', badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/60' },
+  { value: 'robux', label: 'ROBUX & GAMEPASS', badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/60' },
+  { value: 'joki', label: 'JOKI & AKUN', badgeColor: 'bg-purple-50 text-purple-700 border-purple-200/60' },
+  { value: 'roblox', label: 'ROBLOX LAINNYA', badgeColor: 'bg-sky-50 text-sky-700 border-sky-200/60' },
 ];
 
 export default function ProductsTab({ showToast }: ProductsTabProps) {
@@ -48,7 +50,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
 
   // Form states
   const [formTitle, setFormTitle] = useState('');
-  const [formCategory, setFormCategory] = useState('roblox');
+  const [formCategory, setFormCategory] = useState('cdid');
   const [formDescription, setFormDescription] = useState('');
   const [formFeatures, setFormFeatures] = useState<string[]>([]);
   const [formNewFeature, setFormNewFeature] = useState('');
@@ -157,8 +159,8 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   const openAddModal = () => {
     setEditingProduct(null);
     setFormTitle('');
-    setFormCategory('roblox');
-    setFormDescription('Layanan profesional, pengerjaan cepat, dan garansi transaksi 100% aman.');
+    setFormCategory('cdid');
+    setFormDescription('Layanan resmi Roblox, pengerjaan cepat, dan garansi transaksi 100% aman.');
     setFormFeatures(['Proses Cepat & Terpercaya', 'Garansi Uang Kembali']);
     setFormNewFeature('');
     setFormImage('');
@@ -288,11 +290,13 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
     const cat = categoryOptions.find(c => c.value === formCategory) || categoryOptions[0];
 
     const iconType =
-      formCategory === 'roblox'
+      formCategory === 'cdid' || formCategory === 'roblox'
         ? 'car'
-        : formCategory === 'minecraft'
-        ? 'code'
-        : 'video';
+        : formCategory === 'bloxfruits'
+        ? 'sword'
+        : formCategory === 'robux'
+        ? 'coin'
+        : 'gamepad';
 
     if (editingProduct) {
       // EDIT existing product
@@ -656,7 +660,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                     type="text"
                     value={formTitle}
                     onChange={e => setFormTitle(e.target.value)}
-                    placeholder="Contoh: 100 Juta Uang CDID (Proses Cepat)"
+                    placeholder="Contoh: 100 Juta Uang CDID / Buah Dough Blox Fruits / 1000 Robux"
                     className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 font-bold text-slate-800"
                   />
                 </div>

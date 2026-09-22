@@ -445,7 +445,7 @@ export default function AuthModal({
                     type="text"
                     value={inGameId}
                     onChange={e => setInGameId(e.target.value)}
-                    placeholder="Contoh: roblox_id / username Minecraft"
+                    placeholder="Contoh: roblox_user123 / gamer_roblox88"
                     className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-mono transition"
                   />
                 </div>

@@ -200,7 +200,7 @@ export default function Navbar({
               <Search size={15} className="absolute left-3.5 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
               <input
                 type="text"
-                placeholder="Cari joki CDID, setup Minecraft, UI/UX..."
+                placeholder="Cari joki CDID, Blox Fruits, Robux, Gamepass..."
                 value={searchQuery}
                 onChange={e => handleSearchInput(e.target.value)}
                 className="w-full pl-9 pr-14 py-2 text-xs rounded-full border border-slate-200/70 bg-white/60 hover:bg-white/80 focus:bg-white/95 backdrop-blur-md focus:outline-none focus:border-purple-400/80 shadow-xs focus:shadow-[0_4px_20px_-2px_rgba(168,85,247,0.15)] transition-all duration-200"
@@ -570,7 +570,7 @@ export default function Navbar({
               <Search size={14} className="absolute left-3 text-slate-400" />
               <input
                 type="text"
-                placeholder="Cari joki CDID, setup Minecraft, UI/UX..."
+                placeholder="Cari joki CDID, Blox Fruits, Robux, Gamepass..."
                 value={searchQuery}
                 onChange={e => handleSearchInput(e.target.value)}
                 autoFocus

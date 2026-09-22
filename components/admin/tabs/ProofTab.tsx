@@ -27,18 +27,18 @@ interface ProofTabProps {
 
 const CATEGORY_OPTIONS = [
   'Roblox CDID',
-  'Minecraft Forge 1.20',
-  'Figma UI Kit',
-  'Valorant Radiant',
-  'Tech Support',
+  'Blox Fruits',
+  'Robux & Gamepass',
+  'Joki Akun Roblox',
   'Lainnya',
 ];
 
 const TYPE_OPTIONS = [
   { value: 'receipt', label: 'Tanda Terima / Struk' },
-  { value: 'server', label: 'Server & Hosting' },
-  { value: 'design', label: 'Desain UI/UX' },
-  { value: 'art', label: 'Aset Visual / Thumbnail' },
+  { value: 'cdid', label: 'Trade Mobil / Uang CDID' },
+  { value: 'bloxfruits', label: 'Item / Raid Blox Fruits' },
+  { value: 'robux', label: 'Transfer Robux & Gamepass' },
+  { value: 'joki', label: 'Pengerjaan Joki Akun' },
 ];
 
 export default function ProofTab({ showToast }: ProofTabProps) {

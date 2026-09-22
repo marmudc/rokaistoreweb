@@ -5,7 +5,7 @@ import type {
 
 export const storeInfo: StoreInfo = {
   name: "FableMart.",
-  subtitle: "Marketplace terpercaya untuk kebutuhan Joki CDID, Setup Modded Server, dan aset desain UI/UX. Transaksi aman, proses instan.",
+  subtitle: "Marketplace terpercaya untuk kebutuhan Joki CDID, Blox Fruits, Robux & Gamepass, serta Joki Akun Roblox. Transaksi aman, legal & proses instan.",
   whatsappNumber: "6281234567890",
   qrisImage: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400&auto=format&fit=crop&q=80"
 };
@@ -78,9 +78,11 @@ export const liveTransactions: LiveTransaction[] = [];
 
 export const categories: Category[] = [
   { id: "all", label: "Semua" },
-  { id: "roblox", label: "Roblox CDID" },
-  { id: "minecraft", label: "Minecraft & Web" },
-  { id: "design", label: "Desain & Visual" }
+  { id: "cdid", label: "Roblox CDID" },
+  { id: "bloxfruits", label: "Blox Fruits" },
+  { id: "robux", label: "Robux & Gamepass" },
+  { id: "joki", label: "Joki & Akun" },
+  { id: "roblox", label: "Lainnya" }
 ];
 
 export const products: Product[] = [];
@@ -91,21 +93,21 @@ export const faqItems: FAQItem[] = [
   {
     id: "faq-1",
     question: "Bagaimana cara serah terima uang di Roblox CDID?",
-    answer: "Serah terima uang CDID diproses langsung di dalam game melalui metode trade mobil resmi. Setelah Anda menyelesaikan pemesanan, Admin akan memberikan link Private Server CDID dan melakukan trade mobil berisi nominal uang sesuai pesanan. Cara ini terbukti 100% aman dan anti-banned karena terhitung transaksi legal in-game."
+    answer: "Serah terima uang CDID diproses langsung di dalam game melalui metode trade mobil resmi. Setelah Anda menyelesaikan pemesanan, Admin/Joki resmi kami akan memberikan tautan Private Server CDID dan melakukan trade mobil berisi nominal uang sesuai pesanan. Cara ini terbukti 100% aman dan anti-banned karena terhitung transaksi legal in-game."
   },
   {
     id: "faq-2",
-    question: "Apakah setup server Modded Minecraft sudah termasuk hosting web?",
-    answer: "Layanan setup server berfokus pada konfigurasi software server, instalasi modpack (Forge/Fabric), optimasi tick-rate TPS 20, konfigurasi plugin proteksi, serta linking domain ke server Anda. Jika Anda belum memiliki VPS atau hosting Minecraft, Admin kami siap merekomendasikan hosting partner murah mulai Rp 25.000/bulan."
+    question: "Bagaimana sistem pengiriman Robux & Gamepass Roblox?",
+    answer: "Pengiriman Robux dan Gamepass dilakukan secara resmi melalui metode Group Payout Roblox atau pembelian Gamepass yang sudah Anda buat di profil Roblox Anda. Proses instan, 100% legal, dan bebas risiko banned karena menggunakan saldo resmi."
   },
   {
     id: "faq-3",
-    question: "Berapa lama proses pembuatan thumbnail YouTube Shorts?",
-    answer: "Estimasi pengerjaan thumbnail reguler dan Shorts berkisar antara 1 hingga 3 jam setelah materi teks, screenshot karakter, atau ide tema kami terima. Anda mendapatkan garansi 3x revisi minor gratis sampai puas."
+    question: "Bagaimana proses pengerjaan joki di game Blox Fruits?",
+    answer: "Pengerjaan joki Blox Fruits (Leveling, Mastery, Raid, V4 Awakening, hingga Godhuman) dikerjakan langsung oleh joki profesional berpengalaman tanpa menggunakan script cheat berbahaya. Fitur 2FA akun Anda (Email/WhatsApp) tetap aktif dan aman saat verifikasi login."
   },
   {
     id: "faq-4",
-    question: "Apakah optimasi Windows & Android menggunakan remote access?",
-    answer: "Benar, proses optimasi dipandu secara transparan menggunakan aplikasi remote AnyDesk atau TeamViewer terenkripsi. Anda dapat mengawasi layar komputer Anda secara real-time. Kami hanya melakukan debloat service background yang tidak penting dan tuning latency tanpa menyentuh file personal Anda."
+    question: "Apakah data akun Roblox saya aman selama proses joki?",
+    answer: "Keamanan privasi Anda adalah prioritas utama. Data login akun Roblox Anda disimpan secara terenkripsi dan hanya diakses oleh Admin selama waktu pengerjaan. Setelah pesanan selesai, kami sarankan Anda untuk mengganti password akun Roblox Anda demi kenyamanan bersama."
   }
 ];

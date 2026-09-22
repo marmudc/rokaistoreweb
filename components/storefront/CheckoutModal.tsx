@@ -417,7 +417,7 @@ export default function CheckoutModal({
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
                       <Gamepad2 size={14} className="text-pink-600" />
-                      <span>2. Data Kredensial Akun Game</span>
+                      <span>2. Data Akun Roblox</span>
                     </h4>
                     <span className="text-[9px] font-bold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full border border-purple-200">
                       🔒 Terenkripsi Aman
@@ -426,14 +426,14 @@ export default function CheckoutModal({
 
                   <div>
                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                      Username / ID Akun Game * (Roblox / Minecraft / dll)
+                      Username / ID Akun Roblox *
                     </label>
                     <div className="relative">
                       <Gamepad2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text"
                         required
-                        placeholder="Contoh: username_roblox88 / ID Akun"
+                        placeholder="Contoh: username_roblox88 / ID Roblox"
                         value={gameUsername}
                         onChange={e => setGameUsername(e.target.value)}
                         className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-mono font-medium"

@@ -37,7 +37,7 @@ export default function Footer({
   const whatsappNumber = storeSettings.whatsappNumber || '6281234567890';
   const subtitle =
     storeSettings.subtitle ||
-    'Marketplace terpercaya untuk kebutuhan Joki CDID, Setup Modded Server, dan aset game resmi. Transaksi aman, proses instan & bergaransi 100%.';
+    'Marketplace terpercaya untuk kebutuhan Joki CDID, Blox Fruits, Robux & Gamepass, serta Joki Akun Roblox. Transaksi aman, legal, proses instan & bergaransi 100%.';
 
   const scrollToSection = (id: string) => {
     if (typeof window !== 'undefined') {

@@ -8,6 +8,10 @@ interface ProductIconProps {
 
 const iconClasses: Record<string, string> = {
   car: 'text-slate-300 group-hover:text-indigo-500',
+  sword: 'text-slate-300 group-hover:text-amber-500',
+  coin: 'text-slate-300 group-hover:text-emerald-500',
+  gamepad: 'text-slate-300 group-hover:text-purple-500',
+  shield: 'text-slate-300 group-hover:text-sky-500',
   code: 'text-slate-300 group-hover:text-sky-500',
   terminal: 'text-slate-300 group-hover:text-sky-500',
   layout: 'text-slate-300 group-hover:text-purple-500',
@@ -28,6 +32,34 @@ export default function ProductIcon({ type, className = 'w-8 h-8 sm:w-12 sm:h-12
           <circle cx="7" cy="17" r="2" />
           <path d="M9 17h6" />
           <circle cx="17" cy="17" r="2" />
+        </svg>
+      );
+    case 'sword':
+      return (
+        <svg className={fullClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" />
+          <line x1="13" y1="19" x2="19" y2="13" />
+          <line x1="16" y1="16" x2="20" y2="20" />
+          <line x1="19" y1="21" x2="21" y2="19" />
+          <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" />
+        </svg>
+      );
+    case 'coin':
+      return (
+        <svg className={fullClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="8" />
+          <path d="m12 7-3 3 3 3 3-3z" />
+          <path d="m9 14 3 3 3-3" />
+        </svg>
+      );
+    case 'gamepad':
+      return (
+        <svg className={fullClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="6" y1="12" x2="10" y2="12" />
+          <line x1="8" y1="10" x2="8" y2="14" />
+          <line x1="15" y1="13" x2="15.01" y2="13" />
+          <line x1="18" y1="11" x2="18.01" y2="11" />
+          <rect width="20" height="12" x="2" y="6" rx="6" />
         </svg>
       );
     case 'code':

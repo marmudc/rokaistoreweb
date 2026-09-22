@@ -64,7 +64,7 @@ export default function CartModal({
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm sm:text-base font-bold text-slate-800">Keranjang Belanja Masih Kosong</h3>
-                <p className="text-xs text-slate-500 max-w-xs mx-auto">Yuk pilih layanan Joki CDID, Minecraft, atau desain visual impianmu!</p>
+                <p className="text-xs text-slate-500 max-w-xs mx-auto">Yuk pilih layanan Joki CDID, Blox Fruits, atau Robux &amp; Gamepass impianmu!</p>
               </div>
               <button
                 onClick={onClose}
