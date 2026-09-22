@@ -202,10 +202,6 @@ export default function CheckoutModal({
       return;
     }
 
-    if (!user && !email.trim()) {
-      setErrorMessage('Harap isi Alamat Email Anda untuk pengiriman bukti dan akun otomatis.');
-      return;
-    }
 
     if (!gameUsername.trim()) {
       setErrorMessage('Harap isi Username / ID Akun Game Anda.');
@@ -379,16 +375,18 @@ export default function CheckoutModal({
                       </div>
                       <div>
                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                          Alamat Email *
+                          Alamat Email (Opsional)
                         </label>
                         <input
                           type="email"
-                          required
                           placeholder="nama@email.com"
                           value={email}
                           onChange={e => setEmail(e.target.value)}
                           className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-medium"
                         />
+                      </div>
+                      <div className="col-span-1 sm:col-span-2 text-[9px] text-slate-400 mt-0.5">
+                        <span className="font-bold">Saran:</span> Isi email jika ingin dikaitkan ke akun Google dan mempermudah pelacakan akun di kemudian hari.
                       </div>
                     </div>
                   )}
