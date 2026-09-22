@@ -413,7 +413,7 @@ Terima kasih telah berbelanja di FableMart!
                       : isOrderUnpaid
                       ? 'border-rose-400 ring-2 ring-rose-100 hover:border-rose-500 shadow-md shadow-rose-100'
                       : isOrderIssue
-                      ? 'border-rose-300 ring-1 ring-rose-200 hover:border-rose-400'
+                      ? 'border-rose-400 ring-2 ring-rose-200/80 hover:border-rose-500 shadow-md shadow-rose-100/50'
                       : 'border-slate-200/80 hover:border-purple-200'
                   }`}
                 >
@@ -515,10 +515,10 @@ Terima kasih telah berbelanja di FableMart!
                                 ? 'text-slate-700'
                                 : 'text-slate-400'
                             }`}>
-                              {isOrderUnpaid && isCurrent ? 'Bukti Ditolak' : s.name}
+                              {isOrderUnpaid && isCurrent ? 'Bukti Ditolak' : isOrderIssue && isCurrent ? 'Ada Kendala' : s.name}
                             </span>
                             <span className="text-[9px] text-slate-400 hidden sm:inline leading-none mt-0.5">
-                              {isOrderUnpaid && isCurrent ? 'Belum Sah' : s.desc}
+                              {isOrderUnpaid && isCurrent ? 'Belum Sah' : isOrderIssue && isCurrent ? 'Tertunda' : s.desc}
                             </span>
                           </div>
                         );
@@ -586,22 +586,42 @@ Terima kasih telah berbelanja di FableMart!
 
                   {/* Conditional Kendala & WhatsApp Admin Button (Only shown to customer when order status is Kendala) */}
                   {isOrderIssue && (
-                    <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50 via-rose-50/90 to-amber-50 border border-rose-200 shadow-sm space-y-3 ring-1 ring-rose-200">
+                    <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-rose-50 via-rose-50/90 to-amber-50 border border-rose-300 shadow-md space-y-3.5 ring-2 ring-rose-200/80">
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5 border border-rose-200 shadow-xs">
-                          <AlertTriangle size={17} />
+                        <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5 border border-rose-200 shadow-xs">
+                          <AlertTriangle size={19} className="animate-pulse" />
                         </div>
                         <div className="space-y-1 flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h5 className="text-xs font-black text-rose-900">Perhatian: Pengerjaan Tertunda Karena Kendala</h5>
+                            <h5 className="text-xs sm:text-sm font-black text-rose-900">Perhatian: Pengerjaan Tertunda Karena Kendala</h5>
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-200 text-rose-800">
                               Perlu Respon Anda
                             </span>
                           </div>
                           <p className="text-xs text-rose-800 font-medium leading-relaxed">
-                            {order.issueReason || 'Admin mendeteksi kendala pada data akun game atau verifikasi 2FA Anda. Mohon segera hubungi Admin melalui tombol WhatsApp di bawah untuk koordinasi penyelesaian agar pengerjaan dapat dilanjutkan.'}
+                            Admin mendeteksi kendala pada pesanan Anda sehingga proses pengerjaan sementara tertunda.
                           </p>
                         </div>
+                      </div>
+
+                      {/* Quoted Admin Issue Reason */}
+                      <div className="p-3 rounded-xl bg-white/95 border border-rose-200 shadow-xs space-y-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Catatan Kendala Dari Admin:</p>
+                        <p className="text-xs sm:text-sm font-black text-rose-900 italic leading-relaxed">
+                          &ldquo;{order.issueReason || 'Terdapat kendala data akun game atau verifikasi 2FA Anda. Mohon segera hubungi Admin.'}&rdquo;
+                        </p>
+                      </div>
+
+                      {/* Checklist Tips */}
+                      <div className="text-[11px] text-rose-900/90 space-y-1 bg-amber-100/60 p-3 rounded-xl border border-amber-200/60">
+                        <p className="font-bold text-amber-950 flex items-center gap-1.5">
+                          <span>Panduan Penyelesaian:</span>
+                        </p>
+                        <ul className="list-disc list-inside space-y-0.5 text-[11px] text-amber-900/90">
+                          <li>Pastikan akun Anda tidak sedang aktif dimainkan (logout terlebih dahulu).</li>
+                          <li>Jika akun memiliki verifikasi 2FA, siapkan kode OTP saat admin login.</li>
+                          <li>Hubungi Admin langsung via WhatsApp di bawah untuk memberikan data perbaikan.</li>
+                        </ul>
                       </div>
 
                       {/* Customer WhatsApp Admin Button - ONLY appears when status is Kendala */}
@@ -611,9 +631,9 @@ Terima kasih telah berbelanja di FableMart!
                         )}).%20Kendala:%20${encodeURIComponent(order.issueReason || 'Mohon petunjuk kelanjutan kredensial akun/2FA')}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-98 text-white font-black text-xs transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer"
+                        className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-98 text-white font-black text-xs sm:text-sm transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer"
                       >
-                        <MessageSquare size={15} />
+                        <MessageSquare size={16} />
                         <span>Hubungi Admin via WhatsApp (Selesaikan Kendala)</span>
                       </a>
                     </div>

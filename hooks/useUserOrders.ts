@@ -62,7 +62,7 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
     statusTitle = '⚠️ Ada Kendala Pengerjaan';
     statusBadgeColor = 'bg-rose-50 text-rose-700 border-rose-300 font-extrabold shadow-xs';
     statusPulseColor = 'bg-rose-500';
-    currentStep = 2;
+    currentStep = 3;
     estimatedTime = 'Menunggu Bantuan Pelanggan';
     customerNote = o.issueReason
       ? `Admin mendeteksi kendala: "${o.issueReason}". Silakan hubungi admin melalui tombol WhatsApp di bawah untuk menyelesaikan kendala ini.`

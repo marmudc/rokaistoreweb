@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   subscribeToNotifications,
   addNotificationToFirestore,
@@ -14,6 +14,7 @@ export function useNotifications() {
   const [dismissedNotifIds, setDismissedNotifIds] = useState<string[]>([]);
   const [userOrderIds, setUserOrderIds] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const prevNotifIdsRef = useRef<Set<string> | null>(null);
 
   useEffect(() => {
     setReadNotifIds(getLocalItem<string[]>('fablemart_read_notifs', []));
@@ -48,6 +49,19 @@ export function useNotifications() {
   }, [rawNotifications, dismissedNotifIds, readNotifIds, userOrderIds, isAdmin]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // Play sound when a new unread notification arrives for this client
+  useEffect(() => {
+    if (prevNotifIdsRef.current === null) {
+      prevNotifIdsRef.current = new Set(notifications.map(n => n.id));
+      return;
+    }
+    const hasNewUnread = notifications.some(n => !n.read && !prevNotifIdsRef.current?.has(n.id));
+    if (hasNewUnread) {
+      playNotificationSound();
+    }
+    prevNotifIdsRef.current = new Set(notifications.map(n => n.id));
+  }, [notifications]);
 
   const markAsRead = useCallback((id: string) => {
     setReadNotifIds((prev) => {

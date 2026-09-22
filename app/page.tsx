@@ -12,6 +12,7 @@ import UserOrdersModal from '@/components/storefront/UserOrdersModal';
 import AccountModal from '@/components/storefront/AccountModal';
 import AuthModal from '@/components/storefront/AuthModal';
 import AutoAccountModal from '@/components/storefront/AutoAccountModal';
+import IssueAlertModal from '@/components/storefront/IssueAlertModal';
 import ProofGallery from '@/components/storefront/ProofGallery';
 import FAQAccordion from '@/components/storefront/FAQAccordion';
 import Footer from '@/components/storefront/Footer';
@@ -27,7 +28,7 @@ import type { Product, UserOrder, StoreSettings, AdminOrder } from '@/lib/types'
 import type { UserOrdersFilter } from '@/components/storefront/UserOrdersModal';
 import { storeInfo, valueProps } from '@/lib/storeData';
 import { subscribeToStoreSettings, saveOrderToFirestore, defaultStoreSettings } from '@/lib/firebaseSync';
-import { addNotification } from '@/lib/notifications';
+import { addNotification, playNotificationSound } from '@/lib/notifications';
 import { ShieldCheck, Clock, MessageSquareText, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const valueIcons: Record<string, React.ReactNode> = {
@@ -65,6 +66,10 @@ export default function StorefrontPage() {
   const productGridRef = useRef<HTMLDivElement>(null);
 
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(defaultStoreSettings);
+  const [activeIssueOrder, setActiveIssueOrder] = useState<UserOrder | null>(null);
+  const [dismissedIssueIds, setDismissedIssueIds] = useState<string[]>([]);
+  const prevOrderStatusesRef = useRef<Record<string, string>>({});
+  const initialIssueAuditedRef = useRef(false);
 
   // Real-time store settings sync with Cloud Firestore & Initial Loading Animation
   useEffect(() => {
@@ -81,6 +86,31 @@ export default function StorefrontPage() {
       clearTimeout(timer);
     };
   }, []);
+
+  // Monitor user orders for Kendala (issue) transitions and initial alerts
+  useEffect(() => {
+    if (userOrders.length === 0) return;
+
+    userOrders.forEach((order) => {
+      const prevStatus = prevOrderStatusesRef.current[order.id];
+      if (prevStatus && prevStatus !== 'issue' && order.status === 'issue') {
+        playNotificationSound();
+        showToast(`⚠️ Pesanan #${order.id} mengalami kendala: "${order.issueReason || 'Data akun / 2FA'}"`);
+        if (!dismissedIssueIds.includes(order.id)) {
+          setActiveIssueOrder(order);
+        }
+      }
+      prevOrderStatusesRef.current[order.id] = order.status;
+    });
+
+    if (!initialIssueAuditedRef.current) {
+      initialIssueAuditedRef.current = true;
+      const existingIssue = userOrders.find((o) => o.status === 'issue');
+      if (existingIssue && !dismissedIssueIds.includes(existingIssue.id)) {
+        setActiveIssueOrder(existingIssue);
+      }
+    }
+  }, [userOrders, showToast, dismissedIssueIds]);
 
   const storeName = storeSettings.storeName;
   const waNumber = storeSettings.whatsappNumber;
@@ -227,6 +257,8 @@ export default function StorefrontPage() {
         cartCount={cart.totalCount}
         activeOrdersCount={activeCount}
         userOrdersCount={userOrders.length}
+        hasIssueOrders={userOrders.some(o => o.status === 'issue')}
+        issueOrdersCount={userOrders.filter(o => o.status === 'issue').length}
         role={role}
         isAdmin={isAdmin}
         onOpenCart={() => setCartOpen(true)}
@@ -246,6 +278,67 @@ export default function StorefrontPage() {
       />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-8 sm:space-y-12">
+        {/* Kendala / Issue Order Alert Banner */}
+        {userOrders.some(o => o.status === 'issue') && (
+          <div className="bg-gradient-to-r from-amber-600 via-rose-600 to-amber-700 text-white py-3 px-4 rounded-2xl shadow-xl border border-amber-400/40 flex flex-col md:flex-row md:items-center justify-between gap-3 animate-in fade-in duration-300 ring-2 ring-rose-400/30">
+            <div className="flex items-start sm:items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 border border-white/30 shadow-xs mt-0.5 sm:mt-0">
+                <AlertTriangle size={20} className="text-amber-200 animate-bounce" />
+              </div>
+              <div className="min-w-0 space-y-0.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-xs sm:text-sm font-black tracking-tight flex items-center gap-1.5">
+                    <span>Perhatian: Pesanan Anda Mengalami Kendala Pengerjaan</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/25 text-white border border-white/30">
+                      Butuh Respon
+                    </span>
+                  </p>
+                </div>
+                <p className="text-[11px] sm:text-xs text-white/95 leading-relaxed">
+                  {(() => {
+                    const issueOrder = userOrders.find(o => o.status === 'issue');
+                    return issueOrder?.issueReason
+                      ? `Pesanan #${issueOrder.id}: "${issueOrder.issueReason}". Segera selesaikan kendala agar admin dapat melanjutkan pengerjaan.`
+                      : 'Admin mendeteksi kendala pada data akun game atau verifikasi 2FA Anda. Segera hubungi admin agar pengerjaan dapat dilanjutkan.';
+                  })()}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 self-end md:self-auto shrink-0 flex-wrap">
+              <button
+                onClick={() => {
+                  const issueOrder = userOrders.find(o => o.status === 'issue');
+                  setOrdersFilter('issue');
+                  setFocusOrderId(issueOrder?.id || null);
+                  setOrdersOpen(true);
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-white text-rose-700 hover:bg-rose-50 text-xs font-black shadow-md transition cursor-pointer active:scale-95 flex items-center gap-1.5"
+              >
+                <span>Lihat Detail Kendala</span>
+                <ArrowRight size={13} />
+              </button>
+              {(() => {
+                const issueOrder = userOrders.find(o => o.status === 'issue');
+                if (!issueOrder) return null;
+                const cleanPhone = waNumber.replace(/[^0-9]/g, '');
+                return (
+                  <a
+                    href={`https://wa.me/${cleanPhone}?text=Halo%20Admin%20FableMart,%20saya%20ingin%20konfirmasi%20kendala%20pada%20pesanan%20%23${issueOrder.id}%20(${encodeURIComponent(
+                      issueOrder.product
+                    )}).%20Kendala:%20${encodeURIComponent(issueOrder.issueReason || 'Mohon petunjuk kendala akun/2FA')}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black shadow-md transition active:scale-95 flex items-center gap-1.5"
+                  >
+                    <MessageSquareText size={13} />
+                    <span>WhatsApp Admin</span>
+                  </a>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+
         {/* Unpaid Order Alert Banner */}
         {userOrders.some(o => o.status === 'unpaid') && (
           <div className="bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 text-white py-2.5 px-4 rounded-2xl shadow-lg border border-rose-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-300">
@@ -432,6 +525,26 @@ export default function StorefrontPage() {
             setOrdersOpen(true);
           }}
           showToast={showToast}
+        />
+      )}
+
+      {activeIssueOrder && (
+        <IssueAlertModal
+          open={!!activeIssueOrder}
+          order={activeIssueOrder}
+          whatsappNumber={waNumber}
+          onClose={() => {
+            if (activeIssueOrder) {
+              setDismissedIssueIds(prev => [...prev, activeIssueOrder.id]);
+            }
+            setActiveIssueOrder(null);
+          }}
+          onOpenOrders={(orderId) => {
+            setActiveIssueOrder(null);
+            setOrdersFilter('issue');
+            setFocusOrderId(orderId);
+            setOrdersOpen(true);
+          }}
         />
       )}
 

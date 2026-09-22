@@ -16,6 +16,7 @@ import {
   CheckCheck,
   Trash2,
   Gamepad2,
+  AlertTriangle,
 } from 'lucide-react';
 import type { UserRole } from '@/hooks/useRole';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -28,10 +29,12 @@ interface NavbarProps {
   cartCount: number;
   activeOrdersCount: number;
   userOrdersCount: number;
+  hasIssueOrders?: boolean;
+  issueOrdersCount?: number;
   role: UserRole;
   isAdmin: boolean;
   onOpenCart: () => void;
-  onOpenOrders: (filter?: 'all' | 'in_progress' | 'pending' | 'completed', orderId?: string) => void;
+  onOpenOrders: (filter?: 'all' | 'in_progress' | 'pending' | 'completed' | 'issue' | 'unpaid', orderId?: string) => void;
   onOpenAccount: () => void;
   onOpenAuth?: (mode?: 'login' | 'register') => void;
   showToast: (msg: string) => void;
@@ -44,6 +47,8 @@ export default function Navbar({
   cartCount,
   activeOrdersCount,
   userOrdersCount,
+  hasIssueOrders = false,
+  issueOrdersCount = 0,
   role,
   isAdmin,
   onOpenCart,
@@ -130,7 +135,8 @@ export default function Navbar({
     setNotifOpen(false);
 
     if (notif.linkAction === 'open_orders') {
-      onOpenOrders('all', notif.orderId);
+      const isKendala = notif.title?.toLowerCase().includes('kendala') || notif.message?.toLowerCase().includes('kendala');
+      onOpenOrders(isKendala ? 'issue' : 'all', notif.orderId);
     } else if (notif.linkAction === 'view_promo') {
       if (notif.promoCode) {
         if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -301,13 +307,17 @@ export default function Navbar({
                           }`}
                         >
                           <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs shadow-xs ${
-                            notif.type === 'order'
+                            notif.title?.toLowerCase().includes('kendala')
+                              ? 'bg-rose-100 text-rose-700 border border-rose-300 shadow-rose-100'
+                              : notif.type === 'order'
                               ? 'bg-sky-100/80 text-sky-700 border border-sky-200/60'
                               : notif.type === 'promo'
                               ? 'bg-amber-100/80 text-amber-700 border border-amber-200/60'
                               : 'bg-purple-100/80 text-purple-700 border border-purple-200/60'
                           }`}>
-                            {notif.type === 'order' ? (
+                            {notif.title?.toLowerCase().includes('kendala') ? (
+                              <AlertTriangle size={14} className="text-rose-600 animate-pulse" />
+                            ) : notif.type === 'order' ? (
                               <Package size={14} />
                             ) : notif.type === 'promo' ? (
                               <Tag size={14} />
@@ -398,14 +408,26 @@ export default function Navbar({
                 {/* Orders button for guest if they have local orders */}
                 {userOrdersCount > 0 && (
                   <button
-                    onClick={() => onOpenOrders('all')}
-                    className="flex items-center gap-1 sm:gap-1.5 h-9 sm:h-10 px-2 sm:px-3 rounded-xl glass-btn text-xs font-bold text-slate-700 hover:text-purple-700 transition active:scale-95 cursor-pointer"
-                    title="Pesanan Saya"
+                    onClick={() => onOpenOrders(hasIssueOrders ? 'issue' : 'all')}
+                    className={`flex items-center gap-1 sm:gap-1.5 h-9 sm:h-10 px-2 sm:px-3 rounded-xl glass-btn text-xs font-bold transition active:scale-95 cursor-pointer relative ${
+                      hasIssueOrders
+                        ? 'border-rose-400 bg-rose-50/90 text-rose-700 hover:bg-rose-100 ring-2 ring-rose-200 shadow-sm shadow-rose-200/50'
+                        : 'text-slate-700 hover:text-purple-700'
+                    }`}
+                    title={hasIssueOrders ? "⚠️ Ada pesanan dalam kendala!" : "Pesanan Saya"}
                   >
-                    <Package size={15} className="text-purple-600" />
+                    {hasIssueOrders ? (
+                      <AlertTriangle size={15} className="text-rose-600 animate-bounce" />
+                    ) : (
+                      <Package size={15} className="text-purple-600" />
+                    )}
                     <span className="hidden sm:inline">Pesanan</span>
-                    <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.2 rounded-full font-black">
-                      {userOrdersCount}
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                      hasIssueOrders
+                        ? 'bg-rose-600 text-white animate-pulse'
+                        : 'bg-purple-100 text-purple-700'
+                    }`}>
+                      {hasIssueOrders ? `⚠️ ${issueOrdersCount || '!'}` : userOrdersCount}
                     </span>
                   </button>
                 )}
@@ -507,14 +529,24 @@ export default function Navbar({
                       <button
                         onClick={() => {
                           setAccountOpen(false);
-                          onOpenOrders('all');
+                          onOpenOrders(hasIssueOrders ? 'issue' : 'all');
                         }}
-                        className="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-purple-50/50 flex items-center gap-2.5 transition cursor-pointer"
+                        className={`w-full text-left px-3.5 py-2.5 text-xs font-semibold flex items-center gap-2.5 transition cursor-pointer ${
+                          hasIssueOrders ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 font-bold' : 'text-slate-700 hover:bg-purple-50/50'
+                        }`}
                       >
-                        <Package size={14} className="text-purple-500" />
+                        {hasIssueOrders ? (
+                          <AlertTriangle size={14} className="text-rose-600 animate-bounce" />
+                        ) : (
+                          <Package size={14} className="text-purple-500" />
+                        )}
                         <span>Pesanan Saya</span>
-                        <span className="ml-auto text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
-                          {activeOrdersCount > 0 ? `${activeOrdersCount} Aktif` : `${userOrdersCount} Pesanan`}
+                        <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          hasIssueOrders
+                            ? 'text-rose-700 bg-rose-100 border-rose-200 animate-pulse'
+                            : 'text-purple-600 bg-purple-50 border-purple-100'
+                        }`}>
+                          {hasIssueOrders ? `⚠️ Ada Kendala` : activeOrdersCount > 0 ? `${activeOrdersCount} Aktif` : `${userOrdersCount} Pesanan`}
                         </span>
                       </button>
 
