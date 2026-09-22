@@ -18,31 +18,31 @@ import {
   ExternalLink,
   X,
   FileCheck,
+  AlertCircle,
+  Inbox,
 } from 'lucide-react';
 
-type OrderFilter = 'all' | 'Diproses' | 'Selesai' | 'Dibatalkan';
-
-interface OrdersTabProps {
+interface ConfirmationsTabProps {
   adminOrders: AdminOrder[];
   onApprovePayment: (id: string) => void;
-  onMarkComplete: (id: string) => void;
   onCancel?: (id: string) => void;
   onDelete: (id: string) => void;
   showToast: (msg: string) => void;
 }
 
-export default function OrdersTab({
+export default function ConfirmationsTab({
   adminOrders,
   onApprovePayment,
-  onMarkComplete,
   onCancel,
   onDelete,
   showToast,
-}: OrdersTabProps) {
-  const [filter, setFilter] = useState<OrderFilter>('all');
+}: ConfirmationsTabProps) {
   const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
+
+  // Filter ONLY orders awaiting payment verification
+  const pendingOrders = adminOrders.filter(o => o.status === 'Menunggu Verifikasi');
 
   const togglePassword = (orderId: string) => {
     setRevealedPasswords(prev => ({
@@ -60,93 +60,67 @@ export default function OrdersTab({
     }
   };
 
-  // Only display confirmed orders in this tab (orders whose payment was approved)
-  const confirmedOrders = adminOrders.filter(o => o.status !== 'Menunggu Verifikasi');
-  const filtered = filter === 'all' ? confirmedOrders : confirmedOrders.filter(o => o.status === filter);
-  const allCount = confirmedOrders.length;
-  const diprosesCount = confirmedOrders.filter(o => o.status === 'Diproses').length;
-  const selesaiCount = confirmedOrders.filter(o => o.status === 'Selesai').length;
-  const dibatalkanCount = confirmedOrders.filter(o => o.status === 'Dibatalkan').length;
-
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-black text-slate-900">Kelola Pesanan (Antrean &amp; Riwayat)</h3>
-          <p className="text-[11px] text-slate-400">
-            {allCount} pesanan terkonfirmasi • {diprosesCount} dalam antrean pengerjaan
-          </p>
-        </div>
-        {/* Filter tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-          {([
-            { key: 'all', label: `Semua (${allCount})` },
-            { key: 'Diproses', label: `Antrean (${diprosesCount})` },
-            { key: 'Selesai', label: `Selesai (${selesaiCount})` },
-            { key: 'Dibatalkan', label: `Dibatalkan (${dibatalkanCount})` },
-          ] as const).map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                filter === tab.key
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              <span>{tab.label}</span>
-            </button>
-          ))}
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200 shadow-xs">
+            <Receipt size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-black text-slate-900">Konfirmasi Pembayaran Pesanan</h3>
+              {pendingOrders.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white animate-pulse">
+                  {pendingOrders.length} Menunggu Persetujuan
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+              Periksa bukti transfer dan data akun di bawah. Setelah Anda menyetujui pembayaran, data pesanan akan
+              otomatis berpindah ke halaman <strong>Kelola Pesanan</strong> (Antrean Pengerjaan).
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Orders list */}
       <div className="space-y-3">
-        {filtered.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-slate-200/80 shadow-soft">
-            <p className="text-sm font-bold text-slate-500">Tidak ada pesanan terkonfirmasi di kategori ini</p>
-            <p className="text-xs text-slate-400 mt-1">
-              Pesanan yang menunggu verifikasi pembayaran berada di tab &quot;Konfirmasi Pesanan&quot;.
-            </p>
+        {pendingOrders.length === 0 ? (
+          <div className="text-center py-14 bg-white rounded-2xl border border-slate-200/80 shadow-soft space-y-3">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-xs">
+              <CheckCircle2 size={28} />
+            </div>
+            <div>
+              <p className="text-sm font-black text-slate-800">Semua Pembayaran Telah Dikonfirmasi!</p>
+              <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                Tidak ada pesanan baru yang sedang menunggu verifikasi pembayaran saat ini. Semua pesanan yang disetujui
+                tersedia di halaman <strong>Kelola Pesanan</strong>.
+              </p>
+            </div>
           </div>
         ) : (
-          filtered.map(order => {
+          pendingOrders.map(order => {
             const isPasswordRevealed = !!revealedPasswords[order.id];
 
             return (
               <div
                 key={order.id}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-4 sm:p-5 hover:border-purple-200 transition space-y-4"
+                className="bg-white rounded-2xl border border-amber-200/90 shadow-soft p-4 sm:p-5 hover:border-amber-300 transition space-y-4 ring-1 ring-amber-100"
               >
                 {/* Top row */}
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xs font-black shrink-0 border border-purple-100">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-xs font-black shrink-0 border border-amber-200">
                       #
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-xs font-black text-purple-700">{order.id}</span>
-                        <span
-                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${
-                            order.status === 'Selesai'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : order.status === 'Dibatalkan'
-                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                              : order.status === 'Menunggu Verifikasi'
-                              ? 'bg-amber-50 text-amber-800 border border-amber-300 font-extrabold'
-                              : 'bg-sky-50 text-sky-700 border border-sky-200'
-                          }`}
-                        >
-                          {order.status === 'Menunggu Verifikasi' && (
-                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-                          )}
-                          {order.status === 'Menunggu Verifikasi'
-                            ? '⏳ Menunggu Verifikasi Pembayaran'
-                            : order.status === 'Diproses'
-                            ? '⚡ Dalam Antrean / Pengerjaan'
-                            : order.status}
+                        <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1.5 shadow-xs">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                          Menunggu Verifikasi Pembayaran
                         </span>
                         {order.agreedToTerms && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
@@ -160,8 +134,8 @@ export default function OrdersTab({
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-base font-black text-pink-600">Rp {order.amount.toLocaleString('id-ID')}</p>
-                    <p className="text-[10px] text-slate-400">{order.payment}</p>
+                    <span className="text-[10px] text-slate-400 block font-medium">Nominal Transfer</span>
+                    <p className="text-lg font-black text-pink-600">Rp {order.amount.toLocaleString('id-ID')}</p>
                   </div>
                 </div>
 
@@ -175,7 +149,7 @@ export default function OrdersTab({
                       <span className="font-bold text-slate-800">{order.customer}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-medium">Nomor WhatsApp:</span>
+                      <span className="text-slate-500 font-medium">WhatsApp:</span>
                       <span className="font-bold text-slate-800 font-mono">{order.phone}</span>
                     </div>
                     {order.customerEmail && (
@@ -188,7 +162,7 @@ export default function OrdersTab({
 
                   {/* Product Info */}
                   <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Produk & Layanan</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Pesanan Layanan</span>
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-slate-500 font-medium">Produk:</span>
                       <span className="font-bold text-slate-800 text-right">{order.product}</span>
@@ -203,20 +177,20 @@ export default function OrdersTab({
                 </div>
 
                 {/* Game Credentials & Security (CONFIDENTIAL) */}
-                <div className="p-3.5 bg-amber-50/50 rounded-2xl border border-amber-200/80 space-y-2.5">
+                <div className="p-3.5 bg-purple-50/50 rounded-2xl border border-purple-200/80 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-amber-900 font-black text-xs">
-                      <Gamepad2 size={15} className="text-amber-700" />
+                    <div className="flex items-center gap-1.5 text-purple-900 font-black text-xs">
+                      <Gamepad2 size={15} className="text-purple-700" />
                       Data Akun Game Pembeli (Rahasia Joki)
                     </div>
-                    <span className="text-[10px] font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-200">
-                      Privasi Terjaga
+                    <span className="text-[10px] font-bold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full border border-purple-200">
+                      Terenkripsi
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     {/* Game ID / Username */}
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-amber-100">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-purple-100">
                       <div>
                         <span className="text-[10px] text-slate-400 block font-medium">ID / Username Akun:</span>
                         <span className="font-mono font-bold text-slate-800 text-xs select-all">
@@ -236,7 +210,7 @@ export default function OrdersTab({
                     </div>
 
                     {/* Game Password */}
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-amber-100">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-purple-100">
                       <div>
                         <span className="text-[10px] text-slate-400 block font-medium">Password Game:</span>
                         <span className="font-mono font-bold text-slate-800 text-xs select-all">
@@ -267,7 +241,7 @@ export default function OrdersTab({
                   </div>
 
                   {/* 2FA Status Row */}
-                  <div className="flex items-center justify-between pt-1 text-xs border-t border-amber-200/60">
+                  <div className="flex items-center justify-between pt-1 text-xs border-t border-purple-200/60">
                     <span className="text-slate-500 font-medium">Status Keamanan 2FA Akun:</span>
                     {order.has2FA ? (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-purple-100 text-purple-800 border border-purple-200">
@@ -297,20 +271,20 @@ export default function OrdersTab({
                   </div>
                 </div>
 
-                {/* Payment Confirmation (Code OR Proof Photo) */}
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+                {/* Bukti Pembayaran yang Dikirim Pelanggan */}
+                <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                      <Receipt size={13} className="text-purple-600" />
-                      Verifikasi & Bukti Pembayaran
+                    <span className="text-[10px] font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <Receipt size={13} className="text-amber-700" />
+                      Bukti Pembayaran dari Pelanggan
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
                       {order.paymentConfirmationType === 'proof_photo' ? 'Foto Struk Transfer' : 'Kode Unik Referensi'}
                     </span>
                   </div>
 
                   {order.paymentConfirmationType === 'proof_photo' && order.paymentProofImage ? (
-                    <div className="flex items-center gap-3 p-2 bg-white rounded-xl border border-slate-200">
+                    <div className="flex items-center gap-3 p-2 bg-white rounded-xl border border-amber-200 shadow-xs">
                       {/* Thumbnail */}
                       <button
                         type="button"
@@ -320,7 +294,7 @@ export default function OrdersTab({
                             title: `Bukti Pembayaran Pesanan #${order.id} - ${order.customer}`,
                           })
                         }
-                        className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 group cursor-pointer"
+                        className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200 shrink-0 group cursor-pointer"
                       >
                         <img
                           src={order.paymentProofImage}
@@ -328,12 +302,14 @@ export default function OrdersTab({
                           className="w-full h-full object-cover group-hover:scale-105 transition"
                         />
                         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
-                          <ExternalLink size={14} />
+                          <ExternalLink size={15} />
                         </div>
                       </button>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-slate-800">Foto Struk / Bukti Transfer Tersedia</p>
-                        <p className="text-[10px] text-slate-400">Klik gambar untuk melihat struk ukuran penuh & periksa nominal.</p>
+                        <p className="text-xs font-black text-slate-900">Foto Struk Transfer Siap Diperiksa</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Klik gambar untuk membuka struk dalam ukuran penuh dan mencocokkan mutasi rekening Anda.
+                        </p>
                         <button
                           type="button"
                           onClick={() =>
@@ -342,85 +318,84 @@ export default function OrdersTab({
                               title: `Bukti Pembayaran Pesanan #${order.id} - ${order.customer}`,
                             })
                           }
-                          className="mt-1 text-[11px] font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 cursor-pointer"
+                          className="mt-1.5 text-xs font-extrabold text-purple-700 hover:text-purple-900 flex items-center gap-1 cursor-pointer"
                         >
-                          <ExternalLink size={12} /> Buka Gambar Penuh
+                          <ExternalLink size={13} /> Buka Gambar Penuh
                         </button>
                       </div>
                     </div>
                   ) : order.paymentUniqueCode ? (
-                    <div className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
+                    <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-amber-200">
                       <div>
                         <span className="text-[10px] text-slate-400 block font-medium">Kode Unik / Referensi Pengirim:</span>
-                        <span className="font-mono font-black text-purple-700 text-sm">{order.paymentUniqueCode}</span>
+                        <span className="font-mono font-black text-purple-700 text-base">{order.paymentUniqueCode}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => copyToClipboard(order.paymentUniqueCode!, `code-${order.id}`, 'Kode Unik')}
-                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition cursor-pointer"
+                        className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition cursor-pointer"
                         title="Salin Kode Unik"
                       >
-                        {copiedKey === `code-${order.id}` ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                        {copiedKey === `code-${order.id}` ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
                       </button>
                     </div>
                   ) : (
-                    <div className="p-2 bg-white rounded-xl border border-slate-200 text-[11px] text-slate-500">
-                      Metode pembayaran: {order.payment}
+                    <div className="p-2.5 bg-white rounded-xl border border-amber-200 text-xs text-slate-600">
+                      Metode: {order.payment}
                     </div>
                   )}
                 </div>
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-                  {order.status === 'Diproses' && (
-                    <>
-                      <button
-                        onClick={() => {
-                          onMarkComplete(order.id);
-                          showToast(`✓ Pesanan ${order.id} ditandai Selesai & sinkron ke pelanggan`);
-                        }}
-                        className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition cursor-pointer shadow-sm flex items-center gap-1.5"
-                      >
-                        <CheckCircle2 size={15} />
-                        <span>✓ Tandai Selesai</span>
-                      </button>
-                      {onCancel && (
-                        <button
-                          onClick={() => {
-                            onCancel(order.id);
-                            showToast(`Pesanan ${order.id} dibatalkan`);
-                          }}
-                          className="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition cursor-pointer border border-amber-200"
-                        >
-                          Batalkan
-                        </button>
-                      )}
-                    </>
+                  <button
+                    onClick={() => {
+                      onApprovePayment(order.id);
+                      showToast(`✓ Pembayaran #${order.id} disetujui! Pesanan berpindah ke halaman Kelola Pesanan.`);
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-black transition cursor-pointer shadow-md shadow-purple-500/25 flex items-center gap-2 active:scale-95"
+                  >
+                    <CheckCircle2 size={16} />
+                    <span>✓ Setujui Pembayaran &amp; Masukkan ke Antrean Order</span>
+                  </button>
+
+                  {onCancel && (
+                    <button
+                      onClick={() => {
+                        onCancel(order.id);
+                        showToast(`Pesanan ${order.id} ditolak / dibatalkan`);
+                      }}
+                      className="px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition cursor-pointer border border-amber-200"
+                    >
+                      Tolak Bukti
+                    </button>
                   )}
+
                   {/* Emergency WhatsApp Button (ADMIN ONLY) */}
                   <a
                     href={`https://wa.me/${order.phone.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(
                       order.customer
-                    )},%20kami%20dari%20admin%20FableMart%20mengenai%20pesanan%20%23${order.id}%20(${encodeURIComponent(
+                    )},%20kami%20dari%20admin%20FableMart%20mengenai%20verifikasi%20pembayaran%20pesanan%20%23${order.id}%20(${encodeURIComponent(
                       order.product
                     )}).%20${
                       order.has2FA && order.twoFAType === 'whatsapp'
                         ? 'Mohon%20siapkan%20kode%20verifikasi%202FA%20yang%20akan%20kami%20kirimkan%20segera.'
-                        : 'Pesanan%20Anda%20sedang%20dalam%20antrean%20pengerjaan.'
+                        : 'Mohon%20konfirmasi%20terkait%20bukti%20transfer%20Anda.'
                     }`}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition cursor-pointer border border-emerald-200 flex items-center gap-1.5"
-                    title="Kontak darurat khusus admin untuk koordinasi pengerjaan / 2FA"
+                    className="px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition cursor-pointer border border-emerald-200 flex items-center gap-1.5 ml-auto"
+                    title="Kontak darurat khusus admin untuk koordinasi kode atau kendala mutasi"
                   >
                     <MessageSquare size={13} /> Chat WA Darurat
                   </a>
+
                   <button
                     onClick={() => {
                       onDelete(order.id);
                       showToast(`Pesanan ${order.id} dihapus`);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition cursor-pointer border border-red-200 ml-auto"
+                    className="px-3 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition cursor-pointer border border-red-200"
                   >
                     Hapus
                   </button>
@@ -461,7 +436,7 @@ export default function OrdersTab({
 
             {/* Modal Footer */}
             <div className="px-5 py-3 border-t border-white/10 bg-slate-900/90 flex items-center justify-between text-xs text-slate-400 shrink-0">
-              <span>Periksa kesesuaian nominal & nomor rekening tujuan</span>
+              <span>Periksa kesesuaian nominal &amp; nomor rekening tujuan</span>
               <button
                 type="button"
                 onClick={() => setPreviewImage(null)}
@@ -476,4 +451,3 @@ export default function OrdersTab({
     </div>
   );
 }
-

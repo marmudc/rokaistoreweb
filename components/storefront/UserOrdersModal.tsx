@@ -100,7 +100,7 @@ ${order.customerNote}
 Jaminan Garansi:
 ${order.securityNotice}
 
-Kontak WhatsApp CS: +${whatsappNumber}
+Layanan Resmi FableMart - Pantau status pesanan langsung di web.
 Terima kasih telah berbelanja di FableMart!
 ========================================`;
 
@@ -395,16 +395,6 @@ Terima kasih telah berbelanja di FableMart!
                       <span>Garansi FableMart: Transaksi Terenkripsi &amp; Pengiriman Dijamin</span>
                     </div>
                     <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <a
-                        href={`https://wa.me/${whatsappNumber}?text=Halo%20Admin%20FableMart,%20saya%20ingin%20tanya%20progres%20pesanan%20saya%20%23${order.id}%20(${encodeURIComponent(order.product)}).%20Terima%20kasih!`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer border border-emerald-200"
-                      >
-                        <ExternalLink size={13} />
-                        <span>Hubungi CS WA</span>
-                      </a>
-
                       <button
                         onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
                         className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition cursor-pointer text-center flex items-center justify-center gap-1"

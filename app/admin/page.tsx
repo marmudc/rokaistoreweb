@@ -4,6 +4,7 @@ import Link from 'next/link';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 import AdminTabs, { type AdminTab } from '@/components/admin/AdminTabs';
 import OverviewTab from '@/components/admin/tabs/OverviewTab';
+import ConfirmationsTab from '@/components/admin/tabs/ConfirmationsTab';
 import OrdersTab from '@/components/admin/tabs/OrdersTab';
 import ProductsTab from '@/components/admin/tabs/ProductsTab';
 import PromosTab from '@/components/admin/tabs/PromosTab';
@@ -25,9 +26,19 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const { message: toastMessage, visible: toastVisible, showToast } = useToast();
   const {
-    adminOrders, adminPromos, activeOrdersCount,
-    approvePayment, markComplete, cancelOrder, deleteOrder,
-    togglePromo, addPromo, deletePromo, clearAllPromos,
+    adminOrders,
+    adminPromos,
+    activeOrdersCount,
+    pendingConfirmationsCount,
+    inProgressOrdersCount,
+    approvePayment,
+    markComplete,
+    cancelOrder,
+    deleteOrder,
+    togglePromo,
+    addPromo,
+    deletePromo,
+    clearAllPromos,
   } = useAdminOrders();
 
   // Hydration-safe RBAC guard & store settings
@@ -170,7 +181,8 @@ export default function AdminPage() {
           <AdminTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            activeOrdersCount={activeOrdersCount}
+            activeOrdersCount={inProgressOrdersCount}
+            pendingConfirmationsCount={pendingConfirmationsCount}
           />
         </div>
 
@@ -178,6 +190,15 @@ export default function AdminPage() {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-4 sm:p-6">
           {activeTab === 'overview' && (
             <OverviewTab adminOrders={adminOrders} adminPromos={adminPromos} />
+          )}
+          {activeTab === 'confirmations' && (
+            <ConfirmationsTab
+              adminOrders={adminOrders}
+              onApprovePayment={approvePayment}
+              onCancel={cancelOrder}
+              onDelete={deleteOrder}
+              showToast={showToast}
+            />
           )}
           {activeTab === 'orders' && (
             <OrdersTab

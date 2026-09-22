@@ -166,6 +166,14 @@ export function useAdminOrders() {
     }
   }, []);
 
+  const pendingConfirmationsCount = adminOrders.filter(
+    o => o.status === 'Menunggu Verifikasi'
+  ).length;
+
+  const inProgressOrdersCount = adminOrders.filter(
+    o => o.status === 'Diproses'
+  ).length;
+
   const activeOrdersCount = adminOrders.filter(
     o => o.status === 'Diproses' || o.status === 'Menunggu Verifikasi'
   ).length;
@@ -174,6 +182,8 @@ export function useAdminOrders() {
     adminOrders,
     adminPromos,
     activeOrdersCount,
+    pendingConfirmationsCount,
+    inProgressOrdersCount,
     loading,
     approvePayment,
     markComplete,
