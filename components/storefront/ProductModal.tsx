@@ -35,6 +35,7 @@ export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }
       iconType: product!.iconType,
       price: selectedVariant?.price ?? product!.price,
       formattedPrice: selectedVariant?.formattedPrice ?? product!.formattedPrice,
+      image: product!.image,
     };
   }
 
@@ -52,6 +53,20 @@ export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }
               <X size={18} />
             </button>
           </div>
+
+          {/* Product Image Banner */}
+          {product.image && (
+            <div className="w-full h-40 sm:h-52 rounded-2xl overflow-hidden border border-slate-200/80 bg-slate-50 relative shadow-inner">
+              <img
+                src={product.image}
+                alt={product.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
 
           {/* Title & meta */}
           <div>

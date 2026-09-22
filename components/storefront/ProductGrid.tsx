@@ -173,12 +173,23 @@ export default function ProductGrid({
                 className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-slate-200/80 shadow-soft card-hover-effect flex flex-col justify-between group cursor-pointer"
               >
                 <div>
-                  {/* Icon box */}
+                  {/* Image / Icon box */}
                   <div className="w-full h-24 sm:h-32 bg-slate-50/90 group-hover:bg-purple-50/40 rounded-lg sm:rounded-xl border border-slate-100 flex items-center justify-center relative overflow-hidden transition duration-300">
-                    <ProductIcon type={item.iconType} />
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <ProductIcon type={item.iconType} />
+                    )}
                     <div className="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center">
                       <span className="px-3 py-1 rounded-full bg-white/95 text-slate-800 text-[11px] font-bold shadow-md">
-                        Pilih Varian & Detail
+                        Pilih Varian &amp; Detail
                       </span>
                     </div>
                   </div>

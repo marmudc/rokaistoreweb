@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   subscribeToProducts,
   saveProductToFirestore,
@@ -7,9 +7,25 @@ import {
   deleteAllProductsFromFirestore,
 } from '@/lib/firebaseSync';
 import { addNotification } from '@/lib/notifications';
+import { storage } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Product, ProductVariant } from '@/lib/types';
 import ProductIcon from '@/components/ui/ProductIcon';
-import { Edit3, Trash2, Plus, X, Check, Search, AlertTriangle, Layers } from 'lucide-react';
+import {
+  Edit3,
+  Trash2,
+  Plus,
+  X,
+  Check,
+  Search,
+  AlertTriangle,
+  Layers,
+  Upload,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Loader2,
+  ExternalLink,
+} from 'lucide-react';
 
 interface ProductsTabProps {
   showToast: (msg: string) => void;
@@ -38,6 +54,13 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   const [formNewFeature, setFormNewFeature] = useState('');
   const [formVariants, setFormVariants] = useState<ProductVariant[]>([]);
 
+  // Image states (Upload vs URL)
+  const [formImage, setFormImage] = useState('');
+  const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Real-time sync with Cloud Firestore products collection
   useEffect(() => {
     const unsub = subscribeToProducts((prods) => {
@@ -45,6 +68,90 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
     });
     return () => unsub();
   }, []);
+
+  // Compress image on canvas for blazing fast loading (<100KB)
+  const compressImage = (file: File, maxDim = 1000): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('❌ Harap pilih file gambar yang valid (PNG, JPG, atau WEBP).');
+      return;
+    }
+
+    setUploadingImage(true);
+    setImageLoadError(false);
+    try {
+      const compressedDataUrl = await compressImage(file, 1000);
+      let finalUrl = compressedDataUrl;
+
+      // Attempt upload to Firebase Storage
+      try {
+        const response = await fetch(compressedDataUrl);
+        const blob = await response.blob();
+        const filename = `products/prod_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+        const storageRef = ref(storage, filename);
+        const snapshot = await uploadBytes(storageRef, blob, {
+          contentType: 'image/jpeg',
+        });
+        finalUrl = await getDownloadURL(snapshot.ref);
+      } catch (storageErr) {
+        console.warn('Firebase Storage not reachable, storing compressed data URL directly:', storageErr);
+      }
+
+      setFormImage(finalUrl);
+      showToast('✓ Gambar produk berhasil diunggah!');
+    } catch (err: any) {
+      console.error('Failed to process image:', err);
+      showToast('❌ Gagal memproses gambar: ' + (err.message || 'Error'));
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   // Open modal for adding a new product
   const openAddModal = () => {
@@ -54,6 +161,9 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
     setFormDescription('Layanan profesional, pengerjaan cepat, dan garansi transaksi 100% aman.');
     setFormFeatures(['Proses Cepat & Terpercaya', 'Garansi Uang Kembali']);
     setFormNewFeature('');
+    setFormImage('');
+    setImageInputMode('upload');
+    setImageLoadError(false);
     setFormVariants([
       {
         id: `var-${Date.now()}-1`,
@@ -74,6 +184,9 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
     setFormDescription(product.description || '');
     setFormFeatures(product.features ? [...product.features] : []);
     setFormNewFeature('');
+    setFormImage(product.image || '');
+    setImageInputMode(product.image?.startsWith('http') && !product.image.includes('firebasestorage') ? 'url' : 'upload');
+    setImageLoadError(false);
     setFormVariants(
       product.variants && product.variants.length > 0
         ? product.variants.map(v => ({ ...v }))
@@ -197,6 +310,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
             features: formFeatures,
             variants: formVariants,
             iconType: p.iconType || iconType,
+            image: formImage.trim() || undefined,
           };
           // Directly save to Firestore
           saveProductToFirestore(updated).catch(err => console.error('Failed to update product:', err));
@@ -224,6 +338,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
         description: formDescription.trim(),
         features: formFeatures,
         variants: formVariants,
+        image: formImage.trim() || undefined,
       };
 
       setCatalog([newProduct, ...catalog]);
@@ -416,8 +531,19 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                 {/* Header card: Icon, Badge, Actions */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center shrink-0 text-slate-700">
-                      <ProductIcon type={p.iconType} className="w-5 h-5" />
+                    <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center shrink-0 text-slate-700 overflow-hidden relative shadow-xs">
+                      {p.image ? (
+                        <img
+                          src={p.image}
+                          alt={p.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <ProductIcon type={p.iconType} className="w-5 h-5" />
+                      )}
                     </div>
                     <div>
                       <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${p.categoryBadgeColor} uppercase tracking-wider`}>
@@ -558,6 +684,187 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                       {formVariants.find(v => v.isDefault)?.formattedPrice || 'Otomatis dari varian default'}
                     </div>
                   </div>
+                </div>
+
+                {/* Image Section (Upload Sendiri vs URL Umum) */}
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <ImageIcon size={13} className="text-purple-600" />
+                        <span>Foto / Gambar Produk</span>
+                        <span className="text-[9px] text-slate-400 font-normal lowercase">(opsional)</span>
+                      </label>
+                      <p className="text-[10px] text-slate-400">
+                        Unggah langsung dari perangkat atau masukkan tautan URL gambar umum.
+                      </p>
+                    </div>
+
+                    {/* Mode Toggle Pills */}
+                    <div className="inline-flex p-0.5 rounded-xl bg-slate-200/70 text-xs font-bold shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setImageInputMode('upload')}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] transition cursor-pointer ${
+                          imageInputMode === 'upload'
+                            ? 'bg-white text-purple-700 shadow-xs font-bold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <Upload size={12} />
+                        <span>Upload Sendiri</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImageInputMode('url')}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] transition cursor-pointer ${
+                          imageInputMode === 'url'
+                            ? 'bg-white text-purple-700 shadow-xs font-bold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <LinkIcon size={12} />
+                        <span>URL Umum</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mode 1: Upload Sendiri */}
+                  {imageInputMode === 'upload' && (
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/png,image/jpeg,image/webp,image/jpg"
+                        className="hidden"
+                        onChange={handleImageFileChange}
+                      />
+                      <div
+                        onClick={() => !uploadingImage && fileInputRef.current?.click()}
+                        className={`w-full border-2 border-dashed rounded-xl p-4 sm:p-5 text-center transition cursor-pointer flex flex-col items-center justify-center gap-2 ${
+                          uploadingImage
+                            ? 'border-purple-300 bg-purple-50/50'
+                            : 'border-slate-200 hover:border-purple-400 hover:bg-purple-50/20 bg-white'
+                        }`}
+                      >
+                        {uploadingImage ? (
+                          <div className="flex flex-col items-center gap-2 py-2">
+                            <Loader2 size={24} className="animate-spin text-purple-600" />
+                            <p className="text-xs font-bold text-purple-700">Mengompresi &amp; mengunggah gambar...</p>
+                            <p className="text-[10px] text-slate-400">Harap tunggu beberapa saat</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shadow-xs">
+                              <Upload size={18} />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-slate-700">
+                                Klik untuk memilih gambar dari galeri / perangkat
+                              </p>
+                              <p className="text-[10px] text-slate-400 mt-0.5">
+                                Format PNG, JPG, atau WEBP. Otomatis dikompresi agar pembeli dapat membuka toko dengan cepat.
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mode 2: URL Gambar Umum */}
+                  {imageInputMode === 'url' && (
+                    <div className="space-y-1.5">
+                      <div className="relative flex items-center">
+                        <LinkIcon size={13} className="absolute left-3 text-slate-400" />
+                        <input
+                          type="url"
+                          value={formImage}
+                          onChange={(e) => {
+                            setFormImage(e.target.value);
+                            setImageLoadError(false);
+                          }}
+                          placeholder="https://images.unsplash.com/... atau https://i.imgur.com/..."
+                          className="w-full pl-8 pr-8 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 text-slate-700 font-mono"
+                        />
+                        {formImage && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormImage('');
+                              setImageLoadError(false);
+                            }}
+                            className="absolute right-2.5 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                          >
+                            <X size={13} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-slate-400">
+                        Tempelkan link gambar langsung dari internet (Unsplash, Imgur, Discord CDN, web hosting, dll).
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Image Preview Box */}
+                  {formImage && (
+                    <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                          <Check size={12} className="text-emerald-600" />
+                          <span>Pratinjau Gambar Terpasang</span>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (imageInputMode === 'upload') {
+                                fileInputRef.current?.click();
+                              } else {
+                                setFormImage('');
+                              }
+                            }}
+                            className="text-[10px] font-bold text-purple-600 hover:text-purple-800 cursor-pointer"
+                          >
+                            Ganti Gambar
+                          </button>
+                          <span className="text-slate-200">•</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormImage('');
+                              setImageLoadError(false);
+                            }}
+                            className="text-[10px] font-bold text-red-500 hover:text-red-700 cursor-pointer flex items-center gap-1"
+                          >
+                            <Trash2 size={11} />
+                            <span>Hapus</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="relative w-full h-36 sm:h-44 rounded-lg bg-slate-100 border border-slate-100 overflow-hidden flex items-center justify-center">
+                        <img
+                          src={formImage}
+                          alt="Pratinjau Produk"
+                          className={`w-full h-full object-cover transition-opacity duration-200 ${
+                            imageLoadError ? 'opacity-0' : 'opacity-100'
+                          }`}
+                          onLoad={() => setImageLoadError(false)}
+                          onError={() => setImageLoadError(true)}
+                        />
+                        {imageLoadError && (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-amber-50/95 text-amber-800">
+                            <AlertTriangle size={20} className="text-amber-600 mb-1" />
+                            <p className="text-xs font-bold">Gambar Tidak Dapat Dimuat</p>
+                            <p className="text-[10px] text-amber-700 mt-0.5">
+                              Pastikan URL valid dan berkas gambar dapat diakses secara publik.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>

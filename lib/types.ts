@@ -31,6 +31,7 @@ export interface Product {
   description: string;
   features: string[];
   variants: ProductVariant[];
+  image?: string;
 }
 
 export interface Category {
@@ -110,6 +111,7 @@ export interface CartItem {
   price: number;
   formattedPrice: string;
   quantity: number;
+  image?: string;
 }
 
 export type OrderStatus = 'in_progress' | 'pending' | 'completed' | 'queued' | 'issue';

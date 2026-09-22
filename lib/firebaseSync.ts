@@ -65,10 +65,18 @@ export function subscribeToProducts(onUpdate: (products: Product[]) => void): Un
 
 export async function saveProductToFirestore(product: Product): Promise<void> {
   try {
-    await setDoc(doc(db, 'products', product.id), {
+    const rawData: Record<string, any> = {
       ...product,
       updatedAt: serverTimestamp(),
+    };
+    // Remove undefined properties to prevent Firestore error
+    const cleanData: Record<string, any> = {};
+    Object.keys(rawData).forEach((key) => {
+      if (rawData[key] !== undefined) {
+        cleanData[key] = rawData[key];
+      }
     });
+    await setDoc(doc(db, 'products', product.id), cleanData);
   } catch (err) {
     console.error('Failed to save product to Firestore:', err);
     throw err;
