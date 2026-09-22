@@ -18,15 +18,21 @@ import {
   ExternalLink,
   X,
   FileCheck,
+  AlertTriangle,
+  Play,
+  RotateCcw,
 } from 'lucide-react';
 
-type OrderFilter = 'all' | 'Diproses' | 'Selesai' | 'Dibatalkan';
+type OrderFilter = 'all' | 'Antrian' | 'Dalam Proses' | 'Kendala' | 'Selesai' | 'Dibatalkan';
 
 interface OrdersTabProps {
   adminOrders: AdminOrder[];
   onApprovePayment: (id: string) => void;
+  onStartProcessing?: (id: string) => void;
+  onReportIssue?: (id: string, reason: string) => void;
+  onResolveIssue?: (id: string, targetStatus?: 'Antrian' | 'Dalam Proses') => void;
   onMarkComplete: (id: string) => void;
-  onCancel?: (id: string) => void;
+  onCancel?: (id: string, reason?: string) => void;
   onDelete: (id: string) => void;
   showToast: (msg: string) => void;
 }
@@ -34,6 +40,9 @@ interface OrdersTabProps {
 export default function OrdersTab({
   adminOrders,
   onApprovePayment,
+  onStartProcessing,
+  onReportIssue,
+  onResolveIssue,
   onMarkComplete,
   onCancel,
   onDelete,
@@ -43,6 +52,8 @@ export default function OrdersTab({
   const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
+  const [reportingIssueOrder, setReportingIssueOrder] = useState<AdminOrder | null>(null);
+  const [issueInput, setIssueInput] = useState('');
 
   const togglePassword = (orderId: string) => {
     setRevealedPasswords(prev => ({
@@ -60,29 +71,49 @@ export default function OrdersTab({
     }
   };
 
-  // Only display confirmed orders in this tab (orders whose payment was approved)
-  const confirmedOrders = adminOrders.filter(o => o.status !== 'Menunggu Verifikasi');
-  const filtered = filter === 'all' ? confirmedOrders : confirmedOrders.filter(o => o.status === filter);
+  // Only display confirmed orders in this tab (orders not in pending confirmation)
+  const confirmedOrders = adminOrders.filter(
+    o => o.status !== 'Menunggu Konfirmasi' && o.status !== 'Menunggu Verifikasi'
+  );
+
+  const filtered = filter === 'all'
+    ? confirmedOrders
+    : filter === 'Dalam Proses'
+    ? confirmedOrders.filter(o => o.status === 'Dalam Proses' || o.status === 'Diproses')
+    : confirmedOrders.filter(o => o.status === filter);
+
   const allCount = confirmedOrders.length;
-  const diprosesCount = confirmedOrders.filter(o => o.status === 'Diproses').length;
+  const antrianCount = confirmedOrders.filter(o => o.status === 'Antrian').length;
+  const dalamProsesCount = confirmedOrders.filter(o => o.status === 'Dalam Proses' || o.status === 'Diproses').length;
+  const kendalaCount = confirmedOrders.filter(o => o.status === 'Kendala').length;
   const selesaiCount = confirmedOrders.filter(o => o.status === 'Selesai').length;
   const dibatalkanCount = confirmedOrders.filter(o => o.status === 'Dibatalkan').length;
+
+  const quickIssuePresets = [
+    'Password akun game salah / tidak dapat login',
+    'Kode verifikasi 2FA dibutuhkan / salah',
+    'Akun sedang aktif dimainkan di perangkat lain',
+    'Username / In-Game ID tidak ditemukan',
+    'Pemberitahuan akun game terkena batas limit sesi',
+  ];
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-black text-slate-900">Kelola Pesanan (Antrean &amp; Riwayat)</h3>
+          <h3 className="text-sm font-black text-slate-900">Kelola Pesanan (Antrean &amp; Pengerjaan)</h3>
           <p className="text-[11px] text-slate-400">
-            {allCount} pesanan terkonfirmasi • {diprosesCount} dalam antrean pengerjaan
+            {allCount} total pesanan • {antrianCount} antrean • {dalamProsesCount} sedang dikerjakan{kendalaCount > 0 ? ` • ${kendalaCount} kendala` : ''}
           </p>
         </div>
         {/* Filter tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
           {([
             { key: 'all', label: `Semua (${allCount})` },
-            { key: 'Diproses', label: `Antrean (${diprosesCount})` },
+            { key: 'Antrian', label: `Antrian (${antrianCount})` },
+            { key: 'Dalam Proses', label: `Dalam Proses (${dalamProsesCount})` },
+            { key: 'Kendala', label: `⚠️ Kendala (${kendalaCount})`, isWarning: kendalaCount > 0 },
             { key: 'Selesai', label: `Selesai (${selesaiCount})` },
             { key: 'Dibatalkan', label: `Dibatalkan (${dibatalkanCount})` },
           ] as const).map(tab => (
@@ -91,7 +122,11 @@ export default function OrdersTab({
               onClick={() => setFilter(tab.key)}
               className={`px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                 filter === tab.key
-                  ? 'bg-purple-600 text-white shadow-sm'
+                  ? tab.key === 'Kendala'
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'bg-purple-600 text-white shadow-sm'
+                  : tab.key === 'Kendala' && kendalaCount > 0
+                  ? 'bg-rose-100 text-rose-800 hover:bg-rose-200 ring-1 ring-rose-300 animate-pulse font-extrabold'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -134,18 +169,25 @@ export default function OrdersTab({
                               ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                               : order.status === 'Dibatalkan'
                               ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                              : order.status === 'Menunggu Verifikasi'
-                              ? 'bg-amber-50 text-amber-800 border border-amber-300 font-extrabold'
-                              : 'bg-sky-50 text-sky-700 border border-sky-200'
+                              : order.status === 'Kendala'
+                              ? 'bg-rose-100 text-rose-800 border border-rose-300 font-extrabold shadow-xs'
+                              : order.status === 'Dalam Proses' || order.status === 'Diproses'
+                              ? 'bg-sky-50 text-sky-700 border border-sky-200 font-extrabold'
+                              : 'bg-purple-50 text-purple-700 border border-purple-200 font-bold'
                           }`}
                         >
-                          {order.status === 'Menunggu Verifikasi' && (
-                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                          {order.status === 'Kendala' && (
+                            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
                           )}
-                          {order.status === 'Menunggu Verifikasi'
-                            ? '⏳ Menunggu Verifikasi Pembayaran'
-                            : order.status === 'Diproses'
-                            ? '⚡ Dalam Antrean / Pengerjaan'
+                          {(order.status === 'Dalam Proses' || order.status === 'Diproses') && (
+                            <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+                          )}
+                          {order.status === 'Antrian'
+                            ? '🕒 Antrian Pengerjaan'
+                            : order.status === 'Dalam Proses' || order.status === 'Diproses'
+                            ? '⚡ Dalam Proses (Sedang Dikerjakan)'
+                            : order.status === 'Kendala'
+                            ? '⚠️ Ada Kendala'
                             : order.status}
                         </span>
                         {order.agreedToTerms && (
@@ -297,12 +339,28 @@ export default function OrdersTab({
                   </div>
                 </div>
 
+                {/* Kendala Alert Box (Admin view) */}
+                {order.status === 'Kendala' && (
+                  <div className="p-3.5 rounded-xl bg-rose-50/90 border border-rose-200 space-y-1 text-xs">
+                    <div className="flex items-center gap-1.5 text-rose-900 font-black">
+                      <AlertTriangle size={15} className="text-rose-600 shrink-0" />
+                      <span>Kendala Yang Sedang Dihadapi:</span>
+                    </div>
+                    <p className="text-rose-800 font-semibold pl-5 leading-relaxed">
+                      &quot;{order.issueReason || 'Belum ada catatan kendala spesifik.'}&quot;
+                    </p>
+                    <p className="text-[10px] text-rose-600 pl-5">
+                      *Tombol WhatsApp Admin saat ini aktif di akun pembeli agar pembeli dapat langsung menghubungi Anda.
+                    </p>
+                  </div>
+                )}
+
                 {/* Payment Confirmation (Code OR Proof Photo) */}
                 <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                       <Receipt size={13} className="text-purple-600" />
-                      Verifikasi & Bukti Pembayaran
+                      Verifikasi &amp; Bukti Pembayaran
                     </span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
                       {order.paymentConfirmationType === 'proof_photo' ? 'Foto Struk Transfer' : 'Kode Unik Referensi'}
@@ -333,7 +391,7 @@ export default function OrdersTab({
                       </button>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-slate-800">Foto Struk / Bukti Transfer Tersedia</p>
-                        <p className="text-[10px] text-slate-400">Klik gambar untuk melihat struk ukuran penuh & periksa nominal.</p>
+                        <p className="text-[10px] text-slate-400">Klik gambar untuk melihat struk ukuran penuh &amp; periksa nominal.</p>
                         <button
                           type="button"
                           onClick={() =>
@@ -372,31 +430,94 @@ export default function OrdersTab({
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-                  {order.status === 'Diproses' && (
+                  {/* Status: Antrian */}
+                  {order.status === 'Antrian' && (
                     <>
-                      <button
-                        onClick={() => {
-                          onMarkComplete(order.id);
-                          showToast(`✓ Pesanan ${order.id} ditandai Selesai & sinkron ke pelanggan`);
-                        }}
-                        className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition cursor-pointer shadow-sm flex items-center gap-1.5"
-                      >
-                        <CheckCircle2 size={15} />
-                        <span>✓ Tandai Selesai</span>
-                      </button>
-                      {onCancel && (
+                      {onStartProcessing && (
                         <button
                           onClick={() => {
-                            onCancel(order.id);
-                            showToast(`Pesanan ${order.id} dibatalkan`);
+                            onStartProcessing(order.id);
+                            showToast(`⚡ Pesanan #${order.id} mulai dikerjakan (Dalam Proses)`);
                           }}
-                          className="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition cursor-pointer border border-amber-200"
+                          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-black transition cursor-pointer shadow-sm flex items-center gap-1.5 active:scale-95"
                         >
-                          Batalkan
+                          <Play size={13} className="fill-white" />
+                          <span>Mulai Kerjakan (Dalam Proses)</span>
+                        </button>
+                      )}
+                      {onReportIssue && (
+                        <button
+                          onClick={() => {
+                            setReportingIssueOrder(order);
+                            setIssueInput('');
+                          }}
+                          className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition cursor-pointer border border-rose-200 flex items-center gap-1"
+                        >
+                          <AlertTriangle size={13} />
+                          <span>Ada Kendala?</span>
                         </button>
                       )}
                     </>
                   )}
+
+                  {/* Status: Dalam Proses / Diproses */}
+                  {(order.status === 'Dalam Proses' || order.status === 'Diproses') && (
+                    <>
+                      <button
+                        onClick={() => {
+                          onMarkComplete(order.id);
+                          showToast(`✓ Pesanan ${order.id} ditandai Selesai &amp; sinkron ke pelanggan`);
+                        }}
+                        className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition cursor-pointer shadow-sm flex items-center gap-1.5 active:scale-95"
+                      >
+                        <CheckCircle2 size={15} />
+                        <span>✓ Tandai Selesai</span>
+                      </button>
+                      {onReportIssue && (
+                        <button
+                          onClick={() => {
+                            setReportingIssueOrder(order);
+                            setIssueInput('');
+                          }}
+                          className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition cursor-pointer border border-rose-200 flex items-center gap-1"
+                        >
+                          <AlertTriangle size={13} />
+                          <span>Laporkan Kendala</span>
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {/* Status: Kendala */}
+                  {order.status === 'Kendala' && (
+                    <>
+                      {onResolveIssue && (
+                        <>
+                          <button
+                            onClick={() => {
+                              onResolveIssue(order.id, 'Dalam Proses');
+                              showToast(`✓ Kendala #${order.id} terselesaikan! Status kembali ke 'Dalam Proses'`);
+                            }}
+                            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black transition cursor-pointer shadow-sm flex items-center gap-1.5 active:scale-95"
+                          >
+                            <CheckCircle2 size={14} />
+                            <span>✓ Kendala Selesai &amp; Lanjut Kerjakan</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              onResolveIssue(order.id, 'Antrian');
+                              showToast(`Kendala #${order.id} direset ke Antrian`);
+                            }}
+                            className="px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold transition cursor-pointer border border-purple-200 flex items-center gap-1"
+                          >
+                            <RotateCcw size={13} />
+                            <span>Kembalikan ke Antrian</span>
+                          </button>
+                        </>
+                      )}
+                    </>
+                  )}
+
                   {/* Emergency WhatsApp Button (ADMIN ONLY) */}
                   <a
                     href={`https://wa.me/${order.phone.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(
@@ -404,17 +525,34 @@ export default function OrdersTab({
                     )},%20kami%20dari%20admin%20FableMart%20mengenai%20pesanan%20%23${order.id}%20(${encodeURIComponent(
                       order.product
                     )}).%20${
-                      order.has2FA && order.twoFAType === 'whatsapp'
+                      order.status === 'Kendala'
+                        ? `Terdapat%20kendala:%20${encodeURIComponent(
+                            order.issueReason || 'verifikasi%20akun%20game'
+                          )}.%20Mohon%20bantuannya%20agar%20bisa%20kami%20lanjutkan.`
+                        : order.has2FA && order.twoFAType === 'whatsapp'
                         ? 'Mohon%20siapkan%20kode%20verifikasi%202FA%20yang%20akan%20kami%20kirimkan%20segera.'
                         : 'Pesanan%20Anda%20sedang%20dalam%20antrean%20pengerjaan.'
                     }`}
                     target="_blank"
                     rel="noreferrer"
                     className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition cursor-pointer border border-emerald-200 flex items-center gap-1.5"
-                    title="Kontak darurat khusus admin untuk koordinasi pengerjaan / 2FA"
+                    title="Kontak darurat khusus admin untuk koordinasi pengerjaan / kendala / 2FA"
                   >
                     <MessageSquare size={13} /> Chat WA Darurat
                   </a>
+
+                  {onCancel && order.status !== 'Selesai' && order.status !== 'Dibatalkan' && (
+                    <button
+                      onClick={() => {
+                        onCancel(order.id);
+                        showToast(`Pesanan ${order.id} dibatalkan`);
+                      }}
+                      className="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition cursor-pointer border border-amber-200"
+                    >
+                      Batalkan
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
                       onDelete(order.id);
@@ -430,6 +568,88 @@ export default function OrdersTab({
           })
         )}
       </div>
+
+      {/* Reporting Issue Modal */}
+      {reportingIssueOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative max-w-md w-full bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2 text-rose-700 font-black text-sm">
+                <AlertTriangle size={18} />
+                <span>Laporkan Kendala Pesanan #{reportingIssueOrder.id}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReportingIssueOrder(null)}
+                className="w-7 h-7 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Saat pesanan ditandai sebagai <strong>Kendala</strong>, status di website pembeli akan berubah dan{' '}
+              <strong>tombol WhatsApp Admin akan otomatis aktif di akun pembeli</strong> untuk koordinasi penyelesaian.
+            </p>
+
+            {/* Quick presets */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Pilih Template Cepat:
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {quickIssuePresets.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setIssueInput(preset)}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 transition text-left cursor-pointer border border-slate-200/70"
+                  >
+                    + {preset}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom input */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                Rincian Kendala:
+              </label>
+              <textarea
+                rows={3}
+                value={issueInput}
+                onChange={(e) => setIssueInput(e.target.value)}
+                placeholder="Tuliskan kendala akun / 2FA secara jelas untuk pembeli..."
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-300 resize-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setReportingIssueOrder(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onReportIssue) {
+                    onReportIssue(reportingIssueOrder.id, issueInput);
+                    showToast(`⚠️ Pesanan #${reportingIssueOrder.id} ditandai Kendala & tombol WA pembeli aktif`);
+                  }
+                  setReportingIssueOrder(null);
+                }}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs transition shadow-md shadow-rose-600/20 cursor-pointer"
+              >
+                Tandai Kendala &amp; Aktifkan WA Pembeli
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox Modal for Payment Proof Photo */}
       {previewImage && (
@@ -461,7 +681,7 @@ export default function OrdersTab({
 
             {/* Modal Footer */}
             <div className="px-5 py-3 border-t border-white/10 bg-slate-900/90 flex items-center justify-between text-xs text-slate-400 shrink-0">
-              <span>Periksa kesesuaian nominal & nomor rekening tujuan</span>
+              <span>Periksa kesesuaian nominal &amp; nomor rekening tujuan</span>
               <button
                 type="button"
                 onClick={() => setPreviewImage(null)}

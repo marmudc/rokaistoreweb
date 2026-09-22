@@ -41,8 +41,10 @@ export default function ConfirmationsTab({
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
 
-  // Filter ONLY orders awaiting payment verification
-  const pendingOrders = adminOrders.filter(o => o.status === 'Menunggu Verifikasi');
+  // Filter ONLY orders awaiting payment verification / confirmation
+  const pendingOrders = adminOrders.filter(
+    o => o.status === 'Menunggu Konfirmasi' || o.status === 'Menunggu Verifikasi'
+  );
 
   const togglePassword = (orderId: string) => {
     setRevealedPasswords(prev => ({

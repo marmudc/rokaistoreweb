@@ -2,15 +2,25 @@
 import React, { useState, useEffect } from 'react';
 import type { UserOrder } from '@/lib/types';
 import ProductIcon from '@/components/ui/ProductIcon';
-import { X, Package, ChevronDown, ChevronUp, Download, ExternalLink, ShieldCheck } from 'lucide-react';
+import {
+  X,
+  Package,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  ExternalLink,
+  ShieldCheck,
+  AlertTriangle,
+  MessageSquare,
+} from 'lucide-react';
 
-export type UserOrdersFilter = 'all' | 'in_progress' | 'pending' | 'completed';
+export type UserOrdersFilter = 'all' | 'issue' | 'in_progress' | 'queued' | 'pending' | 'completed';
 
 const STEPS = [
-  { num: 1, name: "Pesanan Dibuat", desc: "Data dicatat" },
-  { num: 2, name: "Verifikasi Pembayaran", desc: "QRIS Terkonfirmasi" },
-  { num: 3, name: "Proses Pengerjaan", desc: "Joki / Admin Aktif" },
-  { num: 4, name: "Pesanan Selesai", desc: "Serah Terima" }
+  { num: 1, name: "Menunggu Konfirmasi", desc: "Cek Pembayaran" },
+  { num: 2, name: "Antrian", desc: "Siap Dikerjakan" },
+  { num: 3, name: "Dalam Proses", desc: "Sedang Dikerjakan" },
+  { num: 4, name: "Selesai", desc: "Serah Terima" }
 ];
 
 interface UserOrdersModalProps {
@@ -62,7 +72,9 @@ export default function UserOrdersModal({
   if (!open) return null;
 
   const allCount = userOrders.length;
+  const issueCount = userOrders.filter(o => o.status === 'issue').length;
   const inProgressCount = userOrders.filter(o => o.status === 'in_progress').length;
+  const queuedCount = userOrders.filter(o => o.status === 'queued').length;
   const pendingCount = userOrders.filter(o => o.status === 'pending').length;
   const completedCount = userOrders.filter(o => o.status === 'completed').length;
 
@@ -70,10 +82,14 @@ export default function UserOrdersModal({
     ? userOrders
     : userOrders.filter(o => o.status === filter);
 
-  const tabs: { key: UserOrdersFilter; label: string; count: number }[] = [
+  const tabs: { key: UserOrdersFilter; label: string; count: number; isIssue?: boolean }[] = [
     { key: 'all', label: 'Semua Pesanan', count: allCount },
-    { key: 'in_progress', label: 'Sedang Berlangsung', count: inProgressCount },
-    { key: 'pending', label: 'Menunggu Verifikasi', count: pendingCount },
+    ...(issueCount > 0
+      ? [{ key: 'issue' as const, label: '⚠️ Kendala', count: issueCount, isIssue: true }]
+      : []),
+    { key: 'in_progress', label: 'Dalam Proses', count: inProgressCount },
+    { key: 'queued', label: 'Antrian', count: queuedCount },
+    { key: 'pending', label: 'Menunggu Konfirmasi', count: pendingCount },
     { key: 'completed', label: 'Selesai', count: completedCount },
   ];
 
@@ -159,11 +175,20 @@ Terima kasih telah berbelanja di FableMart!
               key={tab.key}
               onClick={() => setFilter(tab.key)}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer whitespace-nowrap ${
-                filter === tab.key ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                filter === tab.key
+                  ? tab.isIssue
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'bg-purple-600 text-white shadow-sm'
+                  : tab.isIssue
+                  ? 'bg-rose-100 text-rose-800 hover:bg-rose-200 ring-1 ring-rose-300 animate-pulse'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {tab.key === 'in_progress' && inProgressCount > 0 && (
                 <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+              )}
+              {tab.isIssue && (
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
               )}
               <span>{tab.label} ({tab.count})</span>
             </button>
@@ -225,13 +250,19 @@ Terima kasih telah berbelanja di FableMart!
               const progressWidth = ((order.currentStep - 1) / (STEPS.length - 1)) * 100;
               const isExpanded = expandedOrderId === order.id;
               const isFocused = focusOrderId === order.id;
+              const isOrderIssue = order.status === 'issue';
 
               const statusColorBox =
-                order.status === 'in_progress' ? 'bg-sky-50/80 border-sky-100 text-sky-900'
+                isOrderIssue ? 'bg-rose-50 border-rose-200 text-rose-900'
+                : order.status === 'in_progress' ? 'bg-sky-50/80 border-sky-100 text-sky-900'
+                : order.status === 'queued' ? 'bg-purple-50/80 border-purple-100 text-purple-900'
                 : order.status === 'pending' ? 'bg-amber-50/80 border-amber-100 text-amber-900'
                 : 'bg-emerald-50/80 border-emerald-100 text-emerald-900';
+
               const statusIconColor =
-                order.status === 'in_progress' ? 'text-sky-600'
+                isOrderIssue ? 'text-rose-600'
+                : order.status === 'in_progress' ? 'text-sky-600'
+                : order.status === 'queued' ? 'text-purple-600'
                 : order.status === 'pending' ? 'text-amber-600'
                 : 'text-emerald-600';
 
@@ -242,6 +273,8 @@ Terima kasih telah berbelanja di FableMart!
                   className={`bg-white rounded-2xl border shadow-soft p-4 sm:p-5 space-y-4 transition-all duration-300 ${
                     isFocused
                       ? 'border-purple-500 ring-2 ring-purple-200'
+                      : isOrderIssue
+                      ? 'border-rose-300 ring-1 ring-rose-200 hover:border-rose-400'
                       : 'border-slate-200/80 hover:border-purple-200'
                   }`}
                 >
@@ -260,7 +293,7 @@ Terima kasih telah berbelanja di FableMart!
                       </span>
                     </div>
                     <div className={`flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-bold border ${order.statusBadgeColor} shadow-sm self-start sm:self-auto`}>
-                      <span className={`w-2 h-2 rounded-full ${order.statusPulseColor} ${order.status === 'in_progress' ? 'animate-ping' : ''}`} />
+                      <span className={`w-2 h-2 rounded-full ${order.statusPulseColor} ${order.status === 'in_progress' || order.status === 'issue' ? 'animate-ping' : ''}`} />
                       {order.statusTitle}
                     </div>
                   </div>
@@ -320,13 +353,25 @@ Terima kasih telah berbelanja di FableMart!
                         return (
                           <div key={s.num} className="flex flex-col items-center text-center z-10 w-1/4">
                             <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 ${
-                              isPast ? 'bg-purple-600 text-white ring-2 ring-purple-100 shadow-sm'
-                              : isCurrent ? 'bg-gradient-to-tr from-pink-600 to-purple-600 text-white ring-4 ring-purple-100 shadow-md animate-pulse'
-                              : 'bg-white text-slate-400 border-2 border-slate-200'
+                              isOrderIssue && isCurrent
+                                ? 'bg-rose-600 text-white ring-4 ring-rose-100 shadow-md animate-pulse'
+                                : isPast
+                                ? 'bg-purple-600 text-white ring-2 ring-purple-100 shadow-sm'
+                                : isCurrent
+                                ? 'bg-gradient-to-tr from-pink-600 to-purple-600 text-white ring-4 ring-purple-100 shadow-md animate-pulse'
+                                : 'bg-white text-slate-400 border-2 border-slate-200'
                             }`}>
-                              {isPast ? '✓' : s.num}
+                              {isOrderIssue && isCurrent ? '!' : isPast ? '✓' : s.num}
                             </div>
-                            <span className={`text-[10px] font-bold mt-1.5 leading-tight ${isCurrent ? 'text-purple-700 font-extrabold' : isPast ? 'text-slate-700' : 'text-slate-400'}`}>
+                            <span className={`text-[10px] font-bold mt-1.5 leading-tight ${
+                              isOrderIssue && isCurrent
+                                ? 'text-rose-600 font-black'
+                                : isCurrent
+                                ? 'text-purple-700 font-extrabold'
+                                : isPast
+                                ? 'text-slate-700'
+                                : 'text-slate-400'
+                            }`}>
                               {s.name}
                             </span>
                             <span className="text-[9px] text-slate-400 hidden sm:inline leading-none mt-0.5">{s.desc}</span>
@@ -349,6 +394,41 @@ Terima kasih telah berbelanja di FableMart!
                       <p className="text-[11px] opacity-80 leading-relaxed">{order.securityNotice}</p>
                     </div>
                   </div>
+
+                  {/* Conditional Kendala & WhatsApp Admin Button (Only shown to customer when order status is Kendala) */}
+                  {isOrderIssue && (
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50 via-rose-50/90 to-amber-50 border border-rose-200 shadow-sm space-y-3 ring-1 ring-rose-200">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5 border border-rose-200 shadow-xs">
+                          <AlertTriangle size={17} />
+                        </div>
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h5 className="text-xs font-black text-rose-900">Perhatian: Pengerjaan Tertunda Karena Kendala</h5>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-200 text-rose-800">
+                              Perlu Respon Anda
+                            </span>
+                          </div>
+                          <p className="text-xs text-rose-800 font-medium leading-relaxed">
+                            {order.issueReason || 'Admin mendeteksi kendala pada data akun game atau verifikasi 2FA Anda. Mohon segera hubungi Admin melalui tombol WhatsApp di bawah untuk koordinasi penyelesaian agar pengerjaan dapat dilanjutkan.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Customer WhatsApp Admin Button - ONLY appears when status is Kendala */}
+                      <a
+                        href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Halo%20Admin%20FableMart,%20saya%20ingin%20konfirmasi%20kendala%20pada%20pesanan%20%23${order.id}%20(${encodeURIComponent(
+                          order.product
+                        )}).%20Kendala:%20${encodeURIComponent(order.issueReason || 'Mohon petunjuk kelanjutan kredensial akun/2FA')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-98 text-white font-black text-xs transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <MessageSquare size={15} />
+                        <span>Hubungi Admin via WhatsApp (Selesaikan Kendala)</span>
+                      </a>
+                    </div>
+                  )}
 
                   {/* Expandable detailed info */}
                   {isExpanded && (

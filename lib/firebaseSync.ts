@@ -149,13 +149,18 @@ export async function saveOrderToFirestore(order: AdminOrder): Promise<void> {
 
 export async function updateOrderStatusInFirestore(
   orderId: string,
-  status: AdminOrderStatus
+  status: AdminOrderStatus,
+  issueReason?: string
 ): Promise<void> {
   try {
-    await updateDoc(doc(db, 'orders', orderId), {
+    const updatePayload: Record<string, any> = {
       status,
       updatedAt: serverTimestamp(),
-    });
+    };
+    if (issueReason !== undefined) {
+      updatePayload.issueReason = issueReason;
+    }
+    await updateDoc(doc(db, 'orders', orderId), updatePayload);
   } catch (err) {
     console.error('Failed to update order status in Firestore:', err);
     throw err;

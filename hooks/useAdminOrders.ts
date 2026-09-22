@@ -49,18 +49,76 @@ export function useAdminOrders() {
   }, []);
 
   const approvePayment = useCallback(async (orderId: string) => {
-    // Optimistic UI update
+    // Optimistic UI update - moves to 'Antrian'
     setAdminOrders(prev =>
-      prev.map(o => o.id === orderId ? { ...o, status: 'Diproses' as const } : o)
+      prev.map(o => o.id === orderId ? { ...o, status: 'Antrian' as const, issueReason: undefined } : o)
     );
 
     // Update in Firestore
-    await updateOrderStatusInFirestore(orderId, 'Diproses');
+    await updateOrderStatusInFirestore(orderId, 'Antrian', '');
 
     // Add notification to Firestore
     await addNotificationToFirestore({
       title: `Pembayaran Pesanan #${orderId} Disetujui ✅`,
-      message: `Admin telah memverifikasi pembayaran Anda. Pesanan sekarang telah resmi masuk ke dalam antrean pengerjaan!`,
+      message: `Admin telah memverifikasi pembayaran Anda. Pesanan sekarang telah resmi masuk ke antrean pengerjaan!`,
+      type: 'order',
+      linkAction: 'open_orders',
+      orderId,
+    });
+  }, []);
+
+  const startProcessing = useCallback(async (orderId: string) => {
+    // Optimistic UI update - moves to 'Dalam Proses'
+    setAdminOrders(prev =>
+      prev.map(o => o.id === orderId ? { ...o, status: 'Dalam Proses' as const } : o)
+    );
+
+    // Update in Firestore
+    await updateOrderStatusInFirestore(orderId, 'Dalam Proses');
+
+    // Add notification to Firestore
+    await addNotificationToFirestore({
+      title: `Pesanan #${orderId} Mulai Dikerjakan ⚡`,
+      message: `Admin / Joki FableMart telah aktif memulai pengerjaan akun game Anda. Pantau live status di web!`,
+      type: 'order',
+      linkAction: 'open_orders',
+      orderId,
+    });
+  }, []);
+
+  const reportIssue = useCallback(async (orderId: string, reason: string) => {
+    const defaultReason = reason.trim() || 'Terdapat kendala data akun game / verifikasi 2FA.';
+    // Optimistic UI update - moves to 'Kendala'
+    setAdminOrders(prev =>
+      prev.map(o => o.id === orderId ? { ...o, status: 'Kendala' as const, issueReason: defaultReason } : o)
+    );
+
+    // Update in Firestore
+    await updateOrderStatusInFirestore(orderId, 'Kendala', defaultReason);
+
+    // Add notification to Firestore
+    await addNotificationToFirestore({
+      title: `Kendala Pengerjaan Pesanan #${orderId} ⚠️`,
+      message: `Admin melaporkan kendala: "${defaultReason}". Silakan buka menu Pesanan Saya dan tekan tombol WhatsApp Admin untuk menyelesaikan kendala.`,
+      type: 'order',
+      linkAction: 'open_orders',
+      orderId,
+    });
+  }, []);
+
+  const resolveIssue = useCallback(async (orderId: string, targetStatus: 'Antrian' | 'Dalam Proses' = 'Dalam Proses') => {
+    // Optimistic UI update - returns to targetStatus
+    setAdminOrders(prev =>
+      prev.map(o => o.id === orderId ? { ...o, status: targetStatus, issueReason: undefined } : o)
+    );
+
+    // Update in Firestore
+    await updateOrderStatusInFirestore(orderId, targetStatus, '');
+
+    // Add notification to Firestore
+    await addNotificationToFirestore({
+      title: `Kendala Pesanan #${orderId} Terselesaikan ✅`,
+      message: `Pengerjaan pesanan Anda dilanjutkan ke status ${targetStatus}. Terima kasih atas kerja samanya!`,
       type: 'order',
       linkAction: 'open_orders',
       orderId,
@@ -70,11 +128,11 @@ export function useAdminOrders() {
   const markComplete = useCallback(async (orderId: string) => {
     // Optimistic UI update
     setAdminOrders(prev =>
-      prev.map(o => o.id === orderId ? { ...o, status: 'Selesai' as const } : o)
+      prev.map(o => o.id === orderId ? { ...o, status: 'Selesai' as const, issueReason: undefined } : o)
     );
 
     // Update in Firestore
-    await updateOrderStatusInFirestore(orderId, 'Selesai');
+    await updateOrderStatusInFirestore(orderId, 'Selesai', '');
 
     // Add notification to Firestore
     await addNotificationToFirestore({
@@ -86,16 +144,16 @@ export function useAdminOrders() {
     });
   }, []);
 
-  const cancelOrder = useCallback(async (orderId: string) => {
+  const cancelOrder = useCallback(async (orderId: string, cancelReason?: string) => {
     setAdminOrders(prev =>
-      prev.map(o => o.id === orderId ? { ...o, status: 'Dibatalkan' as const } : o)
+      prev.map(o => o.id === orderId ? { ...o, status: 'Dibatalkan' as const, issueReason: cancelReason } : o)
     );
 
-    await updateOrderStatusInFirestore(orderId, 'Dibatalkan');
+    await updateOrderStatusInFirestore(orderId, 'Dibatalkan', cancelReason);
 
     await addNotificationToFirestore({
       title: `Pesanan #${orderId} Dibatalkan`,
-      message: `Pesanan #${orderId} telah dibatalkan oleh admin. Hubungi CS WhatsApp kami untuk bantuan pengembalian dana.`,
+      message: cancelReason ? `Pesanan dibatalkan: ${cancelReason}` : `Pesanan #${orderId} telah dibatalkan oleh admin.`,
       type: 'order',
       linkAction: 'open_orders',
       orderId,
@@ -167,25 +225,37 @@ export function useAdminOrders() {
   }, []);
 
   const pendingConfirmationsCount = adminOrders.filter(
-    o => o.status === 'Menunggu Verifikasi'
+    o => o.status === 'Menunggu Konfirmasi' || o.status === 'Menunggu Verifikasi'
+  ).length;
+
+  const antrianOrdersCount = adminOrders.filter(
+    o => o.status === 'Antrian'
   ).length;
 
   const inProgressOrdersCount = adminOrders.filter(
-    o => o.status === 'Diproses'
+    o => o.status === 'Dalam Proses' || o.status === 'Diproses'
   ).length;
 
-  const activeOrdersCount = adminOrders.filter(
-    o => o.status === 'Diproses' || o.status === 'Menunggu Verifikasi'
+  const issueOrdersCount = adminOrders.filter(
+    o => o.status === 'Kendala'
   ).length;
+
+  // Active orders = orders currently in Antrian, Dalam Proses, or Kendala
+  const activeOrdersCount = antrianOrdersCount + inProgressOrdersCount + issueOrdersCount;
 
   return {
     adminOrders,
     adminPromos,
     activeOrdersCount,
     pendingConfirmationsCount,
+    antrianOrdersCount,
     inProgressOrdersCount,
+    issueOrdersCount,
     loading,
     approvePayment,
+    startProcessing,
+    reportIssue,
+    resolveIssue,
     markComplete,
     cancelOrder,
     deleteOrder,

@@ -22,8 +22,10 @@ export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabPro
   const totalRevenue = adminOrders.reduce((sum, o) => sum + o.amount, 0);
   const totalOrders = adminOrders.length;
   const completedOrders = adminOrders.filter(o => o.status === 'Selesai').length;
-  const inProgressOrders = adminOrders.filter(o => o.status === 'Diproses').length;
-  const pendingVerificationOrders = adminOrders.filter(o => o.status === 'Menunggu Verifikasi').length;
+  const pendingVerificationOrders = adminOrders.filter(o => o.status === 'Menunggu Konfirmasi' || o.status === 'Menunggu Verifikasi').length;
+  const antrianOrders = adminOrders.filter(o => o.status === 'Antrian').length;
+  const inProgressOrders = adminOrders.filter(o => o.status === 'Dalam Proses' || o.status === 'Diproses').length;
+  const issueOrders = adminOrders.filter(o => o.status === 'Kendala').length;
   const activePromosCount = adminPromos.filter(p => p.active).length;
 
   const dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
@@ -78,11 +80,19 @@ export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabPro
         <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 flex-wrap">
           {pendingVerificationOrders > 0 && (
             <>
-              <span className="text-amber-600 font-bold">{pendingVerificationOrders} Verif</span>
+              <span className="text-amber-600 font-bold">{pendingVerificationOrders} Konfirmasi</span>
               <span>•</span>
             </>
           )}
-          <span className="text-sky-600 font-bold">{inProgressOrders} Antrean</span>
+          {issueOrders > 0 && (
+            <>
+              <span className="text-rose-600 font-bold">{issueOrders} Kendala</span>
+              <span>•</span>
+            </>
+          )}
+          <span className="text-purple-600 font-bold">{antrianOrders} Antrian</span>
+          <span>•</span>
+          <span className="text-sky-600 font-bold">{inProgressOrders} Proses</span>
           <span>•</span>
           <span className="text-emerald-600 font-bold">{completedOrders} Selesai</span>
         </span>

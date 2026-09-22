@@ -7,9 +7,74 @@ import type { AdminOrder, UserOrder } from '@/lib/types';
 export const defaultUserOrders: UserOrder[] = [];
 
 export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
+  const isPending = o.status === 'Menunggu Konfirmasi' || o.status === 'Menunggu Verifikasi';
+  const isQueued = o.status === 'Antrian';
+  const isInProgress = o.status === 'Dalam Proses' || o.status === 'Diproses';
+  const isIssue = o.status === 'Kendala';
   const isCompleted = o.status === 'Selesai';
   const isCancelled = o.status === 'Dibatalkan';
-  const isPendingVerification = o.status === 'Menunggu Verifikasi';
+
+  let status: UserOrder['status'] = 'pending';
+  let statusTitle = 'Menunggu Konfirmasi Pembayaran';
+  let statusBadgeColor = 'bg-amber-50 text-amber-800 border-amber-200';
+  let statusPulseColor = 'bg-amber-500';
+  let currentStep = 1;
+  let estimatedTime = '~1-5 menit verifikasi';
+  let customerNote = 'Bukti pembayaran telah berhasil dikirim ke admin. Mohon tunggu verifikasi admin sebelum pesanan masuk antrean pengerjaan.';
+
+  if (isPending) {
+    status = 'pending';
+    statusTitle = 'Menunggu Konfirmasi Pembayaran';
+    statusBadgeColor = 'bg-amber-50 text-amber-800 border-amber-200';
+    statusPulseColor = 'bg-amber-500';
+    currentStep = 1;
+    estimatedTime = '~1-5 menit verifikasi';
+    customerNote = 'Bukti pembayaran telah berhasil dikirim ke admin. Mohon tunggu verifikasi admin sebelum pesanan masuk antrean pengerjaan.';
+  } else if (isQueued) {
+    status = 'queued';
+    statusTitle = 'Dalam Antrean Pengerjaan';
+    statusBadgeColor = 'bg-purple-50 text-purple-700 border-purple-200';
+    statusPulseColor = 'bg-purple-500';
+    currentStep = 2;
+    estimatedTime = '~5-10 menit menunggu antrean';
+    customerNote = 'Pembayaran disetujui! Akun game Anda kini berada dalam antrean pengerjaan joki / admin resmi FableMart.';
+  } else if (isInProgress) {
+    status = 'in_progress';
+    statusTitle = 'Sedang Dalam Pengerjaan';
+    statusBadgeColor = 'bg-sky-50 text-sky-700 border-sky-200';
+    statusPulseColor = 'bg-sky-500';
+    currentStep = 3;
+    estimatedTime = '~10-30 menit pengerjaan';
+    customerNote = 'Admin / Joki sedang aktif login dan memproses pesanan pada akun game Anda. Mohon jangan login ke game selama proses berlangsung.';
+  } else if (isIssue) {
+    status = 'issue';
+    statusTitle = '⚠️ Ada Kendala Pengerjaan';
+    statusBadgeColor = 'bg-rose-50 text-rose-700 border-rose-300 font-extrabold shadow-xs';
+    statusPulseColor = 'bg-rose-500';
+    currentStep = 2;
+    estimatedTime = 'Menunggu Bantuan Pelanggan';
+    customerNote = o.issueReason
+      ? `Admin mendeteksi kendala: "${o.issueReason}". Silakan hubungi admin melalui tombol WhatsApp di bawah untuk menyelesaikan kendala ini.`
+      : 'Admin mendeteksi kendala pada data akun game atau verifikasi 2FA Anda. Silakan hubungi admin melalui WhatsApp di bawah.';
+  } else if (isCompleted) {
+    status = 'completed';
+    statusTitle = 'Pesanan Selesai & Diterima';
+    statusBadgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    statusPulseColor = 'bg-emerald-500';
+    currentStep = 4;
+    estimatedTime = 'Selesai';
+    customerNote = 'Pesanan telah selesai diserahterimakan dengan aman. Terima kasih telah mempercayakan layanan kepada FableMart!';
+  } else if (isCancelled) {
+    status = 'completed';
+    statusTitle = 'Pesanan Dibatalkan';
+    statusBadgeColor = 'bg-slate-100 text-slate-600 border-slate-200';
+    statusPulseColor = 'bg-slate-400';
+    currentStep = 1;
+    estimatedTime = 'Dibatalkan';
+    customerNote = o.issueReason
+      ? `Pesanan dibatalkan dengan alasan: "${o.issueReason}".`
+      : 'Pesanan ini telah dibatalkan oleh admin.';
+  }
 
   return {
     id: o.id,
@@ -21,43 +86,13 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
     amount: o.amount,
     formattedPrice: `Rp ${o.amount.toLocaleString('id-ID')}`,
     quantity: o.quantity || 1,
-    status: isCompleted ? 'completed' : isCancelled ? 'completed' : isPendingVerification ? 'pending' : 'in_progress',
-    statusTitle: isCompleted
-      ? 'Pesanan Selesai & Diterima'
-      : isCancelled
-      ? 'Pesanan Dibatalkan'
-      : isPendingVerification
-      ? 'Menunggu Verifikasi Pembayaran'
-      : 'Masuk Antrean & Sedang Dikerjakan',
-    statusBadgeColor: isCompleted
-      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-      : isCancelled
-      ? 'bg-rose-50 text-rose-700 border-rose-200'
-      : isPendingVerification
-      ? 'bg-amber-50 text-amber-700 border-amber-200'
-      : 'bg-sky-50 text-sky-700 border-sky-200',
-    statusPulseColor: isCompleted
-      ? 'bg-emerald-500'
-      : isCancelled
-      ? 'bg-rose-500'
-      : isPendingVerification
-      ? 'bg-amber-500'
-      : 'bg-sky-500',
-    currentStep: isCompleted ? 4 : isCancelled ? 1 : isPendingVerification ? 2 : 3,
-    estimatedTime: isCompleted
-      ? 'Selesai'
-      : isCancelled
-      ? 'Dibatalkan'
-      : isPendingVerification
-      ? '~1-5 menit verifikasi'
-      : '~5-15 menit pengerjaan',
-    customerNote: isCompleted
-      ? 'Pesanan telah selesai diserahterimakan.'
-      : isCancelled
-      ? 'Pesanan dibatalkan. Hubungi CS WhatsApp untuk bantuan garansi/refund.'
-      : isPendingVerification
-      ? 'Bukti pembayaran telah berhasil dikirim ke admin. Mohon tunggu verifikasi admin sebelum pesanan masuk ke antrean pengerjaan.'
-      : 'Pembayaran telah disetujui admin! Akun game Anda kini berada dalam antrean pengerjaan joki / admin resmi.',
+    status,
+    statusTitle,
+    statusBadgeColor,
+    statusPulseColor,
+    currentStep,
+    estimatedTime,
+    customerNote,
     securityNotice: 'Data kredensial akun Anda aman terenkripsi & transaksi bergaransi 100%.',
     inGameId: o.inGameId || o.phone || '',
     gamePassword: o.gamePassword,
@@ -66,6 +101,7 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
     paymentConfirmationType: o.paymentConfirmationType,
     paymentUniqueCode: o.paymentUniqueCode,
     paymentProofImage: o.paymentProofImage,
+    issueReason: o.issueReason,
   };
 }
 

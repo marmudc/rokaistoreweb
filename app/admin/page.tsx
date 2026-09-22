@@ -30,8 +30,13 @@ export default function AdminPage() {
     adminPromos,
     activeOrdersCount,
     pendingConfirmationsCount,
+    antrianOrdersCount,
     inProgressOrdersCount,
+    issueOrdersCount,
     approvePayment,
+    startProcessing,
+    reportIssue,
+    resolveIssue,
     markComplete,
     cancelOrder,
     deleteOrder,
@@ -181,7 +186,7 @@ export default function AdminPage() {
           <AdminTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            activeOrdersCount={inProgressOrdersCount}
+            activeOrdersCount={activeOrdersCount}
             pendingConfirmationsCount={pendingConfirmationsCount}
           />
         </div>
@@ -204,6 +209,9 @@ export default function AdminPage() {
             <OrdersTab
               adminOrders={adminOrders}
               onApprovePayment={approvePayment}
+              onStartProcessing={startProcessing}
+              onReportIssue={reportIssue}
+              onResolveIssue={resolveIssue}
               onMarkComplete={markComplete}
               onCancel={cancelOrder}
               onDelete={deleteOrder}

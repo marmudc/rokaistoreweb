@@ -112,7 +112,7 @@ export interface CartItem {
   quantity: number;
 }
 
-export type OrderStatus = 'in_progress' | 'pending' | 'completed';
+export type OrderStatus = 'in_progress' | 'pending' | 'completed' | 'queued' | 'issue';
 export type TwoFAType = 'email' | 'device' | 'whatsapp';
 export type PaymentConfirmationType = 'unique_code' | 'proof_photo';
 
@@ -141,9 +141,18 @@ export interface UserOrder {
   paymentConfirmationType?: PaymentConfirmationType;
   paymentUniqueCode?: string;
   paymentProofImage?: string;
+  issueReason?: string;
 }
 
-export type AdminOrderStatus = 'Menunggu Verifikasi' | 'Diproses' | 'Selesai' | 'Dibatalkan';
+export type AdminOrderStatus =
+  | 'Menunggu Konfirmasi'
+  | 'Menunggu Verifikasi'
+  | 'Antrian'
+  | 'Dalam Proses'
+  | 'Diproses'
+  | 'Selesai'
+  | 'Kendala'
+  | 'Dibatalkan';
 
 export interface AdminOrder {
   id: string;
@@ -165,6 +174,7 @@ export interface AdminOrder {
   paymentConfirmationType?: PaymentConfirmationType;
   paymentUniqueCode?: string;
   paymentProofImage?: string;
+  issueReason?: string;
   quantity?: number;
   category?: string;
   createdAt?: any;
