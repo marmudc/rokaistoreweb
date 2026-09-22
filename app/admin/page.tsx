@@ -26,7 +26,7 @@ export default function AdminPage() {
   const { message: toastMessage, visible: toastVisible, showToast } = useToast();
   const {
     adminOrders, adminPromos, activeOrdersCount,
-    markComplete, cancelOrder, deleteOrder,
+    approvePayment, markComplete, cancelOrder, deleteOrder,
     togglePromo, addPromo, deletePromo, clearAllPromos,
   } = useAdminOrders();
 
@@ -182,6 +182,7 @@ export default function AdminPage() {
           {activeTab === 'orders' && (
             <OrdersTab
               adminOrders={adminOrders}
+              onApprovePayment={approvePayment}
               onMarkComplete={markComplete}
               onCancel={cancelOrder}
               onDelete={deleteOrder}

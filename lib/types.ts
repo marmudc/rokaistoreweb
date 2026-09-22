@@ -143,7 +143,7 @@ export interface UserOrder {
   paymentProofImage?: string;
 }
 
-export type AdminOrderStatus = 'Diproses' | 'Selesai' | 'Dibatalkan';
+export type AdminOrderStatus = 'Menunggu Verifikasi' | 'Diproses' | 'Selesai' | 'Dibatalkan';
 
 export interface AdminOrder {
   id: string;

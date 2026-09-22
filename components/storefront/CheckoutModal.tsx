@@ -828,11 +828,14 @@ export default function CheckoutModal({
                   <button
                     type="button"
                     onClick={handleFinalSubmit}
-                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-xs shadow-md hover:shadow-lg transition cursor-pointer active:scale-[0.99] flex items-center justify-center gap-1.5"
+                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs shadow-md shadow-purple-500/25 hover:shadow-lg transition cursor-pointer active:scale-[0.99] flex items-center justify-center gap-1.5"
                   >
                     <CheckCircle2 size={16} />
-                    <span>✓ Saya Sudah Transfer (Selesaikan Pesanan)</span>
+                    <span>Kirim Bukti Pembayaran ke Admin</span>
                   </button>
+                  <p className="text-[10px] text-center text-slate-400 leading-snug px-2">
+                    Bukti pembayaran akan dikirim ke sistem admin untuk diverifikasi. Pesanan akan otomatis masuk ke antrean pengerjaan segera setelah disetujui.
+                  </p>
 
                   <button
                     type="button"

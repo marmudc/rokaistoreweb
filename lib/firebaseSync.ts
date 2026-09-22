@@ -18,6 +18,7 @@ import { storeInfo } from './storeData';
 import type {
   Product,
   AdminOrder,
+  AdminOrderStatus,
   PromoCode,
   HeroSlide,
   StoreSettings,
@@ -148,7 +149,7 @@ export async function saveOrderToFirestore(order: AdminOrder): Promise<void> {
 
 export async function updateOrderStatusInFirestore(
   orderId: string,
-  status: 'Diproses' | 'Selesai' | 'Dibatalkan'
+  status: AdminOrderStatus
 ): Promise<void> {
   try {
     await updateDoc(doc(db, 'orders', orderId), {

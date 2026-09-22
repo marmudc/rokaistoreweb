@@ -23,6 +23,7 @@ export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabPro
   const totalOrders = adminOrders.length;
   const completedOrders = adminOrders.filter(o => o.status === 'Selesai').length;
   const inProgressOrders = adminOrders.filter(o => o.status === 'Diproses').length;
+  const pendingVerificationOrders = adminOrders.filter(o => o.status === 'Menunggu Verifikasi').length;
   const activePromosCount = adminPromos.filter(p => p.active).length;
 
   const dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
@@ -73,7 +74,19 @@ export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabPro
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
         </svg>
       ),
-      sub: <span className="flex items-center gap-2 text-[11px] font-semibold text-slate-500"><span className="text-emerald-600 font-bold">{completedOrders} Selesai</span><span>•</span><span className="text-sky-600 font-bold">{inProgressOrders} Diproses</span></span>,
+      sub: (
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 flex-wrap">
+          {pendingVerificationOrders > 0 && (
+            <>
+              <span className="text-amber-600 font-bold">{pendingVerificationOrders} Verif</span>
+              <span>•</span>
+            </>
+          )}
+          <span className="text-sky-600 font-bold">{inProgressOrders} Antrean</span>
+          <span>•</span>
+          <span className="text-emerald-600 font-bold">{completedOrders} Selesai</span>
+        </span>
+      ),
     },
     {
       label: 'Layanan Aktif',

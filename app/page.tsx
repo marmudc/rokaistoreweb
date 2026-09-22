@@ -143,7 +143,7 @@ export default function StorefrontPage() {
       variantName: cart.cart.map(i => i.variantName || 'Standar').join(', '),
       amount: cart.finalTotal,
       date: 'Baru Saja',
-      status: 'Diproses',
+      status: 'Menunggu Verifikasi',
       payment: paymentConfirmationType === 'proof_photo' ? 'QRIS (Bukti Transfer)' : 'QRIS (Kode Unik)',
     };
 
@@ -163,13 +163,13 @@ export default function StorefrontPage() {
       amount: item.price * item.quantity,
       formattedPrice: `Rp ${(item.price * item.quantity).toLocaleString('id-ID')}`,
       quantity: item.quantity,
-      status: 'in_progress',
-      statusTitle: 'Sedang Dikerjakan Joki / Admin',
-      statusBadgeColor: 'bg-sky-50 text-sky-700 border-sky-200',
-      statusPulseColor: 'bg-sky-500',
-      currentStep: 3,
-      estimatedTime: '~5-15 menit',
-      customerNote: `Pesanan sedang diproses untuk ID: ${username || 'Pelanggan Online'}`,
+      status: 'pending',
+      statusTitle: 'Menunggu Verifikasi Pembayaran',
+      statusBadgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+      statusPulseColor: 'bg-amber-500',
+      currentStep: 2,
+      estimatedTime: '~1-5 menit verifikasi',
+      customerNote: `Bukti pembayaran telah terkirim ke admin untuk ID: ${username || 'Pelanggan Online'}. Menunggu persetujuan admin untuk dimasukkan ke antrean pengerjaan.`,
       securityNotice: 'Data akun game Anda dienkripsi aman dan transaksi dijamin garansi uang kembali 100%.',
       inGameId: username || 'Pelanggan Online',
       gamePassword: gamePassword || undefined,
@@ -182,12 +182,12 @@ export default function StorefrontPage() {
 
     addUserOrders(newUserOrders);
     cart.clearCart();
-    showToast('Pesanan berhasil dibuat! Admin segera memproses akun Anda.');
+    showToast('Bukti pembayaran terkirim! Menunggu konfirmasi admin.');
 
     // Dispatch real-time notification
     addNotification({
-      title: `Pesanan Baru #${orderNumber} Dibuat`,
-      message: `Pesanan Anda (${cart.cart.map(i => i.title).join(', ')}) berhasil dibuat dan sedang diproses admin/joki.`,
+      title: `Bukti Pembayaran #${orderNumber} Terkirim`,
+      message: `Bukti pembayaran Anda (${cart.cart.map(i => i.title).join(', ')}) sedang diverifikasi admin. Pesanan akan otomatis masuk antrean segera setelah disetujui.`,
       type: 'order',
       linkAction: 'open_orders',
       orderId: orderNumber,
@@ -211,7 +211,7 @@ export default function StorefrontPage() {
       }, 700);
     } else {
       setTimeout(() => {
-        setOrdersFilter('in_progress');
+        setOrdersFilter('pending');
         setFocusOrderId(orderNumber);
         setOrdersOpen(true);
       }, 800);

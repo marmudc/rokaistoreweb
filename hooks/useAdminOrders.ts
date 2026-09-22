@@ -48,6 +48,25 @@ export function useAdminOrders() {
     }
   }, []);
 
+  const approvePayment = useCallback(async (orderId: string) => {
+    // Optimistic UI update
+    setAdminOrders(prev =>
+      prev.map(o => o.id === orderId ? { ...o, status: 'Diproses' as const } : o)
+    );
+
+    // Update in Firestore
+    await updateOrderStatusInFirestore(orderId, 'Diproses');
+
+    // Add notification to Firestore
+    await addNotificationToFirestore({
+      title: `Pembayaran Pesanan #${orderId} Disetujui ✅`,
+      message: `Admin telah memverifikasi pembayaran Anda. Pesanan sekarang telah resmi masuk ke dalam antrean pengerjaan!`,
+      type: 'order',
+      linkAction: 'open_orders',
+      orderId,
+    });
+  }, []);
+
   const markComplete = useCallback(async (orderId: string) => {
     // Optimistic UI update
     setAdminOrders(prev =>
@@ -147,13 +166,16 @@ export function useAdminOrders() {
     }
   }, []);
 
-  const activeOrdersCount = adminOrders.filter(o => o.status === 'Diproses').length;
+  const activeOrdersCount = adminOrders.filter(
+    o => o.status === 'Diproses' || o.status === 'Menunggu Verifikasi'
+  ).length;
 
   return {
     adminOrders,
     adminPromos,
     activeOrdersCount,
     loading,
+    approvePayment,
     markComplete,
     cancelOrder,
     deleteOrder,

@@ -8,6 +8,7 @@ import {
   EyeOff,
   Copy,
   Check,
+  CheckCircle2,
   ShieldCheck,
   ShieldAlert,
   Smartphone,
@@ -19,17 +20,25 @@ import {
   FileCheck,
 } from 'lucide-react';
 
-type OrderFilter = 'all' | 'Diproses' | 'Selesai' | 'Dibatalkan';
+type OrderFilter = 'all' | 'Menunggu Verifikasi' | 'Diproses' | 'Selesai' | 'Dibatalkan';
 
 interface OrdersTabProps {
   adminOrders: AdminOrder[];
+  onApprovePayment: (id: string) => void;
   onMarkComplete: (id: string) => void;
   onCancel?: (id: string) => void;
   onDelete: (id: string) => void;
   showToast: (msg: string) => void;
 }
 
-export default function OrdersTab({ adminOrders, onMarkComplete, onCancel, onDelete, showToast }: OrdersTabProps) {
+export default function OrdersTab({
+  adminOrders,
+  onApprovePayment,
+  onMarkComplete,
+  onCancel,
+  onDelete,
+  showToast,
+}: OrdersTabProps) {
   const [filter, setFilter] = useState<OrderFilter>('all');
   const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -53,6 +62,7 @@ export default function OrdersTab({ adminOrders, onMarkComplete, onCancel, onDel
 
   const filtered = filter === 'all' ? adminOrders : adminOrders.filter(o => o.status === filter);
   const allCount = adminOrders.length;
+  const menungguVerifikasiCount = adminOrders.filter(o => o.status === 'Menunggu Verifikasi').length;
   const diprosesCount = adminOrders.filter(o => o.status === 'Diproses').length;
   const selesaiCount = adminOrders.filter(o => o.status === 'Selesai').length;
   const dibatalkanCount = adminOrders.filter(o => o.status === 'Dibatalkan').length;
@@ -63,24 +73,35 @@ export default function OrdersTab({ adminOrders, onMarkComplete, onCancel, onDel
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-black text-slate-900">Manajemen Pesanan</h3>
-          <p className="text-[11px] text-slate-400">{allCount} total pesanan masuk</p>
+          <p className="text-[11px] text-slate-400">
+            {allCount} total pesanan • {menungguVerifikasiCount} butuh verifikasi
+          </p>
         </div>
         {/* Filter tabs */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           {([
-            { key: 'all', label: `Semua (${allCount})` },
-            { key: 'Diproses', label: `Diproses (${diprosesCount})` },
-            { key: 'Selesai', label: `Selesai (${selesaiCount})` },
-            { key: 'Dibatalkan', label: `Dibatalkan (${dibatalkanCount})` },
+            { key: 'all', label: `Semua (${allCount})`, highlight: false },
+            {
+              key: 'Menunggu Verifikasi',
+              label: `Verifikasi (${menungguVerifikasiCount})`,
+              highlight: menungguVerifikasiCount > 0,
+            },
+            { key: 'Diproses', label: `Antrean (${diprosesCount})`, highlight: false },
+            { key: 'Selesai', label: `Selesai (${selesaiCount})`, highlight: false },
+            { key: 'Dibatalkan', label: `Dibatalkan (${dibatalkanCount})`, highlight: false },
           ] as const).map(tab => (
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer whitespace-nowrap ${
-                filter === tab.key ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                filter === tab.key
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : tab.highlight
+                  ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 ring-1 ring-amber-300 animate-pulse'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
-              {tab.label}
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>
@@ -111,15 +132,24 @@ export default function OrdersTab({ adminOrders, onMarkComplete, onCancel, onDel
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-xs font-black text-purple-700">{order.id}</span>
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${
                             order.status === 'Selesai'
                               ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                               : order.status === 'Dibatalkan'
                               ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : order.status === 'Menunggu Verifikasi'
+                              ? 'bg-amber-50 text-amber-800 border border-amber-300 font-extrabold'
                               : 'bg-sky-50 text-sky-700 border border-sky-200'
                           }`}
                         >
-                          {order.status}
+                          {order.status === 'Menunggu Verifikasi' && (
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                          )}
+                          {order.status === 'Menunggu Verifikasi'
+                            ? '⏳ Menunggu Verifikasi Pembayaran'
+                            : order.status === 'Diproses'
+                            ? '⚡ Dalam Antrean / Pengerjaan'
+                            : order.status}
                         </span>
                         {order.agreedToTerms && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
@@ -345,6 +375,32 @@ export default function OrdersTab({ adminOrders, onMarkComplete, onCancel, onDel
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+                  {order.status === 'Menunggu Verifikasi' && (
+                    <>
+                      <button
+                        onClick={() => {
+                          onApprovePayment(order.id);
+                          showToast(`✓ Pembayaran #${order.id} disetujui! Pesanan masuk antrean pengerjaan.`);
+                        }}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-black transition cursor-pointer shadow-md shadow-purple-500/20 flex items-center gap-1.5 active:scale-95"
+                      >
+                        <CheckCircle2 size={15} />
+                        <span>✓ Setujui Pembayaran &amp; Masukkan Antrean</span>
+                      </button>
+                      {onCancel && (
+                        <button
+                          onClick={() => {
+                            onCancel(order.id);
+                            showToast(`Pesanan ${order.id} ditolak / dibatalkan`);
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition cursor-pointer border border-amber-200"
+                        >
+                          Tolak
+                        </button>
+                      )}
+                    </>
+                  )}
+
                   {order.status === 'Diproses' && (
                     <>
                       <button
@@ -354,7 +410,8 @@ export default function OrdersTab({ adminOrders, onMarkComplete, onCancel, onDel
                         }}
                         className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition cursor-pointer shadow-sm flex items-center gap-1.5"
                       >
-                        ✓ Tandai Selesai
+                        <CheckCircle2 size={15} />
+                        <span>✓ Tandai Selesai</span>
                       </button>
                       {onCancel && (
                         <button
@@ -375,9 +432,11 @@ export default function OrdersTab({ adminOrders, onMarkComplete, onCancel, onDel
                     )},%20kami%20dari%20admin%20FableMart%20mengenai%20pesanan%20%23${order.id}%20(${encodeURIComponent(
                       order.product
                     )}).%20${
-                      order.has2FA && order.twoFAType === 'whatsapp'
+                      order.status === 'Menunggu Verifikasi'
+                        ? 'Kami%20sedang%20memeriksa%20bukti%20pembayaran%20Anda.'
+                        : order.has2FA && order.twoFAType === 'whatsapp'
                         ? 'Mohon%20siapkan%20kode%20verifikasi%202FA%20yang%20akan%20kami%20kirimkan%20segera.'
-                        : ''
+                        : 'Pesanan%20Anda%20sedang%20dalam%20antrean%20pengerjaan.'
                     }`}
                     target="_blank"
                     rel="noreferrer"

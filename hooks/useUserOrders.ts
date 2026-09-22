@@ -9,6 +9,7 @@ export const defaultUserOrders: UserOrder[] = [];
 export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
   const isCompleted = o.status === 'Selesai';
   const isCancelled = o.status === 'Dibatalkan';
+  const isPendingVerification = o.status === 'Menunggu Verifikasi';
 
   return {
     id: o.id,
@@ -20,27 +21,51 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
     amount: o.amount,
     formattedPrice: `Rp ${o.amount.toLocaleString('id-ID')}`,
     quantity: o.quantity || 1,
-    status: isCompleted ? 'completed' : isCancelled ? 'completed' : 'in_progress',
+    status: isCompleted ? 'completed' : isCancelled ? 'completed' : isPendingVerification ? 'pending' : 'in_progress',
     statusTitle: isCompleted
       ? 'Pesanan Selesai & Diterima'
       : isCancelled
       ? 'Pesanan Dibatalkan'
-      : 'Sedang Diproses Tim FableMart',
+      : isPendingVerification
+      ? 'Menunggu Verifikasi Pembayaran'
+      : 'Masuk Antrean & Sedang Dikerjakan',
     statusBadgeColor: isCompleted
       ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
       : isCancelled
       ? 'bg-rose-50 text-rose-700 border-rose-200'
+      : isPendingVerification
+      ? 'bg-amber-50 text-amber-700 border-amber-200'
       : 'bg-sky-50 text-sky-700 border-sky-200',
-    statusPulseColor: isCompleted ? 'bg-emerald-500' : isCancelled ? 'bg-rose-500' : 'bg-sky-500',
-    currentStep: isCompleted ? 4 : isCancelled ? 1 : 3,
-    estimatedTime: isCompleted ? 'Selesai' : '~5-15 menit',
+    statusPulseColor: isCompleted
+      ? 'bg-emerald-500'
+      : isCancelled
+      ? 'bg-rose-500'
+      : isPendingVerification
+      ? 'bg-amber-500'
+      : 'bg-sky-500',
+    currentStep: isCompleted ? 4 : isCancelled ? 1 : isPendingVerification ? 2 : 3,
+    estimatedTime: isCompleted
+      ? 'Selesai'
+      : isCancelled
+      ? 'Dibatalkan'
+      : isPendingVerification
+      ? '~1-5 menit verifikasi'
+      : '~5-15 menit pengerjaan',
     customerNote: isCompleted
       ? 'Pesanan telah selesai diserahterimakan.'
       : isCancelled
       ? 'Pesanan dibatalkan. Hubungi CS WhatsApp untuk bantuan garansi/refund.'
-      : 'Tim FableMart sedang memproses pesanan Anda.',
-    securityNotice: 'Akun Anda 100% aman & terenkripsi.',
+      : isPendingVerification
+      ? 'Bukti pembayaran telah berhasil dikirim ke admin. Mohon tunggu verifikasi admin sebelum pesanan masuk ke antrean pengerjaan.'
+      : 'Pembayaran telah disetujui admin! Akun game Anda kini berada dalam antrean pengerjaan joki / admin resmi.',
+    securityNotice: 'Data kredensial akun Anda aman terenkripsi & transaksi bergaransi 100%.',
     inGameId: o.inGameId || o.phone || '',
+    gamePassword: o.gamePassword,
+    has2FA: o.has2FA,
+    twoFAType: o.twoFAType,
+    paymentConfirmationType: o.paymentConfirmationType,
+    paymentUniqueCode: o.paymentUniqueCode,
+    paymentProofImage: o.paymentProofImage,
   };
 }
 
