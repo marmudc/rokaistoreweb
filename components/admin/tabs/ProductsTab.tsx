@@ -6,12 +6,14 @@ import {
   deleteProductFromFirestore,
   deleteAllProductsFromFirestore,
   subscribeToStoreSettings,
+  saveStoreSettingsToFirestore,
   defaultCategoriesList,
+  defaultStoreSettings,
 } from '@/lib/firebaseSync';
 import { addNotification } from '@/lib/notifications';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import type { Product, ProductVariant, Category } from '@/lib/types';
+import type { Product, ProductVariant, Category, StoreSettings } from '@/lib/types';
 import ProductIcon from '@/components/ui/ProductIcon';
 import {
   Edit3,
@@ -27,6 +29,7 @@ import {
   Image as ImageIcon,
   Loader2,
   ExternalLink,
+  Tag,
 } from 'lucide-react';
 
 interface ProductsTabProps {
@@ -36,16 +39,43 @@ interface ProductsTabProps {
 export default function ProductsTab({ showToast }: ProductsTabProps) {
   const [catalog, setCatalog] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>(defaultCategoriesList);
+  const [storeSettings, setStoreSettings] = useState<StoreSettings>(defaultStoreSettings);
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const categoryOptions = useMemo(() => {
-    return categories.map(c => ({
-      value: c.id,
-      label: c.label,
-      badgeColor: c.badgeColor || 'bg-slate-50 text-slate-700 border-slate-200/60',
-    }));
-  }, [categories]);
+    const list: { value: string; label: string; badgeColor: string }[] = [];
+    const seen = new Set<string>();
+
+    // 1. From storeSettings categories
+    categories.forEach(c => {
+      const val = c.id.toLowerCase();
+      if (!seen.has(val)) {
+        seen.add(val);
+        list.push({
+          value: c.id,
+          label: c.label,
+          badgeColor: c.badgeColor || 'bg-indigo-50 text-indigo-700 border-indigo-200/60',
+        });
+      }
+    });
+
+    // 2. Also incorporate categories present across existing products in catalog
+    catalog.forEach(p => {
+      const pCat = (p.category || '').toLowerCase();
+      const pLabel = p.categoryLabel || p.category;
+      if (pCat && !seen.has(pCat)) {
+        seen.add(pCat);
+        list.push({
+          value: p.category,
+          label: pLabel,
+          badgeColor: p.categoryBadgeColor || 'bg-slate-50 text-slate-700 border-slate-200/60',
+        });
+      }
+    });
+
+    return list;
+  }, [categories, catalog]);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,6 +84,9 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   // Form states
   const [formTitle, setFormTitle] = useState('');
   const [formCategory, setFormCategory] = useState('cdid');
+  const [formCategoryLabel, setFormCategoryLabel] = useState('Roblox CDID');
+  const [formCategoryBadgeColor, setFormCategoryBadgeColor] = useState('bg-indigo-50 text-indigo-700 border-indigo-200/60');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [formDescription, setFormDescription] = useState('');
   const [formFeatures, setFormFeatures] = useState<string[]>([]);
   const [formNewFeature, setFormNewFeature] = useState('');
@@ -72,6 +105,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
       setCatalog(prods);
     });
     const unsubSettings = subscribeToStoreSettings((settings) => {
+      setStoreSettings(settings);
       if (settings.categories && settings.categories.length > 0) {
         setCategories(settings.categories);
       }
@@ -170,7 +204,15 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   const openAddModal = () => {
     setEditingProduct(null);
     setFormTitle('');
-    setFormCategory(categoryOptions[0]?.value || 'cdid');
+    const defaultCat = categoryOptions[0] || {
+      value: 'cdid',
+      label: 'Roblox CDID',
+      badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/60',
+    };
+    setFormCategory(defaultCat.value);
+    setFormCategoryLabel(defaultCat.label);
+    setFormCategoryBadgeColor(defaultCat.badgeColor);
+    setIsCustomCategory(false);
     setFormDescription('Layanan resmi Roblox, pengerjaan cepat, dan garansi transaksi 100% aman.');
     setFormFeatures(['Proses Cepat & Terpercaya', 'Garansi Uang Kembali']);
     setFormNewFeature('');
@@ -193,7 +235,26 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
     setFormTitle(product.title);
-    setFormCategory(product.category);
+
+    // Smart match category against categoryOptions (case-insensitive check on id or label)
+    const pCatLower = (product.category || '').toLowerCase();
+    const pLabelLower = (product.categoryLabel || '').toLowerCase();
+    const matched = categoryOptions.find(
+      c => c.value.toLowerCase() === pCatLower ||
+           c.label.toLowerCase() === pCatLower ||
+           c.label.toLowerCase() === pLabelLower ||
+           c.value.toLowerCase() === pLabelLower
+    );
+
+    const initialCatValue = matched ? matched.value : (product.category || 'cdid');
+    const initialCatLabel = product.categoryLabel || matched?.label || product.category || 'Roblox';
+    const initialBadgeColor = product.categoryBadgeColor || matched?.badgeColor || 'bg-indigo-50 text-indigo-700 border-indigo-200/60';
+
+    setFormCategory(initialCatValue);
+    setFormCategoryLabel(initialCatLabel);
+    setFormCategoryBadgeColor(initialBadgeColor);
+    setIsCustomCategory(!matched);
+
     setFormDescription(product.description || '');
     setFormFeatures(product.features ? [...product.features] : []);
     setFormNewFeature('');
@@ -214,6 +275,20 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
           ]
     );
     setIsModalOpen(true);
+  };
+
+  const handleSelectCategory = (catValue: string) => {
+    if (catValue === '__custom__') {
+      setIsCustomCategory(true);
+      return;
+    }
+    setIsCustomCategory(false);
+    setFormCategory(catValue);
+    const found = categoryOptions.find(c => c.value === catValue);
+    if (found) {
+      setFormCategoryLabel(found.label);
+      setFormCategoryBadgeColor(found.badgeColor);
+    }
   };
 
   // Feature list handlers
@@ -298,18 +373,42 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
     }
 
     const defaultVar = formVariants.find(v => v.isDefault) || formVariants[0];
-    const cat = categoryOptions.find(c => c.value === formCategory) || categoryOptions[0] || {
-      value: formCategory,
-      label: formCategory,
-      badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/60',
-    };
+
+    const finalLabel = formCategoryLabel.trim() || 'Roblox';
+    let finalCatValue = formCategory.trim();
+    if (!finalCatValue || isCustomCategory) {
+      finalCatValue = finalLabel.toLowerCase().replace(/[^a-z0-9]/g, '') || 'roblox';
+    }
+    const finalBadgeColor = formCategoryBadgeColor || 'bg-indigo-50 text-indigo-700 border-indigo-200/60';
+
+    // Auto-sync / auto-register to storeSettings categories if not already present
+    const existingCat = categories.find(
+      c => c.id.toLowerCase() === finalCatValue.toLowerCase() ||
+           c.label.toLowerCase() === finalLabel.toLowerCase()
+    );
+    if (!existingCat) {
+      const newRegisteredCat: Category = {
+        id: finalCatValue,
+        label: finalLabel,
+        badgeColor: finalBadgeColor,
+      };
+      const updatedCategoriesList = [...categories, newRegisteredCat];
+      setCategories(updatedCategoriesList);
+      const updatedSettings: StoreSettings = {
+        ...storeSettings,
+        categories: updatedCategoriesList,
+      };
+      saveStoreSettingsToFirestore(updatedSettings).catch(err => {
+        console.error('Failed to sync new category to store settings:', err);
+      });
+    }
 
     const iconType =
-      formCategory === 'cdid' || formCategory === 'roblox'
+      finalCatValue.includes('cdid')
         ? 'car'
-        : formCategory === 'bloxfruits'
+        : finalCatValue.includes('bloxfruits') || finalCatValue.includes('sword')
         ? 'sword'
-        : formCategory === 'robux'
+        : finalCatValue.includes('robux') || finalCatValue.includes('coin')
         ? 'coin'
         : 'gamepad';
 
@@ -320,9 +419,9 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
           const updated: Product = {
             ...p,
             title: formTitle.trim(),
-            category: formCategory,
-            categoryLabel: cat.label,
-            categoryBadgeColor: cat.badgeColor,
+            category: finalCatValue,
+            categoryLabel: finalLabel,
+            categoryBadgeColor: finalBadgeColor,
             price: defaultVar.price,
             formattedPrice: defaultVar.formattedPrice,
             description: formDescription.trim(),
@@ -340,15 +439,15 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
 
       setCatalog(updatedList);
       setIsModalOpen(false);
-      showToast(`✓ Layanan "${formTitle.trim()}" berhasil diperbarui!`);
+      showToast(`✓ Layanan "${formTitle.trim()}" (${finalLabel}) berhasil diperbarui!`);
     } else {
       // ADD new product
       const newProduct: Product = {
         id: `prod-${Date.now()}`,
         title: formTitle.trim(),
-        category: formCategory,
-        categoryLabel: cat.label,
-        categoryBadgeColor: cat.badgeColor,
+        category: finalCatValue,
+        categoryLabel: finalLabel,
+        categoryBadgeColor: finalBadgeColor,
         price: defaultVar.price,
         formattedPrice: defaultVar.formattedPrice,
         rating: 5.0,
@@ -362,7 +461,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
 
       setCatalog([newProduct, ...catalog]);
       setIsModalOpen(false);
-      showToast(`✓ Layanan baru "${newProduct.title}" berhasil ditambahkan!`);
+      showToast(`✓ Layanan baru "${newProduct.title}" (${finalLabel}) berhasil ditambahkan!`);
 
       // Directly save to Firestore
       saveProductToFirestore(newProduct).catch(err => console.error('Failed to save new product:', err));
@@ -416,7 +515,10 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   // Filtered products for display
   const filteredProducts = useMemo(() => {
     return catalog.filter(p => {
-      const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
+      const matchCat =
+        selectedCategory === 'all' ||
+        p.category === selectedCategory ||
+        (p.categoryLabel && p.categoryLabel.toLowerCase() === selectedCategory.toLowerCase());
       const matchSearch =
         !searchFilter.trim() ||
         p.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
@@ -478,7 +580,10 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
             Semua ({catalog.length})
           </button>
           {categoryOptions.map(cat => {
-            const count = catalog.filter(p => p.category === cat.value).length;
+            const count = catalog.filter(
+              p => p.category === cat.value ||
+                   (p.categoryLabel && p.categoryLabel.toLowerCase() === cat.label.toLowerCase())
+            ).length;
             return (
               <button
                 key={cat.value}
@@ -680,26 +785,103 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                      Kategori
-                    </label>
-                    <select
-                      value={formCategory}
-                      onChange={e => setFormCategory(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-semibold"
-                    >
-                      {categoryOptions.map(c => (
-                        <option key={c.value} value={c.value}>{c.label}</option>
-                      ))}
-                    </select>
+                {/* Category & categoryLabel Section */}
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 space-y-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <Tag size={13} className="text-purple-600" />
+                        <span>Kategori &amp; Label Layanan *</span>
+                      </label>
+                      <p className="text-[10px] text-slate-400">
+                        Pilih kategori dari pengaturan toko atau tentukan label tampilan khusus.
+                      </p>
+                    </div>
+
+                    {/* Live Badge Preview */}
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400">Pratinjau:</span>
+                      <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${formCategoryBadgeColor} uppercase tracking-wider shadow-xs`}>
+                        {formCategoryLabel || 'LABEL KATEGORI'}
+                      </span>
+                    </div>
                   </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                        Pilihan Kategori
+                      </label>
+                      <select
+                        value={isCustomCategory ? '__custom__' : formCategory}
+                        onChange={e => handleSelectCategory(e.target.value)}
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-semibold text-slate-800"
+                      >
+                        {categoryOptions.map(c => (
+                          <option key={c.value} value={c.value}>
+                            {c.label} ({c.value})
+                          </option>
+                        ))}
+                        <option value="__custom__">+ Buat Kategori / Label Khusus...</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                        Teks Label Kategori (categoryLabel) *
+                      </label>
+                      <input
+                        type="text"
+                        value={formCategoryLabel}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setFormCategoryLabel(val);
+                          if (isCustomCategory) {
+                            const slug = val.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            setFormCategory(slug || 'custom');
+                          }
+                        }}
+                        placeholder="Contoh: Roblox CDID, Blox Fruits, Pet Simulator"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-bold text-slate-800"
+                      />
+                    </div>
+                  </div>
+
+                  {/* If custom category mode is on, allow choosing badge color */}
+                  {isCustomCategory && (
+                    <div className="pt-2 border-t border-slate-200/60 space-y-1.5 animate-in fade-in duration-200">
+                      <label className="text-[10px] font-bold text-purple-700 uppercase tracking-wider block">
+                        Pilih Palet Warna Lencana:
+                      </label>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {[
+                          { name: 'Indigo', class: 'bg-indigo-50 text-indigo-700 border-indigo-200/60' },
+                          { name: 'Amber', class: 'bg-amber-50 text-amber-700 border-amber-200/60' },
+                          { name: 'Emerald', class: 'bg-emerald-50 text-emerald-700 border-emerald-200/60' },
+                          { name: 'Purple', class: 'bg-purple-50 text-purple-700 border-purple-200/60' },
+                          { name: 'Sky', class: 'bg-sky-50 text-sky-700 border-sky-200/60' },
+                          { name: 'Rose', class: 'bg-rose-50 text-rose-700 border-rose-200/60' },
+                        ].map(pal => (
+                          <button
+                            key={pal.name}
+                            type="button"
+                            onClick={() => setFormCategoryBadgeColor(pal.class)}
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-black border transition cursor-pointer ${pal.class} ${
+                              formCategoryBadgeColor === pal.class ? 'ring-2 ring-purple-600 scale-105' : 'opacity-70 hover:opacity-100'
+                            }`}
+                          >
+                            {pal.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
                       Harga Dasar Referensi
                     </label>
-                    <div className="px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50 font-black text-pink-600">
+                    <div className="px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-white font-black text-pink-600">
                       {formVariants.find(v => v.isDefault)?.formattedPrice || 'Otomatis dari varian default'}
                     </div>
                   </div>

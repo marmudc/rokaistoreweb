@@ -63,7 +63,11 @@ export default function ProductGrid({
   const filtered = useMemo(() => {
     let result = allProducts;
     if (currentCategory !== 'all') {
-      result = result.filter(p => p.category === currentCategory);
+      const target = currentCategory.toLowerCase();
+      result = result.filter(
+        p => (p.category && p.category.toLowerCase() === target) ||
+             (p.categoryLabel && p.categoryLabel.toLowerCase() === target)
+      );
     }
     if (activeSearchQuery.trim()) {
       const q = activeSearchQuery.toLowerCase();

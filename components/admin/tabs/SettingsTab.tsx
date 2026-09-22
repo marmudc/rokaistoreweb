@@ -72,12 +72,16 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
     };
 
     const updatedCategories = [...currentCats, newCat];
-    setSettings(s => ({ ...s, categories: updatedCategories }));
+    const updatedSettings = { ...settings, categories: updatedCategories };
+    setSettings(updatedSettings);
+    saveStoreSettingsToFirestore(updatedSettings).catch(err => {
+      console.error('Failed to save category to Firestore:', err);
+    });
     setNewCategoryLabel('');
     // Cycle to next color for convenience
     const nextColorIdx = (BADGE_COLOR_PALETTES.findIndex(p => p.class === newCategoryColor.class) + 1) % BADGE_COLOR_PALETTES.length;
     setNewCategoryColor(BADGE_COLOR_PALETTES[nextColorIdx]);
-    showToast(`✓ Label kategori "${trimmed}" berhasil ditambahkan! Klik "Simpan Pengaturan" untuk menerapkan.`);
+    showToast(`✓ Label kategori "${trimmed}" berhasil ditambahkan & disinkronkan!`);
   };
 
   const handleDeleteCategory = (catId: string, catLabel: string) => {
@@ -91,8 +95,12 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
       if (!confirmDelete) return;
     }
     const updated = currentCats.filter(c => c.id !== catId);
-    setSettings(s => ({ ...s, categories: updated }));
-    showToast(`✓ Label kategori "${catLabel}" dihapus. Klik "Simpan Pengaturan" untuk menerapkan.`);
+    const updatedSettings = { ...settings, categories: updated };
+    setSettings(updatedSettings);
+    saveStoreSettingsToFirestore(updatedSettings).catch(err => {
+      console.error('Failed to delete category from Firestore:', err);
+    });
+    showToast(`✓ Label kategori "${catLabel}" berhasil dihapus & disinkronkan!`);
   };
 
   // Compress image on canvas so it loads instantly for buyers (<100KB)
