@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" data-scroll-behavior="smooth">
-      <body>
+      <body className="geometric-red">
         <AuthProvider>
           {children}
         </AuthProvider>

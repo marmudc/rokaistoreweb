@@ -13,8 +13,8 @@
     }
   }
   body {
-    background-color: #fafbfc;
-    color: #0f172a;
+    background: #ffe5e5; /* soft red background */
+    color: #1f2937; /* ensure readable dark text */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
@@ -32,33 +32,31 @@
   scrollbar-width: none;
 }
 
-/* Hero Gradient */
-.hero-gradient-bg {
-  background: linear-gradient(135deg, #df1368 0%, #a81559 28%, #781794 58%, #5716a3 82%, #3a0d78 100%);
+/* Geometric Red background */
+.geometric-red {
+  background: linear-gradient(135deg, #ff4d4d 0%, #ff1a1a 30%, #c40000 60%, #800000 90%);
   position: relative;
   overflow: hidden;
 }
-
-.hero-gradient-bg::before {
+.geometric-red::before {
   content: "";
   position: absolute;
   top: -20%;
   right: -10%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
   border-radius: 50%;
   pointer-events: none;
 }
-
-.hero-gradient-bg::after {
+.geometric-red::after {
   content: "";
   position: absolute;
   bottom: -30%;
   left: 20%;
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, rgba(168, 21, 89, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+  background: radial-gradient(circle, rgba(255, 0, 0, 0.3) 0%, rgba(0,0,0,0) 70%);
   border-radius: 50%;
   pointer-events: none;
 }
