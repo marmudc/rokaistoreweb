@@ -247,7 +247,7 @@ export default function StorefrontPage() {
   }, [cart, addUserOrders, showToast, user, userProfile]);
 
   return (
-    <div className="min-h-screen bg-[#fafbfc]">
+    <div className="min-h-screen bg-transparent text-slate-100 relative">
       <StorefrontLoader loading={initialLoading} storeName={storeName} />
       <Navbar
         storeName={storeName}
@@ -320,7 +320,9 @@ export default function StorefrontPage() {
                 const cleanPhone = waNumber.replace(/[^0-9]/g, '');
                 return (
                   <a
-                    href={`https://wa.me/${cleanPhone}?text=Halo%20Admin%20FableMart,%20saya%20ingin%20konfirmasi%20kendala%20pada%20pesanan%20%23${issueOrder.id}%20(${encodeURIComponent(
+                    href={`https://wa.me/${cleanPhone}?text=Halo%20Admin%20${encodeURIComponent(
+                      storeName.replace(/\.$/, '')
+                    )},%20saya%20ingin%20konfirmasi%20kendala%20pada%20pesanan%20%23${issueOrder.id}%20(${encodeURIComponent(
                       issueOrder.product
                     )}).%20Kendala:%20${encodeURIComponent(issueOrder.issueReason || 'Mohon petunjuk kendala akun/2FA')}`}
                     target="_blank"

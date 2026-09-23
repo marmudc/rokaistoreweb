@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" data-scroll-behavior="smooth">
-      <body className="geometric-red">
+      <body className="geometric-red-theme min-h-screen antialiased">
         <AuthProvider>
           {children}
         </AuthProvider>

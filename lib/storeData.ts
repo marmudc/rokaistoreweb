@@ -14,6 +14,13 @@ export const heroSlides: HeroSlide[] = [];
 
 export const heroThemes: HeroTheme[] = [
   {
+    id: "crimson",
+    name: "Crimson Sovereign (Merah Megah)",
+    bgClass: "from-red-600 via-rose-800 to-slate-950",
+    previewColor: "bg-gradient-to-r from-red-600 to-rose-700",
+    glowColor: "from-red-500 to-rose-600"
+  },
+  {
     id: "cyber",
     name: "Cyber Pink-Purple (Default)",
     bgClass: "from-pink-600 via-purple-700 to-indigo-900",
@@ -54,21 +61,21 @@ export const valueProps: ValueProp[] = [
   {
     icon: "shield-check",
     color: "emerald",
-    bgClass: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    bgClass: "bg-[#16060a]/90 backdrop-blur-md text-emerald-400 border-rose-950/80 shadow-md",
     title: "Transaksi Sukses",
     description: "99.87% pesanan selesai tanpa kendala"
   },
   {
     icon: "clock",
-    color: "sky",
-    bgClass: "bg-sky-50 text-sky-600 border-sky-100",
+    color: "rose",
+    bgClass: "bg-[#16060a]/90 backdrop-blur-md text-rose-400 border-rose-950/80 shadow-md",
     title: "Pengiriman Instan",
     description: "Gamepass & Saluran dikirim < 5 menit"
   },
   {
     icon: "message-square-text",
-    color: "purple",
-    bgClass: "bg-purple-50 text-purple-600 border-purple-100",
+    color: "red",
+    bgClass: "bg-[#16060a]/90 backdrop-blur-md text-red-400 border-rose-950/80 shadow-md",
     title: "Support Konsultasi",
     description: "Bantuan teknis untuk kendala pemesanan"
   }

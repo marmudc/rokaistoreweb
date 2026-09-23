@@ -56,13 +56,13 @@ export default function ProofGallery({ initialLimit = 4, storeName }: ProofGalle
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-base sm:text-lg font-black text-slate-900">Bukti Transaksi Nyata</h2>
-            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80 flex items-center gap-1">
-              <ShieldCheck size={12} className="text-emerald-600" />
+            <h2 className="text-base sm:text-lg font-black text-white">Bukti Transaksi Nyata</h2>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-800/60 flex items-center gap-1">
+              <ShieldCheck size={12} className="text-emerald-400" />
               <span>Terverifikasi</span>
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 font-medium">
+          <p className="text-[11px] text-rose-200/60 font-medium">
             Semua pesanan diverifikasi langsung oleh tim {storeName ? storeName.replace(/\.$/, '') : 'kami'} ({filtered.length} dari {proofs.length} bukti ditampilkan)
           </p>
         </div>
@@ -75,8 +75,8 @@ export default function ProofGallery({ initialLimit = 4, storeName }: ProofGalle
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition whitespace-nowrap cursor-pointer ${
                 selectedCategory === cat.id
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-950 border border-rose-500/50'
+                  : 'bg-[#16060a]/80 text-rose-200/70 hover:bg-rose-950/60 border border-rose-950/60'
               }`}
             >
               {cat.label}
@@ -100,7 +100,7 @@ export default function ProofGallery({ initialLimit = 4, storeName }: ProofGalle
           return (
             <div
               key={proof.id}
-              className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 overflow-hidden shadow-soft card-hover-effect flex flex-col group"
+              className="bg-[#16060a]/90 rounded-xl sm:rounded-2xl border border-rose-950/80 overflow-hidden shadow-soft card-hover-effect flex flex-col group hover:border-rose-500/60 transition-all duration-300"
             >
               {/* Image Container */}
               <div className="h-28 sm:h-36 bg-slate-900 relative overflow-hidden flex items-center justify-center">
@@ -115,10 +115,10 @@ export default function ProofGallery({ initialLimit = 4, storeName }: ProofGalle
                     className="object-cover group-hover:scale-105 transition duration-500 opacity-85"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-slate-950 p-3 sm:p-4 flex flex-col justify-between">
+                  <div className="w-full h-full bg-gradient-to-br from-red-950 via-rose-950 to-slate-950 p-3 sm:p-4 flex flex-col justify-between">
                     <div className="flex items-center justify-between">
-                      <span className="text-[9px] sm:text-[10px] font-mono text-indigo-400">ORDER-SUCCESS</span>
-                      <span className="text-[9px] sm:text-[10px] text-slate-400">{proof.category}</span>
+                      <span className="text-[9px] sm:text-[10px] font-mono text-rose-400">ORDER-SUCCESS</span>
+                      <span className="text-[9px] sm:text-[10px] text-rose-200/60">{proof.category}</span>
                     </div>
                     <div className="text-center py-1 sm:py-2">
                       <span className="text-sm sm:text-base font-black text-white tracking-wider truncate block">
@@ -128,12 +128,12 @@ export default function ProofGallery({ initialLimit = 4, storeName }: ProofGalle
                         + Transaksi Berhasil
                       </span>
                     </div>
-                    <div className="text-[8px] sm:text-[9px] text-slate-500 font-mono text-right">
+                    <div className="text-[8px] sm:text-[9px] text-rose-400/50 font-mono text-right">
                       VERIFIED TRANSAKSI
                     </div>
                   </div>
                 )}
-                <span className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 px-2 py-0.5 rounded-full bg-emerald-500/90 text-white text-[9px] sm:text-[10px] font-bold shadow-sm backdrop-blur-sm flex items-center gap-1">
+                <span className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[9px] sm:text-[10px] font-bold shadow-sm backdrop-blur-sm flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                   {proof.status}
                 </span>
@@ -142,17 +142,17 @@ export default function ProofGallery({ initialLimit = 4, storeName }: ProofGalle
               {/* Info */}
               <div className="p-2.5 sm:p-3.5 space-y-0.5 sm:space-y-1">
                 <div className="flex items-center justify-between gap-1">
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-800 truncate">{proof.title}</h4>
+                  <h4 className="text-xs sm:text-sm font-bold text-white truncate">{proof.title}</h4>
                   <div className="flex items-center text-amber-400 shrink-0">
                     {Array.from({ length: proof.rating || 5 }).map((_, i) => (
                       <Star key={i} size={10} className="fill-current" />
                     ))}
                   </div>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-slate-500">
-                  Pesanan oleh: <span className="font-semibold text-purple-600">{proof.customer}</span>
+                <p className="text-[10px] sm:text-[11px] text-rose-200/70">
+                  Pesanan oleh: <span className="font-semibold text-rose-400">{proof.customer}</span>
                 </p>
-                <p className="text-[10px] text-slate-400 line-clamp-1">{proof.details}</p>
+                <p className="text-[10px] text-rose-300/40 line-clamp-1">{proof.details}</p>
               </div>
             </div>
           );
