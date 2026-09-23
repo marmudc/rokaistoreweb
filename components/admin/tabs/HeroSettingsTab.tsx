@@ -182,11 +182,11 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-soft">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151923] p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-soft">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-sm sm:text-base font-black text-slate-900">Pengaturan Hero Banner</h3>
-            <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+            <h3 className="text-sm sm:text-base font-black text-slate-100">Pengaturan Hero Banner</h3>
+            <span className="text-[10px] font-bold text-rose-400 bg-rose-950/50 px-2.5 py-0.5 rounded-full border border-rose-900/60">
               {slides.length} Slide Aktif
             </span>
           </div>
@@ -199,7 +199,7 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
           {slides.length > 0 && (
             <button
               onClick={handleClearAllSlides}
-              className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold transition shadow-sm cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/50 text-xs font-bold transition shadow-sm cursor-pointer flex items-center gap-1.5"
             >
               <Trash2 size={14} />
               <span>Hapus Semua</span>
@@ -207,7 +207,7 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
           )}
           <button
             onClick={handleOpenAddModal}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold transition shadow-sm cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 cursor-pointer flex items-center gap-1.5"
           >
             <Plus size={15} />
             <span>Tambah Slide Baru</span>
@@ -220,17 +220,17 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
         <div className="space-y-4">
           {slides.length === 0 ? (
             /* Empty State */
-            <div className="p-8 text-center bg-white rounded-2xl border border-slate-200/80 shadow-soft space-y-3">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
+            <div className="p-8 text-center bg-[#151923] rounded-2xl border border-slate-800 shadow-soft space-y-3">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-rose-950/40 text-rose-400 border border-rose-900/40 flex items-center justify-center">
                 <Layers size={24} />
               </div>
-              <h4 className="text-sm font-bold text-slate-800">Belum Ada Slide Hero Khusus</h4>
+              <h4 className="text-sm font-bold text-slate-100">Belum Ada Slide Hero Khusus</h4>
               <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
                 Data hero banner saat ini bersih. Halaman utama menggunakan tampilan default toko yang elegan. Tambahkan slide untuk membuat banner promosi kustom.
               </p>
               <button
                 onClick={handleOpenAddModal}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold shadow-sm hover:shadow transition cursor-pointer mt-1"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold shadow-md shadow-red-950/60 transition cursor-pointer mt-1"
               >
                 <Plus size={14} />
                 <span>Tambah Slide Hero Pertama</span>
@@ -246,8 +246,8 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
                     onClick={() => setActiveSlideIdx(i)}
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                       activeSlideIdx === i
-                        ? 'bg-purple-600 text-white shadow-sm'
-                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-950/60'
+                        : 'bg-[#151923] border border-slate-800 text-slate-300 hover:bg-slate-800'
                     }`}
                   >
                     <span>{tagIconMap[s.tagIcon] ?? '✨'}</span>
@@ -257,7 +257,7 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
                 ))}
                 <button
                   onClick={handleOpenAddModal}
-                  className="px-3 py-2 rounded-xl border border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 text-xs font-bold transition cursor-pointer flex items-center gap-1 shrink-0"
+                  className="px-3 py-2 rounded-xl border border-dashed border-rose-800/80 text-rose-400 bg-rose-950/20 hover:bg-rose-950/40 text-xs font-bold transition cursor-pointer flex items-center gap-1 shrink-0"
                   title="Tambah Slide Baru"
                 >
                   <Plus size={14} />
@@ -267,15 +267,15 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
 
               {/* Form fields for Active Slide */}
               {activeSlide && (
-                <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-soft">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-                      <Edit3 size={13} className="text-purple-600" />
+                <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-[#151923] border border-slate-800 shadow-soft">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <span className="text-xs font-black text-slate-100 flex items-center gap-1.5">
+                      <Edit3 size={13} className="text-rose-400" />
                       <span>Edit Slide {activeSlideIdx + 1}</span>
                     </span>
                     <button
                       onClick={() => handleDeleteSlide(activeSlideIdx)}
-                      className="text-xs text-red-500 hover:text-red-700 font-bold flex items-center gap-1 hover:underline cursor-pointer"
+                      className="text-xs text-red-400 hover:text-red-300 font-bold flex items-center gap-1 hover:underline cursor-pointer"
                     >
                       <Trash2 size={13} />
                       <span>Hapus Slide Ini</span>
@@ -284,70 +284,70 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Ikon Tag</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Ikon Tag</label>
                       <select
                         value={activeSlide.tagIcon}
                         onChange={e => updateActiveSlide('tagIcon', e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                       >
-                        {tagIconOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                        {tagIconOptions.map(opt => <option key={opt.value} value={opt.value} className="bg-[#151923] text-slate-100">{opt.label}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Teks Tag/Pill</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Teks Tag/Pill</label>
                       <input
                         type="text"
                         value={activeSlide.tag}
                         onChange={e => updateActiveSlide('tag', e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white uppercase"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 uppercase"
                         placeholder="GAMING SERVICE"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Judul Hero</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Judul Hero</label>
                     <input
                       type="text"
                       value={activeSlide.title}
                       onChange={e => updateActiveSlide('title', e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                       placeholder="Judul besar hero banner"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Subjudul</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Subjudul</label>
                     <textarea
                       value={activeSlide.subtitle}
                       onChange={e => updateActiveSlide('subtitle', e.target.value)}
                       rows={2}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white resize-none"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 resize-none"
                       placeholder="Deskripsi singkat layanan..."
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Teks CTA Utama</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Teks CTA Utama</label>
                       <input
                         type="text"
                         value={activeSlide.primaryCta}
                         onChange={e => updateActiveSlide('primaryCta', e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                         placeholder="Lihat Produk"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Filter Kategori CTA</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Filter Kategori CTA</label>
                       <select
                         value={activeSlide.categoryFilter}
                         onChange={e => updateActiveSlide('categoryFilter', e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                       >
-                        <option value="all">Semua Kategori</option>
+                        <option value="all" className="bg-[#151923] text-slate-100">Semua Kategori</option>
                         {categories.map((c) => (
-                          <option key={c.id} value={c.id}>
+                          <option key={c.id} value={c.id} className="bg-[#151923] text-slate-100">
                             {c.label}
                           </option>
                         ))}
@@ -356,12 +356,12 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Teks CTA Sekunder</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Teks CTA Sekunder</label>
                     <input
                       type="text"
                       value={activeSlide.secondaryCta}
                       onChange={e => updateActiveSlide('secondaryCta', e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                       placeholder="Konsultasi WhatsApp"
                     />
                   </div>
@@ -371,20 +371,20 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
           )}
 
           {/* Theme Selector */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-soft space-y-2">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Tema Gradien Banner</label>
+          <div className="p-4 rounded-2xl bg-[#151923] border border-slate-800 shadow-soft space-y-2">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tema Gradien Banner</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {heroThemes.map(t => (
                 <button
                   key={t.id}
                   onClick={() => setTheme(t.id)}
                   className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition cursor-pointer ${
-                    theme === t.id ? 'border-purple-600 ring-2 ring-purple-300/40 bg-white' : 'border-slate-200 bg-slate-50 hover:border-purple-300'
+                    theme === t.id ? 'border-rose-500 ring-2 ring-rose-500/30 bg-[#1c2130]' : 'border-slate-800 bg-[#0e1118] hover:border-slate-700'
                   }`}
                 >
                   <div className={`w-8 h-8 rounded-lg ${t.previewColor} shrink-0 shadow-sm`} />
-                  <span className={`text-[11px] font-bold text-left leading-tight ${theme === t.id ? 'text-purple-800' : 'text-slate-700'}`}>{t.name}</span>
-                  {theme === t.id && <span className="ml-auto text-purple-600 font-bold">✓</span>}
+                  <span className={`text-[11px] font-bold text-left leading-tight ${theme === t.id ? 'text-rose-300' : 'text-slate-300'}`}>{t.name}</span>
+                  {theme === t.id && <span className="ml-auto text-rose-400 font-bold">✓</span>}
                 </button>
               ))}
             </div>
@@ -393,7 +393,7 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
           {/* Save Button */}
           <button
             onClick={handleSaveSettings}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold transition shadow-sm cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 cursor-pointer flex items-center justify-center gap-2"
           >
             <span>💾 Simpan Pengaturan Hero Banner</span>
           </button>
@@ -402,7 +402,7 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
         {/* RIGHT: Live Preview */}
         <div>
           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <Eye size={13} className="text-purple-600" />
+            <Eye size={13} className="text-rose-400" />
             <span>✦ Pratinjau Real-time</span>
           </div>
 
@@ -475,7 +475,7 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
               )}
             </div>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2 text-center">
+          <p className="text-[10px] text-slate-500 mt-2 text-center">
             Pratinjau akan berubah seketika saat Anda mengedit formulir atau memilih tema di sebelah kiri.
           </p>
         </div>
@@ -484,23 +484,23 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
       {/* MODAL TAMBAH SLIDE BARU */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)} />
-          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden modal-pop-in">
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-xs" onClick={() => setIsAddModalOpen(false)} />
+          <div className="relative w-full max-w-lg bg-[#151923] border border-slate-800 rounded-3xl shadow-2xl overflow-hidden modal-pop-in">
             <div className="p-5 sm:p-6 space-y-4">
               {/* Modal Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-rose-950/60 text-rose-400 border border-rose-900/40 flex items-center justify-center">
                     <Plus size={16} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-slate-900">Tambah Slide Hero Baru</h4>
+                    <h4 className="text-sm font-black text-slate-100">Tambah Slide Hero Baru</h4>
                     <p className="text-[10px] text-slate-400">Buat banner promosi atau layanan unggulan baru</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsAddModalOpen(false)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
                 >
                   <X size={16} />
                 </button>
@@ -510,70 +510,70 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
               <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Ikon Tag *</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Ikon Tag *</label>
                     <select
                       value={newSlide.tagIcon}
                       onChange={e => setNewSlide(prev => ({ ...prev, tagIcon: e.target.value }))}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                     >
-                      {tagIconOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                      {tagIconOptions.map(opt => <option key={opt.value} value={opt.value} className="bg-[#151923] text-slate-100">{opt.label}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Teks Tag/Pill *</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Teks Tag/Pill *</label>
                     <input
                       type="text"
                       value={newSlide.tag}
                       onChange={e => setNewSlide(prev => ({ ...prev, tag: e.target.value }))}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white uppercase"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 uppercase"
                       placeholder="PROMO KHUSUS"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Judul Hero Banner *</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Judul Hero Banner *</label>
                   <input
                     type="text"
                     value={newSlide.title}
                     onChange={e => setNewSlide(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                     placeholder="Contoh: Diskon Top Up Game CDID 50%"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Subjudul / Deskripsi *</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Subjudul / Deskripsi *</label>
                   <textarea
                     value={newSlide.subtitle}
                     onChange={e => setNewSlide(prev => ({ ...prev, subtitle: e.target.value }))}
                     rows={2}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white resize-none"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 resize-none"
                     placeholder="Deskripsi singkat yang menarik perhatian pengunjung..."
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Teks CTA Utama</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Teks CTA Utama</label>
                     <input
                       type="text"
                       value={newSlide.primaryCta}
                       onChange={e => setNewSlide(prev => ({ ...prev, primaryCta: e.target.value }))}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                       placeholder="Lihat Produk"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Filter Kategori CTA</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Filter Kategori CTA</label>
                     <select
                       value={newSlide.categoryFilter}
                       onChange={e => setNewSlide(prev => ({ ...prev, categoryFilter: e.target.value }))}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                     >
-                      <option value="all">Semua Kategori</option>
+                      <option value="all" className="bg-[#151923] text-slate-100">Semua Kategori</option>
                       {categories.map((c) => (
-                        <option key={c.id} value={c.id}>
+                        <option key={c.id} value={c.id} className="bg-[#151923] text-slate-100">
                           {c.label}
                         </option>
                       ))}
@@ -582,30 +582,30 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Teks CTA Sekunder</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Teks CTA Sekunder</label>
                   <input
                     type="text"
                     value={newSlide.secondaryCta}
                     onChange={e => setNewSlide(prev => ({ ...prev, secondaryCta: e.target.value }))}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                     placeholder="Konsultasi WhatsApp"
                   />
                 </div>
               </div>
 
               {/* Modal Actions */}
-              <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-2 pt-3 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl border border-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-800 transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="button"
                   onClick={handleAddSlide}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 cursor-pointer"
                 >
                   Simpan Slide
                 </button>

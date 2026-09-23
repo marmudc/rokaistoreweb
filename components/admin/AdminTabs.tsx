@@ -37,8 +37,8 @@ export default function AdminTabs({
             onClick={() => onTabChange(tab.id)}
             className={`flex-1 min-w-[130px] px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer relative ${
               isActive
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/80'
             }`}
           >
             <span>{tab.icon}</span>
@@ -57,7 +57,7 @@ export default function AdminTabs({
             {tab.id === 'orders' && activeOrdersCount > 0 && (
               <span
                 className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-700 border border-sky-200'
+                  isActive ? 'bg-white/20 text-white' : 'bg-rose-950 text-rose-300 border border-rose-800/60'
                 }`}
               >
                 {activeOrdersCount}

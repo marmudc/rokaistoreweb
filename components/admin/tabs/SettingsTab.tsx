@@ -187,82 +187,82 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h3 className="text-sm font-black text-slate-900">Pengaturan Toko &amp; Hak Akses</h3>
-        <p className="text-[11px] text-slate-400">Konfigurasi identitas toko, kontak, dan hak akses Super Admin FableMart</p>
+        <h3 className="text-sm font-black text-slate-100">Pengaturan Toko &amp; Hak Akses</h3>
+        <p className="text-[11px] text-slate-400">Konfigurasi identitas toko, kontak, dan hak akses Super Admin Rokai Store</p>
       </div>
 
       {/* Store Settings Form */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-5 space-y-5">
+      <div className="bg-[#151923] rounded-2xl border border-slate-800 shadow-soft p-5 space-y-5">
         <div>
-          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Nama Toko</label>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Nama Toko</label>
           <input
             type="text"
             value={settings.storeName}
             onChange={e => setSettings(s => ({ ...s, storeName: e.target.value }))}
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-semibold"
+            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 font-semibold"
             placeholder="Nama toko Anda"
           />
         </div>
 
         <div>
-          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Nomor WhatsApp CS</label>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Nomor WhatsApp CS</label>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold text-slate-500">+</span>
+            <span className="px-3 py-2.5 bg-[#1c2130] rounded-xl border border-slate-700 text-xs font-bold text-slate-400">+</span>
             <input
               type="text"
               value={settings.whatsappNumber}
               onChange={e => setSettings(s => ({ ...s, whatsappNumber: e.target.value.replace(/\D/g, '') }))}
-              className="flex-1 px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
+              className="flex-1 px-3.5 py-2.5 text-sm rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
               placeholder="6281234567890 (dengan kode negara)"
             />
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">Format: 62xxxxxxxxxx (tanpa + atau spasi)</p>
+          <p className="text-[10px] text-slate-500 mt-1">Format: 62xxxxxxxxxx (tanpa + atau spasi)</p>
         </div>
 
         <div>
-          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Tagline / Subtitle Toko</label>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Tagline / Subtitle Toko</label>
           <textarea
             value={settings.subtitle}
             onChange={e => setSettings(s => ({ ...s, subtitle: e.target.value }))}
             rows={3}
-            className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white resize-none leading-relaxed"
+            className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 resize-none leading-relaxed"
             placeholder="Tagline utama toko Anda..."
           />
         </div>
 
         {/* Category Label Management Section */}
-        <div className="pt-4 border-t border-slate-100 space-y-3.5">
+        <div className="pt-4 border-t border-slate-800 space-y-3.5">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
-                <Tag size={14} className="text-purple-600" />
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
+                <Tag size={14} className="text-rose-400" />
                 <span>Label Kategori Layanan (Category Label)</span>
               </label>
               <p className="text-[11px] text-slate-400 leading-relaxed">
                 Kelola kategori layanan toko. Kategori ini otomatis muncul di tab filter etalase dan pilihan produk admin.
               </p>
             </div>
-            <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200 shrink-0">
+            <span className="text-[10px] font-bold text-rose-400 bg-rose-950/50 px-2.5 py-1 rounded-full border border-rose-900/60 shrink-0">
               {(settings.categories || []).length} Kategori Aktif
             </span>
           </div>
 
           {/* Existing Categories List */}
-          <div className="flex flex-wrap gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 min-h-[52px] items-center">
+          <div className="flex flex-wrap gap-2 p-3 rounded-2xl bg-[#0e1118] border border-slate-800 min-h-[52px] items-center">
             {(!settings.categories || settings.categories.length === 0) ? (
-              <span className="text-xs text-slate-400 italic">Belum ada label kategori. Tambahkan di bawah.</span>
+              <span className="text-xs text-slate-500 italic">Belum ada label kategori. Tambahkan di bawah.</span>
             ) : (
               settings.categories.map((cat) => (
                 <div
                   key={cat.id}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-xs ${cat.badgeColor || 'bg-white text-slate-700 border-slate-200'}`}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-xs ${cat.badgeColor || 'bg-[#151923] text-slate-200 border-slate-700'}`}
                 >
                   <span>{cat.label}</span>
                   <span className="text-[10px] opacity-60 font-mono">({cat.id})</span>
                   <button
                     type="button"
                     onClick={() => handleDeleteCategory(cat.id, cat.label)}
-                    className="ml-1 p-0.5 rounded-md hover:bg-black/10 text-slate-400 hover:text-red-600 transition cursor-pointer"
+                    className="ml-1 p-0.5 rounded-md hover:bg-white/10 text-slate-400 hover:text-red-400 transition cursor-pointer"
                     title={`Hapus kategori "${cat.label}"`}
                   >
                     <Trash2 size={12} />
@@ -273,8 +273,8 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
           </div>
 
           {/* Add Category Form */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-            <span className="text-[11px] font-bold text-slate-700 block">Tambah Label Kategori Baru</span>
+          <div className="p-3.5 rounded-2xl bg-[#0e1118] border border-slate-800 space-y-3">
+            <span className="text-[11px] font-bold text-slate-200 block">Tambah Label Kategori Baru</span>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
               <input
@@ -283,13 +283,13 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
                 onChange={e => setNewCategoryLabel(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddCategory(); } }}
                 placeholder="Contoh: Pet Simulator 99, Fisch, Anime Defenders..."
-                className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-semibold text-slate-800"
+                className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-700 bg-[#151923] focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 font-semibold text-slate-100 placeholder-slate-500"
               />
 
               <button
                 type="button"
                 onClick={handleAddCategory}
-                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer shrink-0 active:scale-95"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-red-950/60 cursor-pointer shrink-0 active:scale-95"
               >
                 <Plus size={14} />
                 <span>Tambah Kategori</span>
@@ -305,7 +305,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
                     key={palette.label}
                     type="button"
                     onClick={() => setNewCategoryColor(palette)}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition cursor-pointer ${palette.class} ${newCategoryColor.class === palette.class ? 'ring-2 ring-purple-500 font-bold' : 'opacity-80 hover:opacity-100'}`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition cursor-pointer ${palette.class} ${newCategoryColor.class === palette.class ? 'ring-2 ring-rose-500 font-bold' : 'opacity-80 hover:opacity-100'}`}
                   >
                     <span>{palette.label}</span>
                     {newCategoryColor.class === palette.class && <span>✓</span>}
@@ -317,10 +317,10 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
         </div>
 
         {/* QRIS Upload Section */}
-        <div className="pt-3 border-t border-slate-100 space-y-3">
+        <div className="pt-3 border-t border-slate-800 space-y-3">
           <div>
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-              <QrCode size={14} className="text-purple-600" />
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+              <QrCode size={14} className="text-rose-400" />
               <span>Foto QRIS Pembayaran Toko (Unggah Gambar)</span>
             </label>
             <p className="text-[11px] text-slate-400 leading-relaxed">
@@ -328,9 +328,9 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-2xl bg-[#0e1118] border border-slate-800">
             {/* Preview Box */}
-            <div className="relative w-36 h-36 rounded-2xl border-2 border-dashed border-slate-300 bg-white flex flex-col items-center justify-center overflow-hidden shrink-0 shadow-xs group">
+            <div className="relative w-36 h-36 rounded-2xl border-2 border-dashed border-slate-700 bg-white flex flex-col items-center justify-center overflow-hidden shrink-0 shadow-xs group">
               {settings.qrisImage ? (
                 <>
                   <img
@@ -342,7 +342,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="p-1.5 bg-white rounded-lg text-slate-700 hover:text-purple-600 transition shadow cursor-pointer"
+                      className="p-1.5 bg-white rounded-lg text-slate-700 hover:text-rose-600 transition shadow cursor-pointer"
                       title="Ganti Foto"
                     >
                       <RefreshCw size={14} />
@@ -359,8 +359,8 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
                 </>
               ) : (
                 <div className="text-center p-3">
-                  <QrCode size={36} className="mx-auto text-slate-300 mb-1" />
-                  <span className="text-[9px] font-semibold text-slate-400 block">Belum ada QRIS</span>
+                  <QrCode size={36} className="mx-auto text-slate-400 mb-1" />
+                  <span className="text-[9px] font-semibold text-slate-500 block">Belum ada QRIS</span>
                 </div>
               )}
             </div>
@@ -380,7 +380,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
                   type="button"
                   disabled={uploading}
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-60 active:scale-95"
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition flex items-center gap-2 shadow-md shadow-red-950/60 cursor-pointer disabled:opacity-60 active:scale-95"
                 >
                   {uploading ? (
                     <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -394,7 +394,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
                   <button
                     type="button"
                     onClick={() => setSettings(s => ({ ...s, qrisImage: '' }))}
-                    className="px-3 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold transition cursor-pointer"
+                    className="px-3 py-2.5 rounded-xl border border-red-900/50 text-red-400 bg-red-950/30 hover:bg-red-900/40 text-xs font-semibold transition cursor-pointer"
                   >
                     Hapus Foto
                   </button>
@@ -407,7 +407,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
 
               {/* Advanced option: URL link */}
               <details className="text-[10px] text-slate-400 pt-1">
-                <summary className="cursor-pointer hover:text-slate-600 font-semibold">
+                <summary className="cursor-pointer hover:text-slate-200 font-semibold">
                   Atau masukkan URL / Link gambar eksternal
                 </summary>
                 <div className="mt-2">
@@ -415,7 +415,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
                     type="url"
                     value={settings.qrisImage || ''}
                     onChange={e => setSettings(s => ({ ...s, qrisImage: e.target.value }))}
-                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-mono"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-700 bg-[#151923] text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 font-mono"
                     placeholder="https://... URL gambar QRIS eksternal"
                   />
                 </div>
@@ -429,7 +429,7 @@ export default function SettingsTab({ showToast }: SettingsTabProps) {
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
-          className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition shadow-md cursor-pointer active:scale-95"
+          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 cursor-pointer active:scale-95"
         >
           💾 Simpan Pengaturan
         </button>

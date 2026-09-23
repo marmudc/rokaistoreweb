@@ -48,7 +48,7 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
     statusPulseColor = 'bg-purple-500';
     currentStep = 2;
     estimatedTime = '~5-10 menit menunggu antrean';
-    customerNote = 'Pembayaran disetujui! Akun game Anda kini berada dalam antrean pengerjaan joki / admin resmi FableMart.';
+    customerNote = 'Pembayaran disetujui! Akun game Anda kini berada dalam antrean pengerjaan joki / admin resmi Rokai Store.';
   } else if (isInProgress) {
     status = 'in_progress';
     statusTitle = 'Sedang Dalam Pengerjaan';
@@ -74,7 +74,7 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
     statusPulseColor = 'bg-emerald-500';
     currentStep = 4;
     estimatedTime = 'Selesai';
-    customerNote = 'Pesanan telah selesai diserahterimakan dengan aman. Terima kasih telah mempercayakan layanan kepada FableMart!';
+    customerNote = 'Pesanan telah selesai diserahterimakan dengan aman. Terima kasih telah mempercayakan layanan kepada Rokai Store!';
   } else if (isCancelled) {
     status = 'completed';
     statusTitle = 'Pesanan Dibatalkan';

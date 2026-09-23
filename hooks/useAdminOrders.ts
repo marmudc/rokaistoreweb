@@ -80,7 +80,7 @@ export function useAdminOrders() {
     // Add notification to Firestore
     await addNotificationToFirestore({
       title: `Pesanan #${orderId} Mulai Dikerjakan ⚡`,
-      message: `Admin / Joki FableMart telah aktif memulai pengerjaan akun game Anda. Pantau live status di web!`,
+      message: `Admin / Joki Rokai Store telah aktif memulai pengerjaan akun game Anda. Pantau live status di web!`,
       type: 'order',
       linkAction: 'open_orders',
       orderId,
@@ -138,7 +138,7 @@ export function useAdminOrders() {
     // Add notification to Firestore
     await addNotificationToFirestore({
       title: `Pesanan #${orderId} Selesai 🎉`,
-      message: `Layanan Anda telah selesai dikerjakan oleh admin FableMart. Terima kasih atas kepercayaan Anda!`,
+      message: `Layanan Anda telah selesai dikerjakan oleh admin Rokai Store. Terima kasih atas kepercayaan Anda!`,
       type: 'order',
       linkAction: 'open_orders',
       orderId,

@@ -1,62 +1,65 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Product, ProductVariant, CartItem } from '@/lib/types';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 
 interface ProductModalProps {
-  product: Product | null;
+  product: Product;
   onClose: () => void;
-  onAddToCart: (item: Omit<CartItem, 'quantity'>) => void;
-  onBuyNow: (item: Omit<CartItem, 'quantity'>) => void;
+  onAddToCart: (item: CartItem) => void;
+  onBuyNow: (item: CartItem) => void;
 }
 
-export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }: ProductModalProps) {
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-
-  useEffect(() => {
-    if (product) {
-      const def = product.variants?.find(v => v.isDefault) ?? product.variants?.[0] ?? null;
-      setSelectedVariant(def);
-    }
-  }, [product]);
-
-  if (!product) return null;
+export default function ProductModal({
+  product,
+  onClose,
+  onAddToCart,
+  onBuyNow,
+}: ProductModalProps) {
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(
+    product.variants?.[0]
+  );
 
   const currentPrice = selectedVariant ? selectedVariant.formattedPrice : product.formattedPrice;
+  const currentNumericPrice = selectedVariant ? selectedVariant.price : product.price;
 
-  function buildCartItem(): Omit<CartItem, 'quantity'> {
+  const buildCartItem = (): CartItem => {
     return {
-      id: selectedVariant ? `${product!.id}-${selectedVariant.id}` : product!.id,
-      baseId: product!.id,
-      title: product!.title,
-      variantId: selectedVariant?.id ?? null,
+      id: `${product.id}-${selectedVariant?.id ?? 'default'}`,
+      baseId: product.id,
+      title: product.title,
+      price: currentNumericPrice,
+      formattedPrice: currentPrice,
+      quantity: 1,
       variantName: selectedVariant?.name ?? null,
-      categoryLabel: product!.categoryLabel,
-      iconType: product!.iconType,
-      price: selectedVariant?.price ?? product!.price,
-      formattedPrice: selectedVariant?.formattedPrice ?? product!.formattedPrice,
-      image: product!.image,
+      variantId: selectedVariant?.id ?? null,
+      categoryLabel: product.categoryLabel,
+      iconType: product.iconType,
+      image: product.image,
     };
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto max-h-[92vh] modal-pop-in">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+      <div className="relative w-full sm:max-w-lg bg-[#140509] border border-rose-950/80 rounded-t-3xl sm:rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] overflow-y-auto max-h-[92vh] modal-pop-in text-slate-100">
         <div className="p-4 sm:p-5 space-y-4">
           {/* Header */}
           <div className="flex items-start justify-between">
-            <span className={`text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${product.categoryBadgeColor} uppercase tracking-wider`}>
+            <span className={`text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-rose-800/60 bg-rose-950/60 text-rose-300 uppercase tracking-wider`}>
               {product.categoryLabel}
             </span>
-            <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition">
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full hover:bg-rose-950/60 flex items-center justify-center text-rose-400/70 hover:text-white transition cursor-pointer"
+            >
               <X size={18} />
             </button>
           </div>
 
           {/* Product Image Banner */}
           {product.image && (
-            <div className="w-full h-40 sm:h-52 rounded-2xl overflow-hidden border border-slate-200/80 bg-slate-50 relative shadow-inner">
+            <div className="w-full h-40 sm:h-52 rounded-2xl overflow-hidden border border-rose-950/80 bg-[#0e0306] relative shadow-inner">
               <img
                 src={product.image}
                 alt={product.title}
@@ -70,33 +73,33 @@ export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }
 
           {/* Title & meta */}
           <div>
-            <h2 className="text-base sm:text-lg font-extrabold text-slate-900 leading-snug">{product.title}</h2>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 text-xs text-slate-500">
-              <span className="flex items-center gap-1 text-amber-500 font-bold">★ {product.rating}</span>
+            <h2 className="text-base sm:text-lg font-black text-white leading-snug">{product.title}</h2>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 text-xs text-rose-300/60">
+              <span className="flex items-center gap-1 text-amber-400 font-bold">★ {product.rating}</span>
               <span>•</span>
               <span>{product.sales}</span>
               <span>•</span>
-              <span className="text-emerald-600 font-semibold">Stok Siap Kirim</span>
+              <span className="text-emerald-400 font-semibold">Stok Siap Kirim</span>
             </div>
           </div>
 
           {/* Description */}
-          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-100">
-            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Deskripsi Layanan</div>
-            <p className="text-xs text-slate-600 leading-relaxed">{product.description}</p>
+          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#1a070e]/80 border border-rose-950/70">
+            <div className="text-[10px] sm:text-[11px] font-bold text-rose-300/60 uppercase tracking-wider mb-1.5">Deskripsi Layanan</div>
+            <p className="text-xs text-rose-100/80 leading-relaxed">{product.description}</p>
           </div>
 
           {/* Variant Selector */}
           {product.variants && product.variants.length > 0 && (
-            <div className="space-y-2.5 p-3 sm:p-3.5 rounded-2xl bg-purple-50/50 border border-purple-100/80">
+            <div className="space-y-2.5 p-3 sm:p-3.5 rounded-2xl bg-[#1d0811]/90 border border-rose-900/60">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  <svg className="w-3.5 h-3.5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-rose-300 uppercase tracking-wider">
+                  <svg className="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
                   </svg>
                   <span>Pilihan Varian Paket:</span>
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-black text-purple-700 bg-white px-2.5 py-0.5 rounded-full border border-purple-200 shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-black text-rose-300 bg-rose-950 px-2.5 py-0.5 rounded-full border border-rose-800/60 shadow-sm">
                   {selectedVariant?.name ?? '-'}
                 </span>
               </div>
@@ -111,19 +114,17 @@ export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }
                       onClick={() => setSelectedVariant(v)}
                       className={`text-left p-2.5 sm:p-3 rounded-xl border transition-all duration-200 flex items-center justify-between gap-2 cursor-pointer ${
                         isSelected
-                          ? 'border-purple-600 bg-white text-purple-950 ring-2 ring-purple-500/20 shadow-sm'
-                          : 'border-slate-200 bg-white/70 hover:border-purple-300 text-slate-700 hover:bg-white'
+                          ? 'border-rose-500 bg-rose-950/90 text-white ring-2 ring-rose-500/30 shadow-sm'
+                          : 'border-rose-950/80 bg-[#16060c] hover:border-rose-800/80 text-rose-200/80 hover:bg-[#1f0912]'
                       }`}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className={`text-xs font-bold truncate leading-tight ${isSelected ? 'text-purple-950 font-black' : 'text-slate-800'}`}>{v.name}</div>
-                        <div className="text-[11px] font-extrabold text-pink-600 mt-1">{v.formattedPrice}</div>
+                        <div className={`text-xs font-bold truncate leading-tight ${isSelected ? 'text-white font-black' : 'text-slate-200'}`}>{v.name}</div>
+                        <div className="text-[11px] font-extrabold text-rose-400 mt-1">{v.formattedPrice}</div>
                       </div>
-                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'border-purple-600 bg-purple-600 text-white' : 'border-slate-300 bg-white'}`}>
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'border-rose-500 bg-rose-600 text-white' : 'border-rose-900/60 bg-[#140509]'}`}>
                         {isSelected && (
-                          <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
+                          <Check size={10} className="stroke-[3]" />
                         )}
                       </div>
                     </button>
@@ -135,11 +136,11 @@ export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }
 
           {/* Features */}
           <div className="space-y-2">
-            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">Keunggulan Paket:</div>
-            <ul className="space-y-1.5 text-xs text-slate-600">
+            <div className="text-[10px] sm:text-[11px] font-bold text-rose-300/60 uppercase tracking-wider">Keunggulan Paket:</div>
+            <ul className="space-y-1.5 text-xs text-rose-100/80">
               {product.features.map((f, i) => (
                 <li key={i} className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>{f}</span>
@@ -149,21 +150,21 @@ export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }
           </div>
 
           {/* Footer */}
-          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="pt-3 border-t border-rose-950/70 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <div>
-              <span className="text-[10px] text-slate-400 block font-medium">Harga Varian Terpilih</span>
-              <span className="text-xl sm:text-2xl font-black text-pink-600">{currentPrice}</span>
+              <span className="text-[10px] text-rose-300/50 block font-medium">Harga Varian Terpilih</span>
+              <span className="text-xl sm:text-2xl font-black text-rose-400">{currentPrice}</span>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => { onAddToCart(buildCartItem()); onClose(); }}
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-full border border-purple-200 hover:bg-purple-50 text-purple-700 font-bold text-xs transition text-center cursor-pointer"
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-full border border-rose-800/60 hover:bg-rose-950/60 text-rose-300 font-bold text-xs transition text-center cursor-pointer"
               >
                 + Keranjang
               </button>
               <button
                 onClick={() => { onAddToCart(buildCartItem()); onBuyNow(buildCartItem()); onClose(); }}
-                className="flex-1 sm:flex-initial px-5 py-2.5 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-xs shadow-md hover:shadow-lg transition text-center cursor-pointer"
+                className="flex-1 sm:flex-initial px-5 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-md shadow-red-950/60 hover:shadow-lg transition text-center cursor-pointer"
               >
                 Beli Sekarang
               </button>

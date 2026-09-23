@@ -82,7 +82,11 @@ export default function AdminPage() {
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const correctPin = process.env.NEXT_PUBLIC_ADMIN_PIN || 'admin123';
-    if (adminPinInput.trim() === correctPin || adminPinInput.trim() === 'fablemart2026') {
+    if (
+      adminPinInput.trim() === correctPin ||
+      adminPinInput.trim() === 'rokaistore2026' ||
+      adminPinInput.trim() === 'fablemart2026'
+    ) {
       setLocalString(LS_KEYS.USER_ROLE, 'admin');
       setLocalRole('admin');
       setPinError(false);
@@ -104,21 +108,21 @@ export default function AdminPage() {
 
   if (mounted && localRole !== 'admin') {
     return (
-      <div className="min-h-screen bg-[#fafbfc] flex items-center justify-center p-4">
-        <div className="max-w-sm w-full bg-white rounded-3xl border border-slate-200/80 shadow-2xl p-6 sm:p-8 text-center space-y-5">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-sm">
+      <div className="min-h-screen bg-[#0d1017] flex items-center justify-center p-4 text-slate-100">
+        <div className="max-w-sm w-full bg-[#151923] rounded-3xl border border-slate-800 shadow-2xl p-6 sm:p-8 text-center space-y-5">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-950/60 text-rose-400 border border-rose-900/50 flex items-center justify-center shadow-sm">
             <Lock size={26} />
           </div>
           <div>
-            <h2 className="text-base font-black text-slate-900">Admin Control Panel</h2>
-            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Masukkan PIN Admin untuk mengakses dashboard dan manajemen toko FableMart.
+            <h2 className="text-base font-black text-white">Admin Control Panel</h2>
+            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+              Masukkan PIN Admin untuk mengakses dashboard dan manajemen toko Rokai Store.
             </p>
           </div>
 
           <form onSubmit={handleAdminLogin} className="space-y-3 text-left">
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 PIN / Password Admin
               </label>
               <input
@@ -130,14 +134,14 @@ export default function AdminPage() {
                   if (pinError) setPinError(false);
                 }}
                 placeholder="Masukkan PIN Admin..."
-                className={`w-full px-3.5 py-2.5 text-xs rounded-xl border focus:outline-none focus:ring-2 bg-white font-mono ${
+                className={`w-full px-3.5 py-2.5 text-xs rounded-xl border focus:outline-none focus:ring-2 bg-[#0e1118] text-white font-mono ${
                   pinError
-                    ? 'border-red-400 focus:ring-red-200'
-                    : 'border-slate-200 focus:ring-purple-300'
+                    ? 'border-red-500 focus:ring-red-500/30'
+                    : 'border-slate-700 focus:ring-rose-500/30 focus:border-rose-500'
                 }`}
               />
               {pinError && (
-                <p className="text-[10px] text-red-500 font-semibold mt-1">
+                <p className="text-[10px] text-red-400 font-semibold mt-1">
                   PIN salah. Masukkan PIN Admin yang valid.
                 </p>
               )}
@@ -145,13 +149,13 @@ export default function AdminPage() {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs shadow-md hover:shadow-lg transition cursor-pointer"
+              className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-md hover:shadow-lg transition cursor-pointer"
             >
               Masuk ke Dashboard
             </button>
           </form>
 
-          <Link href="/" className="block text-xs text-purple-600 hover:underline font-medium pt-1">
+          <Link href="/" className="block text-xs text-rose-400 hover:text-rose-300 hover:underline font-medium pt-1">
             ← Kembali ke Etalase Toko
           </Link>
         </div>
@@ -172,7 +176,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafbfc]">
+    <div className="min-h-screen bg-[#0d1017] text-slate-100">
       <AdminLoader loading={adminLoading || !mounted} storeName={storeSettings.storeName} />
       <AdminNavbar
         activeOrdersCount={activeOrdersCount}
@@ -183,7 +187,7 @@ export default function AdminPage() {
 
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5">
         {/* Tab navigation */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-3">
+        <div className="bg-[#151923] rounded-2xl border border-slate-800/90 shadow-sm p-3">
           <AdminTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -193,7 +197,7 @@ export default function AdminPage() {
         </div>
 
         {/* Tab content */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-4 sm:p-6">
+        <div className="bg-[#151923] rounded-2xl border border-slate-800/90 shadow-sm p-4 sm:p-6 text-slate-100">
           {activeTab === 'overview' && (
             <OverviewTab adminOrders={adminOrders} adminPromos={adminPromos} />
           )}

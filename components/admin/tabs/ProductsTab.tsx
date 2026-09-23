@@ -531,11 +531,11 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   return (
     <div className="space-y-5">
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-soft">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#151923] p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-sm sm:text-base font-black text-slate-900">Katalog Layanan &amp; Varian</h3>
-            <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+            <h3 className="text-sm sm:text-base font-black text-slate-100">Katalog Layanan &amp; Varian</h3>
+            <span className="text-[10px] font-bold text-rose-400 bg-rose-950/80 px-2.5 py-0.5 rounded-full border border-rose-800/60">
               {catalog.length} Total Layanan
             </span>
           </div>
@@ -548,7 +548,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
           {catalog.length > 0 && (
             <button
               onClick={handleClearAllProducts}
-              className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold transition shadow-sm cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-900/60 text-xs font-bold transition shadow-sm cursor-pointer flex items-center gap-1.5"
               title="Hapus seluruh layanan di katalog"
             >
               <Trash2 size={14} />
@@ -557,7 +557,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
           )}
           <button
             onClick={openAddModal}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold transition shadow-sm cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 cursor-pointer flex items-center gap-1.5"
           >
             <Plus size={15} />
             <span>Tambah Layanan Baru</span>
@@ -573,8 +573,8 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
             onClick={() => setSelectedCategory('all')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
               selectedCategory === 'all'
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-950/60'
+                : 'bg-[#1c2130] border border-slate-800 text-slate-300 hover:bg-slate-800'
             }`}
           >
             Semua ({catalog.length})
@@ -590,8 +590,8 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                 onClick={() => setSelectedCategory(cat.value)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                   selectedCategory === cat.value
-                    ? 'bg-purple-600 text-white shadow-sm'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-950/60'
+                    : 'bg-[#1c2130] border border-slate-800 text-slate-300 hover:bg-slate-800'
                 }`}
               >
                 {cat.label} ({count})
@@ -608,12 +608,12 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
             placeholder="Cari layanan atau varian..."
             value={searchFilter}
             onChange={e => setSearchFilter(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-slate-800 bg-[#151923] text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
           />
           {searchFilter && (
             <button
               onClick={() => setSearchFilter('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
             >
               <X size={13} />
             </button>
@@ -623,25 +623,25 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
 
       {/* Product List */}
       {catalog.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-3">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
+        <div className="p-12 text-center bg-[#151923] rounded-2xl border border-slate-800 space-y-3">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-950/60 text-rose-400 flex items-center justify-center border border-rose-800/60">
             <Layers size={28} />
           </div>
-          <h4 className="text-sm font-bold text-slate-800">Katalog Masih Bersih &amp; Kosong</h4>
+          <h4 className="text-sm font-bold text-slate-200">Katalog Masih Bersih &amp; Kosong</h4>
           <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
             Tidak ada data bawaan. Anda dapat mulai menambahkan produk atau layanan baru yang siap dipesan oleh pelanggan.
           </p>
           <button
             onClick={openAddModal}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold shadow-sm hover:shadow transition cursor-pointer mt-2"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white text-xs font-bold shadow-md shadow-red-950/60 hover:from-red-500 hover:to-rose-500 transition cursor-pointer mt-2"
           >
             <Plus size={14} />
             <span>Tambah Layanan Pertama</span>
           </button>
         </div>
       ) : filteredProducts.length === 0 ? (
-        <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 space-y-2">
-          <p className="text-sm font-bold text-slate-700">Tidak ada layanan yang sesuai</p>
+        <div className="p-8 text-center bg-[#151923] rounded-2xl border border-slate-800 space-y-2">
+          <p className="text-sm font-bold text-slate-200">Tidak ada layanan yang sesuai</p>
           <p className="text-xs text-slate-400">Coba ubah kata kunci pencarian atau kategori filter.</p>
         </div>
       ) : (
@@ -649,13 +649,13 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
           {filteredProducts.map(p => (
             <div
               key={p.id}
-              className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-4 flex flex-col justify-between gap-3 hover:border-purple-300 transition duration-200 group"
+              className="bg-[#151923] rounded-2xl border border-slate-800 shadow-sm p-4 flex flex-col justify-between gap-3 hover:border-slate-700 transition duration-200 group text-slate-100"
             >
               <div>
                 {/* Header card: Icon, Badge, Actions */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center shrink-0 text-slate-700 overflow-hidden relative shadow-xs">
+                    <div className="w-11 h-11 rounded-xl bg-[#1c2130] border border-slate-800 flex items-center justify-center shrink-0 text-slate-300 overflow-hidden relative shadow-xs">
                       {p.image ? (
                         <img
                           src={p.image}
@@ -673,7 +673,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                       <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${p.categoryBadgeColor} uppercase tracking-wider`}>
                         {p.categoryLabel}
                       </span>
-                      <h4 className="text-xs sm:text-sm font-black text-slate-900 line-clamp-1 mt-0.5">
+                      <h4 className="text-xs sm:text-sm font-black text-slate-100 line-clamp-1 mt-0.5">
                         {p.title}
                       </h4>
                     </div>
@@ -684,14 +684,14 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                     <button
                       onClick={() => openEditModal(p)}
                       title="Edit Layanan & Varian"
-                      className="p-1.5 rounded-lg border border-slate-200 hover:border-purple-300 hover:bg-purple-50 text-slate-600 hover:text-purple-700 transition cursor-pointer"
+                      className="p-1.5 rounded-lg border border-slate-800 hover:border-slate-700 bg-[#1c2130] hover:bg-slate-800 text-slate-300 hover:text-white transition cursor-pointer"
                     >
                       <Edit3 size={14} />
                     </button>
                     <button
                       onClick={() => handleDeleteProduct(p.id, p.title)}
                       title="Hapus Layanan"
-                      className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
+                      className="p-1.5 rounded-lg border border-slate-800 hover:border-red-800/80 bg-[#1c2130] hover:bg-red-950/40 text-slate-400 hover:text-red-400 transition cursor-pointer"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -699,18 +699,18 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                 </div>
 
                 {/* Description */}
-                <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed mb-2.5">
+                <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-2.5">
                   {p.description || 'Tidak ada deskripsi.'}
                 </p>
 
                 {/* Variants Preview */}
-                <div className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200/60 space-y-1.5">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase">
+                <div className="p-2.5 rounded-xl bg-[#1c2130] border border-slate-800 space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase">
                     <span className="flex items-center gap-1">
-                      <Layers size={11} className="text-purple-600" />
+                      <Layers size={11} className="text-rose-400" />
                       <span>{p.variants?.length ?? 0} Varian Tersedia:</span>
                     </span>
-                    <span className="text-pink-600 font-black">{p.formattedPrice} (Mulai dari)</span>
+                    <span className="text-rose-400 font-black">{p.formattedPrice} (Mulai dari)</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto no-scrollbar">
                     {p.variants?.map(v => (
@@ -718,14 +718,14 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                         key={v.id}
                         className={`text-[10px] px-2 py-0.5 rounded-lg border flex items-center gap-1 ${
                           v.isDefault
-                            ? 'bg-purple-100/80 text-purple-800 border-purple-200 font-bold'
-                            : 'bg-white text-slate-600 border-slate-200 font-medium'
+                            ? 'bg-rose-950/80 text-rose-300 border-rose-800/60 font-bold'
+                            : 'bg-[#151923] text-slate-300 border-slate-800 font-medium'
                         }`}
                       >
                         <span>{v.name}</span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-pink-600 font-semibold">{v.formattedPrice}</span>
-                        {v.isDefault && <span className="text-[8px] bg-purple-600 text-white px-1 rounded-sm">DEF</span>}
+                        <span className="text-slate-500">•</span>
+                        <span className="text-rose-400 font-semibold">{v.formattedPrice}</span>
+                        {v.isDefault && <span className="text-[8px] bg-rose-600 text-white px-1 rounded-sm">DEF</span>}
                       </span>
                     ))}
                   </div>
@@ -733,9 +733,9 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
               </div>
 
               {/* Footer Meta */}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
-                <span>Rating: <strong className="text-amber-500">★ {p.rating}</strong></span>
-                <span>Terjual: <strong className="text-slate-600">{p.sales}</strong></span>
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Rating: <strong className="text-amber-400">★ {p.rating}</strong></span>
+                <span>Terjual: <strong className="text-slate-300">{p.sales}</strong></span>
               </div>
             </div>
           ))}
@@ -745,18 +745,18 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
       {/* EDIT / ADD MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="relative w-full sm:max-w-2xl bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto max-h-[92vh] modal-pop-in">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
+          <div className="relative w-full sm:max-w-2xl bg-[#151923] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto max-h-[92vh] modal-pop-in border border-slate-800 text-slate-100">
             <div className="p-5 sm:p-6 space-y-5">
 
               {/* Modal Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-rose-950/80 text-rose-400 flex items-center justify-center border border-rose-800/60">
                     <Edit3 size={18} />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-black text-slate-900">
+                    <h3 className="text-sm sm:text-base font-black text-slate-100">
                       {editingProduct ? `Edit Layanan: ${editingProduct.title}` : 'Tambah Layanan Baru'}
                     </h3>
                     <p className="text-[11px] text-slate-400">Atur rincian layanan dan opsi varian harga</p>
@@ -764,7 +764,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                  className="w-8 h-8 rounded-full hover:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer"
                 >
                   <X size={18} />
                 </button>
@@ -773,7 +773,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
               {/* Basic Fields */}
               <div className="space-y-3.5">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                     Nama Layanan / Judul *
                   </label>
                   <input
@@ -781,16 +781,16 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                     value={formTitle}
                     onChange={e => setFormTitle(e.target.value)}
                     placeholder="Contoh: 100 Juta Uang CDID / Buah Dough Blox Fruits / 1000 Robux"
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 font-bold text-slate-800"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-700 bg-[#0e1118] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-bold text-white placeholder-slate-500"
                   />
                 </div>
 
                 {/* Category & categoryLabel Section */}
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 space-y-3">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-[#1c2130] border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <Tag size={13} className="text-purple-600" />
+                      <label className="text-[10px] font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <Tag size={13} className="text-rose-400" />
                         <span>Kategori &amp; Label Layanan *</span>
                       </label>
                       <p className="text-[10px] text-slate-400">
@@ -809,25 +809,25 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                         Pilihan Kategori
                       </label>
                       <select
                         value={isCustomCategory ? '__custom__' : formCategory}
                         onChange={e => handleSelectCategory(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-semibold text-slate-800"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-[#0e1118] font-semibold text-white"
                       >
                         {categoryOptions.map(c => (
-                          <option key={c.value} value={c.value}>
+                          <option key={c.value} value={c.value} className="bg-[#151923] text-white">
                             {c.label} ({c.value})
                           </option>
                         ))}
-                        <option value="__custom__">+ Buat Kategori / Label Khusus...</option>
+                        <option value="__custom__" className="bg-[#151923] text-white">+ Buat Kategori / Label Khusus...</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                         Teks Label Kategori (categoryLabel) *
                       </label>
                       <input
@@ -842,32 +842,32 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                           }
                         }}
                         placeholder="Contoh: Roblox CDID, Blox Fruits, Pet Simulator"
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-bold text-slate-800"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-[#0e1118] font-bold text-white placeholder-slate-500"
                       />
                     </div>
                   </div>
 
                   {/* If custom category mode is on, allow choosing badge color */}
                   {isCustomCategory && (
-                    <div className="pt-2 border-t border-slate-200/60 space-y-1.5 animate-in fade-in duration-200">
-                      <label className="text-[10px] font-bold text-purple-700 uppercase tracking-wider block">
+                    <div className="pt-2 border-t border-slate-800 space-y-1.5 animate-in fade-in duration-200">
+                      <label className="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">
                         Pilih Palet Warna Lencana:
                       </label>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {[
-                          { name: 'Indigo', class: 'bg-indigo-50 text-indigo-700 border-indigo-200/60' },
-                          { name: 'Amber', class: 'bg-amber-50 text-amber-700 border-amber-200/60' },
-                          { name: 'Emerald', class: 'bg-emerald-50 text-emerald-700 border-emerald-200/60' },
-                          { name: 'Purple', class: 'bg-purple-50 text-purple-700 border-purple-200/60' },
-                          { name: 'Sky', class: 'bg-sky-50 text-sky-700 border-sky-200/60' },
-                          { name: 'Rose', class: 'bg-rose-50 text-rose-700 border-rose-200/60' },
+                          { name: 'Indigo', class: 'bg-indigo-950/80 text-indigo-300 border-indigo-800/60' },
+                          { name: 'Amber', class: 'bg-amber-950/80 text-amber-300 border-amber-800/60' },
+                          { name: 'Emerald', class: 'bg-emerald-950/80 text-emerald-300 border-emerald-800/60' },
+                          { name: 'Purple', class: 'bg-purple-950/80 text-purple-300 border-purple-800/60' },
+                          { name: 'Sky', class: 'bg-sky-950/80 text-sky-300 border-sky-800/60' },
+                          { name: 'Rose', class: 'bg-rose-950/80 text-rose-300 border-rose-800/60' },
                         ].map(pal => (
                           <button
                             key={pal.name}
                             type="button"
                             onClick={() => setFormCategoryBadgeColor(pal.class)}
                             className={`px-2.5 py-1 rounded-lg text-[10px] font-black border transition cursor-pointer ${pal.class} ${
-                              formCategoryBadgeColor === pal.class ? 'ring-2 ring-purple-600 scale-105' : 'opacity-70 hover:opacity-100'
+                              formCategoryBadgeColor === pal.class ? 'ring-2 ring-rose-500 scale-105' : 'opacity-70 hover:opacity-100'
                             }`}
                           >
                             {pal.name}
@@ -878,21 +878,21 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                   )}
 
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                       Harga Dasar Referensi
                     </label>
-                    <div className="px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-white font-black text-pink-600">
+                    <div className="px-3.5 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] font-black text-rose-400">
                       {formVariants.find(v => v.isDefault)?.formattedPrice || 'Otomatis dari varian default'}
                     </div>
                   </div>
                 </div>
 
                 {/* Image Section (Upload Sendiri vs URL Umum) */}
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 space-y-3">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-[#1c2130] border border-slate-800 space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <ImageIcon size={13} className="text-purple-600" />
+                      <label className="text-[10px] font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <ImageIcon size={13} className="text-rose-400" />
                         <span>Foto / Gambar Produk</span>
                         <span className="text-[9px] text-slate-400 font-normal lowercase">(opsional)</span>
                       </label>
@@ -902,14 +902,14 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                     </div>
 
                     {/* Mode Toggle Pills */}
-                    <div className="inline-flex p-0.5 rounded-xl bg-slate-200/70 text-xs font-bold shrink-0">
+                    <div className="inline-flex p-0.5 rounded-xl bg-[#12151e] border border-slate-800 text-xs font-bold shrink-0">
                       <button
                         type="button"
                         onClick={() => setImageInputMode('upload')}
                         className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] transition cursor-pointer ${
                           imageInputMode === 'upload'
-                            ? 'bg-white text-purple-700 shadow-xs font-bold'
-                            : 'text-slate-600 hover:text-slate-900'
+                            ? 'bg-[#1c2130] text-rose-300 shadow-xs font-bold border border-slate-700'
+                            : 'text-slate-400 hover:text-white'
                         }`}
                       >
                         <Upload size={12} />
@@ -920,8 +920,8 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                         onClick={() => setImageInputMode('url')}
                         className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] transition cursor-pointer ${
                           imageInputMode === 'url'
-                            ? 'bg-white text-purple-700 shadow-xs font-bold'
-                            : 'text-slate-600 hover:text-slate-900'
+                            ? 'bg-[#1c2130] text-rose-300 shadow-xs font-bold border border-slate-700'
+                            : 'text-slate-400 hover:text-white'
                         }`}
                       >
                         <LinkIcon size={12} />
@@ -944,23 +944,23 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                         onClick={() => !uploadingImage && fileInputRef.current?.click()}
                         className={`w-full border-2 border-dashed rounded-xl p-4 sm:p-5 text-center transition cursor-pointer flex flex-col items-center justify-center gap-2 ${
                           uploadingImage
-                            ? 'border-purple-300 bg-purple-50/50'
-                            : 'border-slate-200 hover:border-purple-400 hover:bg-purple-50/20 bg-white'
+                            ? 'border-rose-500/50 bg-rose-950/20'
+                            : 'border-slate-700 hover:border-rose-500 hover:bg-rose-950/20 bg-[#151923]'
                         }`}
                       >
                         {uploadingImage ? (
                           <div className="flex flex-col items-center gap-2 py-2">
-                            <Loader2 size={24} className="animate-spin text-purple-600" />
-                            <p className="text-xs font-bold text-purple-700">Mengompresi &amp; mengunggah gambar...</p>
+                            <Loader2 size={24} className="animate-spin text-rose-400" />
+                            <p className="text-xs font-bold text-rose-300">Mengompresi &amp; mengunggah gambar...</p>
                             <p className="text-[10px] text-slate-400">Harap tunggu beberapa saat</p>
                           </div>
                         ) : (
                           <>
-                            <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shadow-xs">
+                            <div className="w-10 h-10 rounded-full bg-rose-950/80 text-rose-400 flex items-center justify-center border border-rose-800/60 shadow-xs">
                               <Upload size={18} />
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-slate-700">
+                              <p className="text-xs font-bold text-slate-200">
                                 Klik untuk memilih gambar dari galeri / perangkat
                               </p>
                               <p className="text-[10px] text-slate-400 mt-0.5">
@@ -986,7 +986,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                             setImageLoadError(false);
                           }}
                           placeholder="https://images.unsplash.com/... atau https://i.imgur.com/..."
-                          className="w-full pl-8 pr-8 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 text-slate-700 font-mono"
+                          className="w-full pl-8 pr-8 py-2 text-xs rounded-xl border border-slate-700 bg-[#0e1118] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-white font-mono placeholder-slate-500"
                         />
                         {formImage && (
                           <button
@@ -995,7 +995,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                               setFormImage('');
                               setImageLoadError(false);
                             }}
-                            className="absolute right-2.5 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                            className="absolute right-2.5 text-slate-400 hover:text-white p-0.5 cursor-pointer"
                           >
                             <X size={13} />
                           </button>
@@ -1009,10 +1009,10 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
 
                   {/* Image Preview Box */}
                   {formImage && (
-                    <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
+                    <div className="p-3 rounded-xl bg-[#151923] border border-slate-800 shadow-xs space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                          <Check size={12} className="text-emerald-600" />
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                          <Check size={12} className="text-emerald-400" />
                           <span>Pratinjau Gambar Terpasang</span>
                         </span>
                         <div className="flex items-center gap-2">
@@ -1025,18 +1025,18 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                                 setFormImage('');
                               }
                             }}
-                            className="text-[10px] font-bold text-purple-600 hover:text-purple-800 cursor-pointer"
+                            className="text-[10px] font-bold text-rose-400 hover:text-rose-300 cursor-pointer"
                           >
                             Ganti Gambar
                           </button>
-                          <span className="text-slate-200">•</span>
+                          <span className="text-slate-600">•</span>
                           <button
                             type="button"
                             onClick={() => {
                               setFormImage('');
                               setImageLoadError(false);
                             }}
-                            className="text-[10px] font-bold text-red-500 hover:text-red-700 cursor-pointer flex items-center gap-1"
+                            className="text-[10px] font-bold text-red-400 hover:text-red-300 cursor-pointer flex items-center gap-1"
                           >
                             <Trash2 size={11} />
                             <span>Hapus</span>
@@ -1044,7 +1044,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                         </div>
                       </div>
 
-                      <div className="relative w-full h-36 sm:h-44 rounded-lg bg-slate-100 border border-slate-100 overflow-hidden flex items-center justify-center">
+                      <div className="relative w-full h-36 sm:h-44 rounded-lg bg-black/50 border border-slate-800 overflow-hidden flex items-center justify-center">
                         <img
                           src={formImage}
                           alt="Pratinjau Produk"
@@ -1055,10 +1055,10 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                           onError={() => setImageLoadError(true)}
                         />
                         {imageLoadError && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-amber-50/95 text-amber-800">
-                            <AlertTriangle size={20} className="text-amber-600 mb-1" />
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-amber-950/90 text-amber-200">
+                            <AlertTriangle size={20} className="text-amber-400 mb-1" />
                             <p className="text-xs font-bold">Gambar Tidak Dapat Dimuat</p>
-                            <p className="text-[10px] text-amber-700 mt-0.5">
+                            <p className="text-[10px] text-amber-300 mt-0.5">
                               Pastikan URL valid dan berkas gambar dapat diakses secara publik.
                             </p>
                           </div>
@@ -1069,7 +1069,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                     Deskripsi Layanan
                   </label>
                   <textarea
@@ -1077,13 +1077,13 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                     value={formDescription}
                     onChange={e => setFormDescription(e.target.value)}
                     placeholder="Deskripsi singkat cara kerja dan spesifikasi layanan..."
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none text-slate-700 leading-relaxed"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-700 bg-[#0e1118] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 resize-none text-white leading-relaxed placeholder-slate-500"
                   />
                 </div>
 
                 {/* Features Tag Input */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                     Fitur &amp; Keunggulan Layanan
                   </label>
                   <div className="flex gap-2 mb-2">
@@ -1093,24 +1093,24 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                       value={formNewFeature}
                       onChange={e => setFormNewFeature(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddFeature(); } }}
-                      className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                      className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-700 bg-[#0e1118] text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 placeholder-slate-500"
                     />
                     <button
                       type="button"
                       onClick={handleAddFeature}
-                      className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-900/80 text-rose-300 font-bold text-xs transition cursor-pointer border border-rose-800/60"
                     >
                       + Tambah
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {formFeatures.map((feat, idx) => (
-                      <span key={idx} className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-[11px] font-medium flex items-center gap-1.5">
+                      <span key={idx} className="px-2.5 py-1 rounded-lg bg-[#1c2130] text-slate-200 border border-slate-800 text-[11px] font-medium flex items-center gap-1.5">
                         <span>{feat}</span>
                         <button
                           type="button"
                           onClick={() => handleRemoveFeature(idx)}
-                          className="text-slate-400 hover:text-red-500"
+                          className="text-slate-400 hover:text-red-400 cursor-pointer"
                         >
                           <X size={12} />
                         </button>
@@ -1121,19 +1121,19 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
               </div>
 
               {/* VARIANTS EDITOR */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-50/70 to-pink-50/40 border border-purple-200/80 space-y-3">
+              <div className="p-4 rounded-2xl bg-[#171a26] border border-purple-900/40 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                      <Layers size={14} className="text-purple-600" />
+                    <h4 className="text-xs font-black text-slate-100 flex items-center gap-1.5">
+                      <Layers size={14} className="text-purple-400" />
                       <span>Daftar Varian Layanan ({formVariants.length})</span>
                     </h4>
-                    <p className="text-[10px] text-slate-500">Pilih salah satu varian sebagai harga default.</p>
+                    <p className="text-[10px] text-slate-400">Pilih salah satu varian sebagai harga default.</p>
                   </div>
                   <button
                     type="button"
                     onClick={handleAddVariant}
-                    className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition shadow-xs cursor-pointer flex items-center gap-1"
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 cursor-pointer flex items-center gap-1"
                   >
                     <Plus size={13} />
                     <span>Tambah Varian</span>
@@ -1147,8 +1147,8 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                       key={variant.id}
                       className={`p-3 rounded-xl border transition-all flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 ${
                         variant.isDefault
-                          ? 'bg-white border-purple-400 ring-2 ring-purple-400/20 shadow-xs'
-                          : 'bg-white/80 border-slate-200 hover:border-slate-300'
+                          ? 'bg-[#11141d] border-rose-800/80 ring-1 ring-rose-500/20 shadow-xs'
+                          : 'bg-[#11141d] border-slate-800 hover:border-slate-700'
                       }`}
                     >
                       {/* Default Radio */}
@@ -1158,11 +1158,11 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                         className="flex items-center gap-1.5 text-left shrink-0 cursor-pointer"
                       >
                         <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          variant.isDefault ? 'border-purple-600 bg-purple-600' : 'border-slate-300 bg-white'
+                          variant.isDefault ? 'border-rose-600 bg-rose-600' : 'border-slate-600 bg-[#0e1118]'
                         }`}>
                           {variant.isDefault && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                         </div>
-                        <span className={`text-[10px] font-bold ${variant.isDefault ? 'text-purple-700' : 'text-slate-400'}`}>
+                        <span className={`text-[10px] font-bold ${variant.isDefault ? 'text-rose-400' : 'text-slate-400'}`}>
                           {variant.isDefault ? 'Default' : 'Set Default'}
                         </span>
                       </button>
@@ -1174,7 +1174,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                           value={variant.name}
                           onChange={e => handleUpdateVariant(variant.id, 'name', e.target.value)}
                           placeholder="Nama varian (cth: 100 Juta)"
-                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-400 font-bold text-slate-800"
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-700 bg-[#0e1118] text-white focus:outline-none focus:ring-1 focus:ring-rose-500 font-bold placeholder-slate-500"
                         />
                       </div>
 
@@ -1186,7 +1186,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                           value={variant.price}
                           onChange={e => handleUpdateVariant(variant.id, 'price', e.target.value)}
                           placeholder="Harga"
-                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-400 font-mono font-bold text-pink-600"
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-700 bg-[#0e1118] focus:outline-none focus:ring-1 focus:ring-rose-500 font-mono font-bold text-rose-400"
                         />
                       </div>
 
@@ -1195,7 +1195,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
                         type="button"
                         onClick={() => handleRemoveVariant(variant.id)}
                         disabled={formVariants.length <= 1}
-                        className={`p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer self-end sm:self-auto ${
+                        className={`p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-950/40 transition cursor-pointer self-end sm:self-auto ${
                           formVariants.length <= 1 ? 'opacity-30 cursor-not-allowed' : ''
                         }`}
                         title="Hapus varian"
@@ -1208,18 +1208,18 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
               </div>
 
               {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-bold transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveProduct}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-black transition shadow-sm cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-black transition shadow-md shadow-red-950/60 cursor-pointer"
                 >
                   💾 Simpan Perubahan
                 </button>

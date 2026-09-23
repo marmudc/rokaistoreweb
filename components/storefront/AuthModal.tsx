@@ -179,28 +179,28 @@ export default function AuthModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity"
+        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/80 modal-pop-in z-10">
+      <div className="relative w-full max-w-md bg-[#140509] rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] overflow-hidden border border-rose-950/80 modal-pop-in z-10 text-slate-100">
         {/* Top Gradient Banner */}
-        <div className="h-2 w-full bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600" />
+        <div className="h-1.5 w-full bg-gradient-to-r from-red-600 via-rose-500 to-red-600" />
 
         {/* Modal Header */}
         <div className="p-5 sm:p-6 pb-0 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-600 text-white flex items-center justify-center shadow-md shadow-purple-500/20 shrink-0">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-600 text-white flex items-center justify-center shadow-md shadow-red-950/60 shrink-0">
               <Sparkles size={22} />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                {mode === 'login' && 'Masuk ke FableMart'}
+              <h3 className="text-base sm:text-lg font-black text-white leading-tight">
+                {mode === 'login' && 'Masuk ke Rokai Store'}
                 {mode === 'register' && 'Daftar Akun Baru'}
                 {mode === 'forgot' && 'Reset Kata Sandi'}
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-rose-300/60 mt-0.5">
                 {mode === 'login' && 'Akses pesanan, riwayat, dan profil game Anda'}
                 {mode === 'register' && 'Buat akun untuk belanja cepat & lacak pesanan'}
                 {mode === 'forgot' && 'Pulihkan akses akun Anda dengan email'}
@@ -209,7 +209,7 @@ export default function AuthModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition cursor-pointer"
+            className="w-8 h-8 rounded-full hover:bg-rose-950/60 flex items-center justify-center text-rose-400/70 hover:text-white transition cursor-pointer"
             aria-label="Tutup"
           >
             <X size={18} />
@@ -219,14 +219,14 @@ export default function AuthModal({
         {/* Mode Switcher Tabs (Only for login & register) */}
         {mode !== 'forgot' && (
           <div className="px-5 sm:px-6 pt-4">
-            <div className="flex rounded-2xl bg-slate-100/90 p-1 border border-slate-200/60">
+            <div className="flex rounded-2xl bg-[#1a070e] p-1 border border-rose-950/80">
               <button
                 type="button"
                 onClick={() => handleSwitchMode('login')}
                 className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                   mode === 'login'
-                    ? 'bg-white text-purple-700 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-800'
+                    ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-sm'
+                    : 'text-rose-300/70 hover:text-white'
                 }`}
               >
                 Masuk
@@ -236,8 +236,8 @@ export default function AuthModal({
                 onClick={() => handleSwitchMode('register')}
                 className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                   mode === 'register'
-                    ? 'bg-white text-purple-700 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-800'
+                    ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-sm'
+                    : 'text-rose-300/70 hover:text-white'
                 }`}
               >
                 Daftar Akun
@@ -250,16 +250,16 @@ export default function AuthModal({
         <div className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Error Alert */}
           {errorMessage && (
-            <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2.5 animate-shake">
-              <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-500" />
+            <div className="p-3.5 rounded-2xl bg-red-950/50 border border-red-800/80 text-red-200 text-xs flex items-start gap-2.5 animate-shake">
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-400" />
               <div className="flex-1 font-medium leading-relaxed">{errorMessage}</div>
             </div>
           )}
 
           {/* Success Alert */}
           {successMessage && (
-            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start gap-2.5">
-              <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-600" />
+            <div className="p-3.5 rounded-2xl bg-emerald-950/50 border border-emerald-800/80 text-emerald-200 text-xs flex items-start gap-2.5">
+              <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-400" />
               <div className="flex-1 font-medium leading-relaxed">{successMessage}</div>
             </div>
           )}
@@ -271,7 +271,7 @@ export default function AuthModal({
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={loading}
-                className="w-full py-2.5 px-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-3 shadow-xs hover:shadow-sm cursor-pointer active:scale-[0.99] disabled:opacity-60"
+                className="w-full py-2.5 px-4 rounded-2xl border border-rose-900/60 bg-[#1a070e] hover:bg-rose-950/50 text-white text-xs font-bold transition flex items-center justify-center gap-3 shadow-xs hover:shadow-sm cursor-pointer active:scale-[0.99] disabled:opacity-60"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path
@@ -298,8 +298,8 @@ export default function AuthModal({
 
               {/* Divider */}
               <div className="relative flex items-center justify-center">
-                <div className="w-full border-t border-slate-200" />
-                <span className="absolute bg-white px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <div className="w-full border-t border-rose-950/80" />
+                <span className="absolute bg-[#140509] px-3 text-[10px] font-bold text-rose-300/50 uppercase tracking-wider">
                   atau dengan email
                 </span>
               </div>
@@ -310,49 +310,49 @@ export default function AuthModal({
           {mode === 'login' && (
             <form onSubmit={handleLoginSubmit} className="space-y-3.5">
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                   Alamat Email
                 </label>
                 <div className="relative">
-                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400/60" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="nama@email.com"
-                    className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-medium transition"
+                    className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-rose-900/60 bg-[#220a13] text-white placeholder-rose-300/30 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-medium transition"
                   />
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider">
                     Kata Sandi
                   </label>
                   <button
                     type="button"
                     onClick={() => handleSwitchMode('forgot')}
-                    className="text-[10px] font-bold text-purple-600 hover:text-purple-700 hover:underline cursor-pointer"
+                    className="text-[10px] font-bold text-rose-400 hover:text-rose-300 hover:underline cursor-pointer"
                   >
                     Lupa Password?
                   </button>
                 </div>
                 <div className="relative">
-                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400/60" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Masukkan kata sandi..."
-                    className="w-full pl-9 pr-10 py-2.5 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-medium transition"
+                    className="w-full pl-9 pr-10 py-2.5 text-xs rounded-xl border border-rose-900/60 bg-[#220a13] text-white placeholder-rose-300/30 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-medium transition"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-400/60 hover:text-rose-200 cursor-pointer"
                   >
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
@@ -363,7 +363,7 @@ export default function AuthModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold transition shadow-md shadow-purple-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99]"
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -375,12 +375,12 @@ export default function AuthModal({
                 )}
               </button>
 
-              <p className="text-center text-[11px] text-slate-500 pt-1">
+              <p className="text-center text-[11px] text-rose-300/60 pt-1">
                 Belum punya akun?{' '}
                 <button
                   type="button"
                   onClick={() => handleSwitchMode('register')}
-                  className="font-bold text-purple-600 hover:underline cursor-pointer"
+                  className="font-bold text-rose-400 hover:text-rose-300 hover:underline cursor-pointer"
                 >
                   Daftar Sekarang
                 </button>
@@ -392,38 +392,38 @@ export default function AuthModal({
           {mode === 'register' && (
             <form onSubmit={handleRegisterSubmit} className="space-y-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                   Nama Lengkap *
                 </label>
                 <div className="relative">
-                  <UserIcon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <UserIcon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400/60" />
                   <input
                     type="text"
                     required
                     value={displayName}
                     onChange={e => setDisplayName(e.target.value)}
                     placeholder="Nama panggilan atau nama lengkap"
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-medium transition"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-rose-900/60 bg-[#220a13] text-white placeholder-rose-300/30 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-medium transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                   Alamat Email *
                 </label>
                 <div className="relative">
-                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400/60" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="nama@email.com"
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-medium transition"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-rose-900/60 bg-[#220a13] text-white placeholder-rose-300/30 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-medium transition"
                   />
                 </div>
-                <p className="text-[9px] text-slate-400 mt-0.5">
+                <p className="text-[9px] text-rose-300/50 mt-0.5">
                   Jika email merupakan akun Google, Anda juga bisa langsung masuk via Google.
                 </p>
               </div>
@@ -431,35 +431,35 @@ export default function AuthModal({
               {/* Game Account Integration Field */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                    <Gamepad2 size={12} className="text-purple-600" />
+                  <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider flex items-center gap-1">
+                    <Gamepad2 size={12} className="text-rose-400" />
                     <span>Username / ID Akun Game</span>
                   </label>
-                  <span className="text-[9px] font-semibold text-purple-600 bg-purple-50 px-1.5 py-0.2 rounded">
+                  <span className="text-[9px] font-semibold text-rose-300 bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-900/60">
                     Praktis Checkout
                   </span>
                 </div>
                 <div className="relative">
-                  <Gamepad2 size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Gamepad2 size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400/60" />
                   <input
                     type="text"
                     value={inGameId}
                     onChange={e => setInGameId(e.target.value)}
                     placeholder="Contoh: roblox_user123 / gamer_roblox88"
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-mono transition"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-rose-900/60 bg-[#220a13] text-white placeholder-rose-300/30 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-mono transition"
                   />
                 </div>
-                <p className="text-[9px] text-slate-400 mt-0.5">
+                <p className="text-[9px] text-rose-300/50 mt-0.5">
                   ID game ini akan otomatis terisi setiap kali Anda checkout pesanan.
                 </p>
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                   Kata Sandi *
                 </label>
                 <div className="relative">
-                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400/60" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
@@ -467,12 +467,12 @@ export default function AuthModal({
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Minimal 6 karakter"
-                    className="w-full pl-9 pr-10 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-medium transition"
+                    className="w-full pl-9 pr-10 py-2 text-xs rounded-xl border border-rose-900/60 bg-[#220a13] text-white placeholder-rose-300/30 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-medium transition"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-400/60 hover:text-rose-200 cursor-pointer"
                   >
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
@@ -480,11 +480,11 @@ export default function AuthModal({
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                   Konfirmasi Kata Sandi *
                 </label>
                 <div className="relative">
-                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400/60" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
@@ -492,14 +492,14 @@ export default function AuthModal({
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
                     placeholder="Ulangi kata sandi"
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-medium transition"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-rose-900/60 bg-[#220a13] text-white placeholder-rose-300/30 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-medium transition"
                   />
                 </div>
               </div>
 
               {/* Security Hint Notice for Game Passwords */}
-              <div className="p-2.5 rounded-xl bg-amber-50/90 border border-amber-200/80 text-[10px] text-amber-800 flex items-start gap-2">
-                <ShieldAlert size={14} className="shrink-0 text-amber-600 mt-0.5" />
+              <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-900/40 text-[10px] text-amber-200/90 flex items-start gap-2">
+                <ShieldAlert size={14} className="shrink-0 text-amber-500 mt-0.5" />
                 <div className="leading-tight">
                   <strong>Tips Keamanan:</strong> Anda diperbolehkan menggunakan kata sandi yang mudah diingat (atau sama dengan akun game Anda), namun kami sarankan kata sandi unik untuk perlindungan maksimal.
                 </div>
@@ -509,24 +509,24 @@ export default function AuthModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold transition shadow-md shadow-purple-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99]"
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Daftar Akun FableMart</span>
+                    <span>Daftar Akun Rokai Store</span>
                     <ArrowRight size={14} />
                   </>
                 )}
               </button>
 
-              <p className="text-center text-[11px] text-slate-500 pt-1">
+              <p className="text-center text-[11px] text-rose-300/60 pt-1">
                 Sudah memiliki akun?{' '}
                 <button
                   type="button"
                   onClick={() => handleSwitchMode('login')}
-                  className="font-bold text-purple-600 hover:underline cursor-pointer"
+                  className="font-bold text-rose-400 hover:text-rose-300 hover:underline cursor-pointer"
                 >
                   Masuk di Sini
                 </button>
@@ -537,23 +537,23 @@ export default function AuthModal({
           {/* ================= MODE: FORGOT PASSWORD ================= */}
           {mode === 'forgot' && (
             <form onSubmit={handleForgotSubmit} className="space-y-4">
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-rose-200/80 leading-relaxed">
                 Masukkan alamat email yang terdaftar pada akun Anda. Kami akan mengirimkan tautan resmi dari Firebase untuk mengatur ulang kata sandi.
               </p>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                   Alamat Email Terdaftar
                 </label>
                 <div className="relative">
-                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400/60" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="nama@email.com"
-                    className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-300 font-medium transition"
+                    className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-rose-900/60 bg-[#220a13] text-white placeholder-rose-300/30 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-medium transition"
                   />
                 </div>
               </div>
@@ -561,7 +561,7 @@ export default function AuthModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold transition shadow-md shadow-purple-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99]"
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold transition shadow-md shadow-red-950/60 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -574,7 +574,7 @@ export default function AuthModal({
                 <button
                   type="button"
                   onClick={() => handleSwitchMode('login')}
-                  className="text-xs font-bold text-slate-600 hover:text-purple-600 transition cursor-pointer"
+                  className="text-xs font-bold text-rose-400 hover:text-rose-300 transition cursor-pointer"
                 >
                   ← Kembali ke Halaman Masuk
                 </button>

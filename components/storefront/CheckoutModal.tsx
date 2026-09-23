@@ -286,14 +286,14 @@ export default function CheckoutModal({
     <>
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
 
         {/* Modal Card */}
-        <div ref={modalContentRef} className="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto max-h-[94vh] modal-pop-in flex flex-col">
+        <div ref={modalContentRef} className="relative w-full sm:max-w-lg bg-[#140509] rounded-t-3xl sm:rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] border border-rose-950/80 overflow-y-auto max-h-[94vh] modal-pop-in flex flex-col text-slate-100">
           {/* Top Step Progress Bar */}
-          <div className="h-1.5 w-full bg-slate-100 shrink-0">
+          <div className="h-1.5 w-full bg-rose-950/60 shrink-0">
             <div
-              className="h-full bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 transition-all duration-300"
+              className="h-full bg-gradient-to-r from-red-600 via-rose-500 to-red-600 transition-all duration-300"
               style={{ width: step === 1 ? '50%' : '100%' }}
             />
           </div>
@@ -303,20 +303,20 @@ export default function CheckoutModal({
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-300 bg-rose-950/80 border border-rose-900/60 px-2 py-0.5 rounded-full">
                     Langkah {step} dari 2
                   </span>
-                  <span className="text-xs font-bold text-slate-400">
+                  <span className="text-xs font-bold text-rose-300/60">
                     {step === 1 ? 'Data Akun & Keamanan' : 'Pembayaran QRIS'}
                   </span>
                 </div>
-                <h3 className="text-base font-black text-slate-900 mt-1">
+                <h3 className="text-base font-black text-white mt-1">
                   {step === 1 ? 'Lengkapi Data Akun Game' : 'Selesaikan Pembayaran QRIS'}
                 </h3>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                className="w-8 h-8 rounded-full hover:bg-rose-950/60 flex items-center justify-center text-rose-400/70 hover:text-white transition cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -324,8 +324,8 @@ export default function CheckoutModal({
 
             {/* Error Message Notice */}
             {errorMessage && (
-              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2">
-                <ShieldAlert size={15} className="shrink-0 text-red-500 mt-0.5" />
+              <div className="p-3 rounded-2xl bg-red-950/50 border border-red-800/80 text-red-200 text-xs flex items-start gap-2">
+                <ShieldAlert size={15} className="shrink-0 text-red-400 mt-0.5" />
                 <div className="leading-snug">{errorMessage}</div>
               </div>
             )}
@@ -336,33 +336,33 @@ export default function CheckoutModal({
             {step === 1 && (
               <div className="space-y-4">
                 {/* 1. Identitas Pemesan */}
-                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-3">
-                  <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                    <User size={14} className="text-purple-600" />
+                <div className="p-4 rounded-2xl bg-[#1a070e]/90 border border-rose-950/80 space-y-3">
+                  <h4 className="text-xs font-black text-white flex items-center gap-1.5">
+                    <User size={14} className="text-rose-400" />
                     <span>1. Identitas &amp; Kontak Pemesan</span>
                   </h4>
 
                   {user ? (
-                    <div className="p-3 rounded-xl bg-white border border-purple-100 flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                    <div className="p-3 rounded-xl bg-[#140509] border border-rose-900/50 flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-red-600 to-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                         {(userProfile?.name || user?.displayName || user?.email || 'U').charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-slate-900 truncate">
+                        <p className="text-xs font-bold text-white truncate">
                           {userProfile?.name || user?.displayName || 'Pelanggan'}
                         </p>
-                        <p className="text-[10px] text-slate-500 truncate">
+                        <p className="text-[10px] text-rose-300/60 truncate">
                           {user?.email}
                         </p>
                       </div>
-                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/60">
                         ✓ Akun Login
                       </span>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                        <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                           Nama Lengkap / Panggilan
                         </label>
                         <input
@@ -370,11 +370,11 @@ export default function CheckoutModal({
                           placeholder="Nama Anda"
                           value={name}
                           onChange={e => setName(e.target.value)}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-medium"
+                          className="w-full px-3 py-2 text-xs rounded-xl border border-rose-900/60 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-[#220a13] text-white placeholder-rose-300/30 font-medium"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                        <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                           Alamat Email (Opsional)
                         </label>
                         <input
@@ -382,81 +382,81 @@ export default function CheckoutModal({
                           placeholder="nama@email.com"
                           value={email}
                           onChange={e => setEmail(e.target.value)}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-medium"
+                          className="w-full px-3 py-2 text-xs rounded-xl border border-rose-900/60 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-[#220a13] text-white placeholder-rose-300/30 font-medium"
                         />
                       </div>
-                      <div className="col-span-1 sm:col-span-2 text-[9px] text-slate-400 mt-0.5">
-                        <span className="font-bold">Saran:</span> Isi email jika ingin dikaitkan ke akun Google dan mempermudah pelacakan akun di kemudian hari.
+                      <div className="col-span-1 sm:col-span-2 text-[9px] text-rose-300/50 mt-0.5">
+                        <span className="font-bold text-rose-300/80">Saran:</span> Isi email jika ingin dikaitkan ke akun Google dan mempermudah pelacakan akun di kemudian hari.
                       </div>
                     </div>
                   )}
 
                   {/* WhatsApp Phone */}
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                       Nomor WhatsApp Aktif * (Untuk Koordinasi Serah Terima)
                     </label>
                     <div className="relative">
-                      <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400/60" />
                       <input
                         type="tel"
                         required
                         placeholder="Contoh: 081234567890 / 6281234567890"
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-mono font-medium"
+                        className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-rose-900/60 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-[#220a13] text-white placeholder-rose-300/30 font-mono font-medium"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* 2. Data Akun Game (Wajib Dijaga Rahasia) */}
-                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-3">
+                <div className="p-4 rounded-2xl bg-[#1a070e]/90 border border-rose-950/80 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                      <Gamepad2 size={14} className="text-pink-600" />
+                    <h4 className="text-xs font-black text-white flex items-center gap-1.5">
+                      <Gamepad2 size={14} className="text-rose-400" />
                       <span>2. Data Akun Roblox</span>
                     </h4>
-                    <span className="text-[9px] font-bold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full border border-purple-200">
+                    <span className="text-[9px] font-bold text-rose-300 bg-rose-950/80 px-2 py-0.5 rounded-full border border-rose-900/60">
                       🔒 Terenkripsi Aman
                     </span>
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                       Username / ID Akun Roblox *
                     </label>
                     <div className="relative">
-                      <Gamepad2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Gamepad2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400/60" />
                       <input
                         type="text"
                         required
                         placeholder="Contoh: username_roblox88 / ID Roblox"
                         value={gameUsername}
                         onChange={e => setGameUsername(e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-mono font-medium"
+                        className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-rose-900/60 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-[#220a13] text-white placeholder-rose-300/30 font-mono font-medium"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
                       Password Akun Game * (Untuk Pengerjaan Joki / Setup)
                     </label>
                     <div className="relative">
-                      <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400/60" />
                       <input
                         type={showGamePassword ? 'text' : 'password'}
                         required
                         placeholder="Masukkan kata sandi akun game..."
                         value={gamePassword}
                         onChange={e => setGamePassword(e.target.value)}
-                        className="w-full pl-8 pr-9 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white font-mono font-medium"
+                        className="w-full pl-8 pr-9 py-2 text-xs rounded-xl border border-rose-900/60 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-[#220a13] text-white placeholder-rose-300/30 font-mono font-medium"
                       />
                       <button
                         type="button"
                         onClick={() => setShowGamePassword(!showGamePassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-400/60 hover:text-rose-200 cursor-pointer"
                       >
                         {showGamePassword ? <EyeOff size={14} /> : <Eye size={14} />}
                       </button>
@@ -464,27 +464,27 @@ export default function CheckoutModal({
                   </div>
 
                   {/* Security Badge */}
-                  <div className="p-2.5 rounded-xl bg-purple-50/80 border border-purple-100 text-[10px] text-purple-900 flex items-start gap-2">
-                    <ShieldCheck size={14} className="text-purple-600 shrink-0 mt-0.5" />
+                  <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-900/50 text-[10px] text-rose-200 flex items-start gap-2">
+                    <ShieldCheck size={14} className="text-rose-400 shrink-0 mt-0.5" />
                     <div className="leading-tight">
-                      <strong>Jaminan Keamanan FableMart:</strong> Kredensial akun game Anda dijaga kerahasiaannya dengan proteksi tinggi dan hanya diakses joki resmi untuk pengerjaan pesanan.
+                      <strong>Jaminan Keamanan Rokai Store:</strong> Kredensial akun game Anda dijaga kerahasiaannya dengan proteksi tinggi dan hanya diakses joki resmi untuk pengerjaan pesanan.
                     </div>
                   </div>
                 </div>
 
                 {/* 3. Pilihan Wajib 2FA */}
-                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-3">
+                <div className="p-4 rounded-2xl bg-[#1a070e]/90 border border-rose-950/80 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                      <Smartphone size={14} className="text-purple-600" />
+                    <h4 className="text-xs font-black text-white flex items-center gap-1.5">
+                      <Smartphone size={14} className="text-rose-400" />
                       <span>3. Verifikasi Dua Langkah (2FA)</span>
                     </h4>
-                    <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    <span className="text-[9px] font-bold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-800/60">
                       Wajib Dipilih
                     </span>
                   </div>
 
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                  <p className="text-[11px] text-rose-200/70 leading-relaxed">
                     Apakah akun game Anda memiliki keamanan Verifikasi 2 Langkah (2FA/PIN/Kode OTP)?
                   </p>
 
@@ -494,18 +494,18 @@ export default function CheckoutModal({
                       onClick={() => setHas2FA(false)}
                       className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
                         has2FA === false
-                          ? 'border-purple-600 bg-purple-50/90 text-purple-900 ring-2 ring-purple-300/40 shadow-xs'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                          ? 'border-rose-600 bg-rose-950/70 text-rose-100 ring-2 ring-rose-500/30 shadow-xs'
+                          : 'border-rose-950 bg-[#220a13] text-slate-300 hover:border-rose-900/60'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                        has2FA === false ? 'border-purple-600 bg-purple-600' : 'border-slate-300'
+                        has2FA === false ? 'border-rose-500 bg-rose-600' : 'border-rose-900'
                       }`}>
                         {has2FA === false && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </div>
                       <div>
                         <p className="text-xs font-bold">Tidak Ada 2FA</p>
-                        <p className="text-[9px] text-slate-400">Login langsung tanpa kode</p>
+                        <p className="text-[9px] text-rose-300/50">Login langsung tanpa kode</p>
                       </div>
                     </button>
 
@@ -514,26 +514,26 @@ export default function CheckoutModal({
                       onClick={() => setHas2FA(true)}
                       className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
                         has2FA === true
-                          ? 'border-purple-600 bg-purple-50/90 text-purple-900 ring-2 ring-purple-300/40 shadow-xs'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                          ? 'border-rose-600 bg-rose-950/70 text-rose-100 ring-2 ring-rose-500/30 shadow-xs'
+                          : 'border-rose-950 bg-[#220a13] text-slate-300 hover:border-rose-900/60'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                        has2FA === true ? 'border-purple-600 bg-purple-600' : 'border-slate-300'
+                        has2FA === true ? 'border-rose-500 bg-rose-600' : 'border-rose-900'
                       }`}>
                         {has2FA === true && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </div>
                       <div>
                         <p className="text-xs font-bold">Ada 2FA</p>
-                        <p className="text-[9px] text-slate-400">Memerlukan kode OTP</p>
+                        <p className="text-[9px] text-rose-300/50">Memerlukan kode OTP</p>
                       </div>
                     </button>
                   </div>
 
                   {/* Sub-choice if has2FA is true */}
                   {has2FA === true && (
-                    <div className="pt-2 border-t border-slate-200/70 space-y-2 modal-pop-in">
-                      <label className="text-[10px] font-bold text-purple-900 uppercase tracking-wider block">
+                    <div className="pt-2 border-t border-rose-950/80 space-y-2 modal-pop-in">
+                      <label className="text-[10px] font-bold text-rose-300 uppercase tracking-wider block">
                         Pilih Metode Verifikasi 2FA Akun Anda: *
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -542,19 +542,19 @@ export default function CheckoutModal({
                             id: 'whatsapp' as TwoFAType,
                             label: 'Khusus via WhatsApp',
                             desc: 'Admin chat WA minta kode',
-                            icon: <MessageSquare size={13} className="text-emerald-600" />,
+                            icon: <MessageSquare size={13} className="text-emerald-400" />,
                           },
                           {
                             id: 'email' as TwoFAType,
                             label: 'Kode via Email',
                             desc: 'Kode masuk ke email',
-                            icon: <Mail size={13} className="text-purple-600" />,
+                            icon: <Mail size={13} className="text-rose-400" />,
                           },
                           {
                             id: 'device' as TwoFAType,
                             label: 'Verifikasi HP',
                             desc: 'Notifikasi pop-up HP',
-                            icon: <Smartphone size={13} className="text-sky-600" />,
+                            icon: <Smartphone size={13} className="text-sky-400" />,
                           },
                         ].map(t => (
                           <button
@@ -563,15 +563,15 @@ export default function CheckoutModal({
                             onClick={() => setTwoFAType(t.id)}
                             className={`p-2.5 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
                               twoFAType === t.id
-                                ? 'border-purple-600 bg-white text-purple-900 ring-2 ring-purple-300/40 shadow-xs'
-                                : 'border-slate-200 bg-white/70 text-slate-600 hover:bg-white'
+                                ? 'border-rose-600 bg-rose-950/80 text-rose-100 ring-2 ring-rose-500/30 shadow-xs'
+                                : 'border-rose-950 bg-[#16060c] text-rose-200/70 hover:bg-[#220a13]'
                             }`}
                           >
                             <div className="flex items-center gap-1.5 mb-1">
                               {t.icon}
                               <span className="text-[11px] font-bold">{t.label}</span>
                             </div>
-                            <span className="text-[9px] text-slate-400">{t.desc}</span>
+                            <span className="text-[9px] text-rose-300/50">{t.desc}</span>
                           </button>
                         ))}
                       </div>
@@ -580,7 +580,7 @@ export default function CheckoutModal({
                 </div>
 
                 {/* 4. Rules & Terms Checkbox */}
-                <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2">
+                <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-900/40 space-y-2">
                   <div
                     onClick={() => {
                       if (!agreedToTerms) setTermsModalOpen(true);
@@ -593,9 +593,9 @@ export default function CheckoutModal({
                       id="checkout-terms"
                       checked={agreedToTerms}
                       onChange={() => {}}
-                      className="w-4 h-4 mt-0.5 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer pointer-events-none"
+                      className="w-4 h-4 mt-0.5 text-rose-600 rounded border-rose-900/60 focus:ring-rose-500 cursor-pointer pointer-events-none accent-rose-600"
                     />
-                    <div className="text-xs text-slate-700 leading-snug">
+                    <div className="text-xs text-rose-200/90 leading-snug">
                       Saya telah membaca, yakin, dan menyetujui{' '}
                       <button
                         type="button"
@@ -603,7 +603,7 @@ export default function CheckoutModal({
                           e.stopPropagation();
                           setTermsModalOpen(true);
                         }}
-                        className="font-black text-purple-700 hover:underline inline-flex items-center gap-0.5 cursor-pointer"
+                        className="font-black text-rose-400 hover:text-rose-300 hover:underline inline-flex items-center gap-0.5 cursor-pointer"
                       >
                         <span>Syarat, Ketentuan &amp; Konsekuensi Layanan</span>
                         <FileText size={12} />
@@ -612,7 +612,7 @@ export default function CheckoutModal({
                     </div>
                   </div>
                   {!agreedToTerms && (
-                    <p className="text-[10px] text-amber-700 ml-6">
+                    <p className="text-[10px] text-amber-400 ml-6">
                       ⚠️ Anda wajib membuka &amp; menyetujui ketentuan di atas agar tombol pembayaran aktif.
                     </p>
                   )}
@@ -623,7 +623,7 @@ export default function CheckoutModal({
                   type="button"
                   onClick={handleProceedToPayment}
                   disabled={!agreedToTerms}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs shadow-md shadow-purple-500/25 hover:shadow-lg transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]"
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-md shadow-red-950/60 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]"
                 >
                   <span>Lanjut ke Pembayaran</span>
                   <ArrowRight size={15} />
@@ -637,20 +637,20 @@ export default function CheckoutModal({
             {step === 2 && (
               <div className="space-y-4 modal-pop-in">
                 {/* Total Bayar Banner */}
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-pink-50 to-purple-50 border border-purple-100 text-center">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-950/60 to-red-950/60 border border-rose-900/60 text-center">
+                  <p className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider mb-1">
                     Total yang Harus Dibayar
                   </p>
-                  <p className="text-3xl font-black text-pink-600">
+                  <p className="text-3xl font-black text-rose-400">
                     Rp {finalTotal.toLocaleString('id-ID')}
                   </p>
-                  <p className="text-[10px] text-slate-500 mt-1">
+                  <p className="text-[10px] text-rose-300/60 mt-1">
                     {cart.length} item • Scan QRIS via GoPay, OVO, Dana, BCA, dll
                   </p>
                 </div>
 
                 {/* QRIS Image Display */}
-                <div className="rounded-2xl overflow-hidden border border-slate-200 bg-white flex items-center justify-center p-3 shadow-xs">
+                <div className="rounded-2xl overflow-hidden border border-rose-950/80 bg-white flex items-center justify-center p-3 shadow-xs">
                   <div className="relative w-48 h-48 sm:w-52 sm:h-52">
                     <Image
                       src={qrisImage}
@@ -665,22 +665,22 @@ export default function CheckoutModal({
                 </div>
 
                 {/* Instructions */}
-                <div className="space-y-1 text-[11px] text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200/60">
-                  <p className="font-bold text-slate-800">Petunjuk Pembayaran:</p>
-                  <ol className="list-decimal list-inside space-y-0.5 text-slate-600 leading-relaxed">
-                    <li>Scan QRIS di atas dengan nominal pas <strong>Rp {finalTotal.toLocaleString('id-ID')}</strong>.</li>
-                    <li>Pilih metode konfirmasi di bawah: masukkan <strong>Kode Unik</strong> transaksi atau unggah <strong>Foto Bukti Transfer</strong>.</li>
+                <div className="space-y-1 text-[11px] text-rose-200/80 bg-[#1a070e]/90 p-3 rounded-2xl border border-rose-950/80">
+                  <p className="font-bold text-white">Petunjuk Pembayaran:</p>
+                  <ol className="list-decimal list-inside space-y-0.5 text-rose-200/80 leading-relaxed">
+                    <li>Scan QRIS di atas dengan nominal pas <strong className="text-white">Rp {finalTotal.toLocaleString('id-ID')}</strong>.</li>
+                    <li>Pilih metode konfirmasi di bawah: masukkan <strong className="text-white">Kode Unik</strong> transaksi atau unggah <strong className="text-white">Foto Bukti Transfer</strong>.</li>
                   </ol>
                 </div>
 
                 {/* PILIHAN WAJIB: KODE UNIK vs FOTO BUKTI PEMBAYARAN */}
-                <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 space-y-3">
+                <div className="p-4 rounded-2xl bg-[#1a070e]/90 border border-rose-950/80 space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                      <Receipt size={14} className="text-purple-600" />
+                    <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider flex items-center gap-1.5">
+                      <Receipt size={14} className="text-rose-400" />
                       <span>Metode Konfirmasi Pembayaran (Wajib)</span>
                     </label>
-                    <span className="text-[9px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
+                    <span className="text-[9px] font-bold text-rose-300 bg-rose-950/80 px-2 py-0.5 rounded-full border border-rose-900/60">
                       Pilih Salah Satu
                     </span>
                   </div>
@@ -692,8 +692,8 @@ export default function CheckoutModal({
                       onClick={() => setConfirmationType('unique_code')}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                         confirmationType === 'unique_code'
-                          ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
-                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                          ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                          : 'bg-[#220a13] text-slate-300 border-rose-950 hover:bg-rose-950/40'
                       }`}
                     >
                       <span>1. Kode Unik / Ref</span>
@@ -704,8 +704,8 @@ export default function CheckoutModal({
                       onClick={() => setConfirmationType('proof_photo')}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                         confirmationType === 'proof_photo'
-                          ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
-                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                          ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                          : 'bg-[#220a13] text-slate-300 border-rose-950 hover:bg-rose-950/40'
                       }`}
                     >
                       <Upload size={13} />
@@ -716,7 +716,7 @@ export default function CheckoutModal({
                   {/* OPTION 1: KODE UNIK */}
                   {confirmationType === 'unique_code' && (
                     <div className="space-y-1.5 pt-1 modal-pop-in">
-                      <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+                      <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block">
                         Masukkan Kode Referensi / 4-6 Digit Terakhir Transaksi *
                       </label>
                       <input
@@ -725,9 +725,9 @@ export default function CheckoutModal({
                         placeholder="Contoh: 9842 atau REF-88123"
                         value={uniqueCode}
                         onChange={e => setUniqueCode(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 font-mono font-medium bg-white"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-rose-900/60 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-mono font-medium bg-[#220a13] text-white placeholder-rose-300/30"
                       />
-                      <p className="text-[9px] text-slate-400 leading-relaxed">
+                      <p className="text-[9px] text-rose-300/50 leading-relaxed">
                         Dapat dilihat pada rincian struk transfer di aplikasi m-Banking atau E-Wallet Anda.
                       </p>
                     </div>
@@ -745,8 +745,8 @@ export default function CheckoutModal({
                       />
 
                       {proofImage ? (
-                        <div className="p-3 rounded-xl bg-white border border-slate-200 flex items-center gap-3">
-                          <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 bg-slate-100">
+                        <div className="p-3 rounded-xl bg-[#140509] border border-rose-900/60 flex items-center gap-3">
+                          <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-rose-900/50 shrink-0 bg-[#220a13]">
                             <img
                               src={proofImage}
                               alt="Bukti Transfer"
@@ -754,17 +754,17 @@ export default function CheckoutModal({
                             />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">
                               ✓ Foto Bukti Terunggah
                             </span>
-                            <p className="text-[10px] text-slate-400 mt-1 truncate">
+                            <p className="text-[10px] text-rose-300/60 mt-1 truncate">
                               Gambar struk telah dioptimalkan
                             </p>
                           </div>
                           <button
                             type="button"
                             onClick={() => setProofImage('')}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                            className="p-1.5 rounded-lg text-rose-400/70 hover:text-red-400 hover:bg-rose-950/60 transition cursor-pointer"
                             title="Hapus Foto"
                           >
                             <Trash2 size={15} />
@@ -775,17 +775,17 @@ export default function CheckoutModal({
                           type="button"
                           disabled={compressingProof}
                           onClick={() => proofFileInputRef.current?.click()}
-                          className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-purple-200 bg-white hover:bg-purple-50/50 text-purple-700 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                          className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-rose-900/60 bg-[#220a13] hover:bg-rose-950/40 text-rose-300 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                         >
                           {compressingProof ? (
-                            <span className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                            <span className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
                           ) : (
                             <Upload size={16} />
                           )}
                           <span>{compressingProof ? 'Mengoptimalkan Gambar...' : 'Unggah Foto Struk Transfer'}</span>
                         </button>
                       )}
-                      <p className="text-[9px] text-slate-400 leading-relaxed">
+                      <p className="text-[9px] text-rose-300/50 leading-relaxed">
                         Format PNG, JPG, atau WEBP. Foto otomatis dioptimalkan agar ringan dan terkirim cepat.
                       </p>
                     </div>
@@ -797,19 +797,19 @@ export default function CheckoutModal({
                   <button
                     type="button"
                     onClick={handleFinalSubmit}
-                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs shadow-md shadow-purple-500/25 hover:shadow-lg transition cursor-pointer active:scale-[0.99] flex items-center justify-center gap-1.5"
+                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-md shadow-red-950/60 transition cursor-pointer active:scale-[0.99] flex items-center justify-center gap-1.5"
                   >
                     <CheckCircle2 size={16} />
                     <span>Kirim Bukti Pembayaran ke Admin</span>
                   </button>
-                  <p className="text-[10px] text-center text-slate-400 leading-snug px-2">
+                  <p className="text-[10px] text-center text-rose-300/60 leading-snug px-2">
                     Bukti pembayaran akan dikirim ke sistem admin untuk diverifikasi. Pesanan akan otomatis masuk ke antrean pengerjaan segera setelah disetujui.
                   </p>
 
                   <button
                     type="button"
                     onClick={handleBackToStep1}
-                    className="w-full py-2 text-slate-500 hover:text-slate-800 text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2 text-rose-400/80 hover:text-white text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <ArrowLeft size={13} />
                     <span>Kembali ke Data Akun Game</span>
