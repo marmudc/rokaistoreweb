@@ -25,7 +25,6 @@ import {
   Receipt,
   Trash2,
 } from 'lucide-react';
-import { useUserProfile } from '@/hooks/useUserProfile';
 import { useAuth } from '@/context/AuthContext';
 import TermsModal from '@/components/storefront/TermsModal';
 
@@ -65,7 +64,6 @@ export default function CheckoutModal({
   onClose,
   onConfirmPaid,
 }: CheckoutModalProps) {
-  const { profile, updateProfile } = useUserProfile();
   const { user, userProfile, updateProfileData } = useAuth();
 
   // Multi-step state: 1 = Formulir Data & Akun Game, 2 = Pembayaran & Konfirmasi
@@ -110,20 +108,13 @@ export default function CheckoutModal({
       setUniqueCode('');
       setProofImage('');
 
-      if (user) {
-        setGameUsername(userProfile?.defaultInGameId || profile?.defaultInGameId || '');
-        setName(userProfile?.name || user.displayName || profile?.name || '');
-        setEmail(user?.email || userProfile?.email || profile?.email || '');
-        setPhone(userProfile?.phone || profile?.phone || '');
-      } else {
-        setGameUsername(profile?.defaultInGameId || '');
-        setName(profile?.name || '');
-        setEmail(profile?.email || '');
-        setPhone(profile?.phone || '');
-      }
+      setGameUsername(userProfile.defaultInGameId || '');
+      setName(userProfile.name || user?.displayName || '');
+      setEmail(user?.email || userProfile.email || '');
+      setPhone(userProfile.phone || '');
     }
     prevOpenRef.current = open;
-  }, [open, user, userProfile, profile]);
+  }, [open, user, userProfile]);
 
   if (!open) return null;
 
@@ -250,19 +241,12 @@ export default function CheckoutModal({
       return;
     }
 
-    // Save default inGameId for future convenience upon final order submission
-    if (user) {
-      updateProfileData({
-        defaultInGameId: gameUsername.trim(),
-        phone: phone.trim(),
-      }).catch(() => {});
-    }
-    updateProfile({
-      ...profile,
+    // Save customer details to profile for future convenience & auto-sync
+    updateProfileData({
       defaultInGameId: gameUsername.trim(),
-      name: name.trim() || profile.name,
-      email: email.trim() || profile.email,
-      phone: phone.trim() || profile.phone,
+      phone: phone.trim(),
+      name: name.trim() || userProfile.name,
+      email: email.trim() || userProfile.email,
     }).catch(() => {});
 
     const payload: CheckoutCustomerData = {

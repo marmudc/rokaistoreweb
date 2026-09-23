@@ -15,15 +15,25 @@ import {
 import { doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { UserProfile } from '@/lib/types';
-import { setLocalString, LS_KEYS } from '@/lib/localStorage';
+import { setLocalString, setLocalItem, getLocalItem, LS_KEYS, subscribeToStorage } from '@/lib/localStorage';
 
-interface AuthContextType {
+export const defaultUserProfile: UserProfile = {
+  name: '',
+  email: '',
+  phone: '',
+  defaultInGameId: '',
+  soundEnabled: true,
+  role: 'customer',
+};
+
+export interface AuthContextType {
   user: User | null;
-  userProfile: UserProfile | null;
+  userProfile: UserProfile;
+  isGuest: boolean;
   loading: boolean;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
-  registerWithEmail: (email: string, pass: string, name: string, inGameId?: string) => Promise<void>;
-  loginWithGoogle: (inGameId?: string) => Promise<void>;
+  registerWithEmail: (email: string, pass: string, name: string, inGameId?: string, phone?: string) => Promise<void>;
+  loginWithGoogle: (inGameId?: string, phone?: string) => Promise<void>;
   linkWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -40,7 +50,7 @@ const ADMIN_EMAILS = [
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile>(defaultUserProfile);
   const [loading, setLoading] = useState(true);
 
   // Helper: map Firebase auth error code to friendly Indonesian message
@@ -85,6 +95,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Initialize cached guest profile on mount
+  useEffect(() => {
+    const cached = getLocalItem<UserProfile>(LS_KEYS.USER_PROFILE, defaultUserProfile);
+    if (cached) {
+      setUserProfile(prev => ({
+        ...defaultUserProfile,
+        ...prev,
+        ...cached,
+      }));
+    }
+
+    const unsubStorage = subscribeToStorage(LS_KEYS.USER_PROFILE, () => {
+      const updated = getLocalItem<UserProfile>(LS_KEYS.USER_PROFILE, defaultUserProfile);
+      setUserProfile(prev => ({
+        ...prev,
+        ...updated,
+      }));
+    });
+
+    return () => unsubStorage();
+  }, []);
+
   // Listen to Auth State
   useEffect(() => {
     let unsubDoc: (() => void) | null = null;
@@ -106,46 +138,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userDocRef,
           async (snap) => {
             const isEmailAdmin = !!(firebaseUser.email && ADMIN_EMAILS.includes(firebaseUser.email.toLowerCase()));
+            const currentGuest = getLocalItem<UserProfile>(LS_KEYS.USER_PROFILE, defaultUserProfile);
 
             if (snap.exists()) {
               const data = snap.data() as UserProfile;
               const effectiveRole = data.role === 'admin' || isEmailAdmin ? 'admin' : 'customer';
 
+              // Auto-merge guest fields if Firestore doc is missing them
+              const mergeUpdates: Record<string, any> = {};
+              if (!data.defaultInGameId && currentGuest.defaultInGameId) {
+                mergeUpdates.defaultInGameId = currentGuest.defaultInGameId.trim();
+              }
+              if (!data.phone && currentGuest.phone) {
+                mergeUpdates.phone = currentGuest.phone.trim();
+              }
               if (isEmailAdmin && data.role !== 'admin') {
-                updateDoc(userDocRef, { role: 'admin' }).catch(() => {});
+                mergeUpdates.role = 'admin';
               }
 
-              setUserProfile({ ...data, role: effectiveRole });
-
-              // Sync role to localStorage
-              if (effectiveRole === 'admin') {
-                setLocalString(LS_KEYS.USER_ROLE, 'admin');
-              } else {
-                setLocalString(LS_KEYS.USER_ROLE, 'customer');
+              if (Object.keys(mergeUpdates).length > 0) {
+                await updateDoc(userDocRef, {
+                  ...mergeUpdates,
+                  updatedAt: serverTimestamp(),
+                }).catch(() => {});
               }
+
+              const mergedProfile: UserProfile = {
+                uid: firebaseUser.uid,
+                name: data.name || firebaseUser.displayName || currentGuest.name || (isEmailAdmin ? 'Super Admin' : 'Pelanggan'),
+                email: data.email || firebaseUser.email || currentGuest.email || '',
+                photoURL: data.photoURL || firebaseUser.photoURL || '',
+                defaultInGameId: data.defaultInGameId || mergeUpdates.defaultInGameId || currentGuest.defaultInGameId || '',
+                phone: data.phone || mergeUpdates.phone || currentGuest.phone || '',
+                role: effectiveRole,
+                provider: data.provider || firebaseUser.providerData[0]?.providerId || 'password',
+                googleLinked: data.googleLinked || firebaseUser.providerData.some(p => p.providerId === 'google.com'),
+                soundEnabled: data.soundEnabled !== false,
+                createdAt: data.createdAt,
+                updatedAt: data.updatedAt,
+              };
+
+              setUserProfile(mergedProfile);
+              setLocalItem(LS_KEYS.USER_PROFILE, mergedProfile);
+              setLocalString(LS_KEYS.USER_ROLE, effectiveRole);
             } else {
               // Document does not exist yet (e.g. first Google login), create it
               const newProfile: UserProfile = {
                 uid: firebaseUser.uid,
-                name: firebaseUser.displayName || (isEmailAdmin ? 'Super Admin' : 'Pelanggan'),
-                email: firebaseUser.email || '',
+                name: firebaseUser.displayName || currentGuest.name || (isEmailAdmin ? 'Super Admin' : 'Pelanggan'),
+                email: firebaseUser.email || currentGuest.email || '',
                 photoURL: firebaseUser.photoURL || '',
-                defaultInGameId: '',
+                defaultInGameId: currentGuest.defaultInGameId || '',
+                phone: currentGuest.phone || '',
                 role: isEmailAdmin ? 'admin' : 'customer',
                 provider: firebaseUser.providerData[0]?.providerId || 'password',
                 googleLinked: firebaseUser.providerData.some(p => p.providerId === 'google.com'),
-                soundEnabled: true,
+                soundEnabled: currentGuest.soundEnabled !== false,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
               };
-              await setDoc(userDocRef, newProfile).catch((e) => {
+              await setDoc(userDocRef, newProfile, { merge: true }).catch((e) => {
                 console.warn('Could not auto-create user doc:', e);
               });
               setUserProfile(newProfile);
-
-              if (isEmailAdmin) {
-                setLocalString(LS_KEYS.USER_ROLE, 'admin');
-              }
+              setLocalItem(LS_KEYS.USER_PROFILE, newProfile);
+              setLocalString(LS_KEYS.USER_ROLE, newProfile.role || 'customer');
             }
           },
           (err) => {
@@ -155,7 +212,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setLoading(false);
       } else {
-        setUserProfile(null);
+        // Guest mode - retain cached guest profile
+        const guest = getLocalItem<UserProfile>(LS_KEYS.USER_PROFILE, defaultUserProfile);
+        const guestProfile: UserProfile = {
+          ...defaultUserProfile,
+          ...guest,
+          uid: undefined,
+          role: 'customer',
+        };
+        setUserProfile(guestProfile);
+        setLocalString(LS_KEYS.USER_ROLE, 'customer');
         setLoading(false);
       }
     });
@@ -169,7 +235,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 1. Login with Email & Password
   const loginWithEmail = async (email: string, pass: string) => {
     const cred = await signInWithEmailAndPassword(auth, email.trim(), pass);
-    // Update last login
     if (cred.user) {
       const ref = doc(db, 'users', cred.user.uid);
       await updateDoc(ref, {
@@ -178,40 +243,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 2. Register with Email & Password + In-game ID
-  const registerWithEmail = async (email: string, pass: string, name: string, inGameId?: string) => {
+  // 2. Register with Email & Password + In-game ID + Phone
+  const registerWithEmail = async (email: string, pass: string, name: string, inGameId?: string, phone?: string) => {
     const cred = await createUserWithEmailAndPassword(auth, email.trim(), pass);
     const u = cred.user;
 
-    // Update Firebase Auth profile
     await updateFirebaseProfile(u, {
       displayName: name.trim(),
     }).catch((e) => {
       console.warn('Could not update displayName in Firebase Auth profile:', e);
     });
 
-    // Save initial profile in Firestore
+    const guestProfile = getLocalItem<UserProfile>(LS_KEYS.USER_PROFILE, defaultUserProfile);
+    const resolvedInGameId = inGameId?.trim() || guestProfile.defaultInGameId || '';
+    const resolvedPhone = phone?.trim() || guestProfile.phone || '';
+    const isEmailAdmin = !!(email && ADMIN_EMAILS.includes(email.toLowerCase().trim()));
+
     const userDocRef = doc(db, 'users', u.uid);
     const initialProfile: UserProfile = {
       uid: u.uid,
       name: name.trim(),
       email: email.trim(),
       photoURL: '',
-      defaultInGameId: inGameId ? inGameId.trim() : '',
-      role: 'customer',
+      defaultInGameId: resolvedInGameId,
+      phone: resolvedPhone,
+      role: isEmailAdmin ? 'admin' : 'customer',
       provider: 'password',
       googleLinked: false,
-      soundEnabled: true,
+      soundEnabled: guestProfile.soundEnabled !== false,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
 
-    await setDoc(userDocRef, initialProfile);
+    await setDoc(userDocRef, initialProfile, { merge: true });
     setUserProfile(initialProfile);
+    setLocalItem(LS_KEYS.USER_PROFILE, initialProfile);
   };
 
   // 3. Login with Google (Popup)
-  const loginWithGoogle = async (inGameId?: string) => {
+  const loginWithGoogle = async (inGameId?: string, phone?: string) => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     const res = await signInWithPopup(auth, provider);
@@ -219,23 +289,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const userDocRef = doc(db, 'users', u.uid);
     const snap = await getDoc(userDocRef);
+    const guestProfile = getLocalItem<UserProfile>(LS_KEYS.USER_PROFILE, defaultUserProfile);
+
+    const resolvedInGameId = inGameId?.trim() || guestProfile.defaultInGameId || '';
+    const resolvedPhone = phone?.trim() || guestProfile.phone || '';
 
     if (!snap.exists()) {
+      const isEmailAdmin = !!(u.email && ADMIN_EMAILS.includes(u.email.toLowerCase()));
       const newProf: UserProfile = {
         uid: u.uid,
-        name: u.displayName || 'Pelanggan',
+        name: u.displayName || guestProfile.name || (isEmailAdmin ? 'Super Admin' : 'Pelanggan'),
         email: u.email || '',
         photoURL: u.photoURL || '',
-        defaultInGameId: inGameId ? inGameId.trim() : '',
-        role: 'customer',
+        defaultInGameId: resolvedInGameId,
+        phone: resolvedPhone,
+        role: isEmailAdmin ? 'admin' : 'customer',
         provider: 'google.com',
         googleLinked: true,
-        soundEnabled: true,
+        soundEnabled: guestProfile.soundEnabled !== false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
-      await setDoc(userDocRef, newProf);
+      await setDoc(userDocRef, newProf, { merge: true });
       setUserProfile(newProf);
+      setLocalItem(LS_KEYS.USER_PROFILE, newProf);
     } else {
       const existing = snap.data() as UserProfile;
       const updates: Partial<UserProfile> = {
@@ -243,10 +320,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         googleLinked: true,
         updatedAt: serverTimestamp(),
       };
-      if (inGameId && !existing.defaultInGameId) {
-        updates.defaultInGameId = inGameId.trim();
+      if (resolvedInGameId && !existing.defaultInGameId) {
+        updates.defaultInGameId = resolvedInGameId;
       }
-      await updateDoc(userDocRef, updates);
+      if (resolvedPhone && !existing.phone) {
+        updates.phone = resolvedPhone;
+      }
+      await setDoc(userDocRef, updates, { merge: true });
     }
   };
 
@@ -274,34 +354,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await signOut(auth);
     setUser(null);
-    setUserProfile(null);
+    const resetGuest: UserProfile = { ...defaultUserProfile };
+    setUserProfile(resetGuest);
+    setLocalItem(LS_KEYS.USER_PROFILE, resetGuest);
     setLocalString(LS_KEYS.USER_ROLE, 'customer');
   };
 
-  // 7. Update User Profile Data
+  // 7. Update User Profile Data (Unified: writes to state, localStorage, and Firestore if authenticated)
   const updateProfileData = async (data: Partial<UserProfile>) => {
-    if (!user) return;
-    const userDocRef = doc(db, 'users', user.uid);
-    const sanitized: Record<string, any> = {
-      ...data,
-      updatedAt: serverTimestamp(),
-    };
-    // If name changed, also update Firebase Auth displayName
-    if (data.name && data.name !== user.displayName) {
-      await updateFirebaseProfile(user, { displayName: data.name }).catch(() => {});
+    const sanitized: Record<string, any> = {};
+    if (data.name !== undefined) sanitized.name = data.name.trim();
+    if (data.email !== undefined) sanitized.email = data.email.trim();
+    if (data.phone !== undefined) sanitized.phone = data.phone.trim();
+    if (data.defaultInGameId !== undefined) sanitized.defaultInGameId = data.defaultInGameId.trim();
+    if (data.soundEnabled !== undefined) sanitized.soundEnabled = data.soundEnabled;
+    if (data.photoURL !== undefined) sanitized.photoURL = data.photoURL;
+
+    // Immediately update local state & localStorage
+    setUserProfile(prev => {
+      const next: UserProfile = { ...prev, ...sanitized };
+      setLocalItem(LS_KEYS.USER_PROFILE, next);
+      return next;
+    });
+
+    // If authenticated, also persist to Firestore users collection
+    if (auth.currentUser) {
+      if (sanitized.name && sanitized.name !== auth.currentUser.displayName) {
+        await updateFirebaseProfile(auth.currentUser, { displayName: sanitized.name }).catch(() => {});
+      }
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      await setDoc(userDocRef, {
+        ...sanitized,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
     }
-    await updateDoc(userDocRef, sanitized);
-    setUserProfile(prev => prev ? { ...prev, ...data } : null);
   };
-
-  // 8. (Removed) Auto-create guest user record on checkout to prevent duplicate users in Firestore
-
 
   return (
     <AuthContext.Provider
       value={{
         user,
         userProfile,
+        isGuest: !user,
         loading,
         loginWithEmail,
         registerWithEmail,

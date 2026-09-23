@@ -530,7 +530,7 @@ export async function saveUserProfileToFirestore(userId: string, profile: UserPr
     await setDoc(doc(db, 'users', userId), {
       ...profile,
       updatedAt: serverTimestamp(),
-    });
+    }, { merge: true });
   } catch (err) {
     console.error('Failed to save user profile to Firestore:', err);
     throw err;

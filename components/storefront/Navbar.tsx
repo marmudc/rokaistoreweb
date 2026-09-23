@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import type { UserRole } from '@/hooks/useRole';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useUserProfile } from '@/hooks/useUserProfile';
 import { useAuth } from '@/context/AuthContext';
 import type { AppNotification } from '@/lib/types';
 
@@ -77,16 +76,15 @@ export default function Navbar({
     clearAll,
   } = useNotifications();
 
-  const { profile } = useUserProfile();
-  const { user, userProfile, logout } = useAuth();
+  const { user, userProfile, isGuest, logout } = useAuth();
 
-  const effectiveIsAdmin = isAdmin || userProfile?.role === 'admin';
-  const userDisplayName = userProfile?.name || user?.displayName || profile.name || (effectiveIsAdmin ? 'Super Admin' : 'Pelanggan');
-  const userDisplayEmail = user?.email || userProfile?.email || profile.email || (effectiveIsAdmin ? 'admin@rokai.store' : 'Akun Pembeli');
+  const effectiveIsAdmin = isAdmin || userProfile.role === 'admin';
+  const userDisplayName = userProfile.name || user?.displayName || (effectiveIsAdmin ? 'Super Admin' : (isGuest ? 'Mode Tamu' : 'Pelanggan'));
+  const userDisplayEmail = user?.email || userProfile.email || (userProfile.phone ? `WA: ${userProfile.phone}` : (isGuest ? 'Belum Masuk Akun' : 'Akun Pelanggan'));
   const userInitial = effectiveIsAdmin
     ? 'A'
     : (userDisplayName ? userDisplayName.charAt(0).toUpperCase() : 'P');
-  const userPhoto = user?.photoURL || userProfile?.photoURL || '';
+  const userPhoto = user?.photoURL || userProfile.photoURL || '';
 
   const handleLogout = async () => {
     try {
@@ -432,6 +430,19 @@ export default function Navbar({
                   </button>
                 )}
 
+                {/* Account / Settings button for Guest */}
+                <button
+                  onClick={onOpenAccount}
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl glass-btn flex items-center justify-center text-rose-200 hover:text-white transition cursor-pointer active:scale-95 relative"
+                  title="Profil & Pengaturan Akun"
+                  aria-label="Profil & Pengaturan"
+                >
+                  <Settings size={16} />
+                  {userProfile.defaultInGameId && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 border border-[#0b0204]" />
+                  )}
+                </button>
+
                 {/* Masuk / Daftar Button */}
                 <button
                   onClick={() => onOpenAuth?.('login')}
@@ -509,14 +520,14 @@ export default function Navbar({
                             {userDisplayEmail}
                           </p>
                           <div className="flex items-center gap-1.5 text-[9px] text-rose-300/60 mt-1">
-                            <span className={`w-1.5 h-1.5 rounded-full ${effectiveIsAdmin ? 'bg-emerald-500 animate-pulse' : 'bg-rose-400/60'}`} />
-                            <span className="font-semibold">{effectiveIsAdmin ? 'Super Admin' : 'Pelanggan Terverifikasi'}</span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${effectiveIsAdmin ? 'bg-emerald-500 animate-pulse' : (user ? 'bg-emerald-400' : 'bg-rose-400/60')}`} />
+                            <span className="font-semibold">{effectiveIsAdmin ? 'Super Admin' : (user ? 'Pelanggan Terverifikasi' : 'Mode Tamu')}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Game ID Badge if set */}
-                      {userProfile?.defaultInGameId && (
+                      {userProfile.defaultInGameId && (
                         <div className="mt-2.5 flex items-center gap-1.5 text-[10px] text-rose-300 font-semibold bg-rose-950/60 px-2.5 py-1 rounded-xl border border-rose-900/60">
                           <Gamepad2 size={13} className="text-rose-400 shrink-0" />
                           <span className="truncate">Game ID: <strong className="font-mono text-white">{userProfile.defaultInGameId}</strong></span>

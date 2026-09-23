@@ -17,9 +17,9 @@ import {
   User as UserIcon,
   Sparkles,
   Link as LinkIcon,
+  Phone,
 } from 'lucide-react';
-import { useUserProfile, defaultUserProfile } from '@/hooks/useUserProfile';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, defaultUserProfile } from '@/context/AuthContext';
 import { playNotificationSound } from '@/lib/notifications';
 import type { UserProfile } from '@/lib/types';
 
@@ -46,8 +46,7 @@ export default function AccountModal({
   cartCount,
   showToast,
 }: AccountModalProps) {
-  const { profile: storedProfile, updateProfile } = useUserProfile();
-  const { user, userProfile, updateProfileData, linkWithGoogle, logout, formatAuthError } = useAuth();
+  const { user, userProfile, isGuest, updateProfileData, linkWithGoogle, logout, formatAuthError } = useAuth();
 
   const [profile, setProfile] = useState<UserProfile>(defaultUserProfile);
   const [linkingGoogle, setLinkingGoogle] = useState(false);
@@ -55,19 +54,16 @@ export default function AccountModal({
 
   useEffect(() => {
     if (open) {
-      if (userProfile) {
-        setProfile({
-          name: userProfile.name || '',
-          email: userProfile.email || user?.email || '',
-          defaultInGameId: userProfile.defaultInGameId || '',
-          soundEnabled: userProfile.soundEnabled !== false,
-          phone: userProfile.phone || '',
-        });
-      } else {
-        setProfile(storedProfile);
-      }
+      setProfile({
+        name: userProfile.name || user?.displayName || '',
+        email: userProfile.email || user?.email || '',
+        defaultInGameId: userProfile.defaultInGameId || '',
+        soundEnabled: userProfile.soundEnabled !== false,
+        phone: userProfile.phone || '',
+        role: userProfile.role || 'customer',
+      });
     }
-  }, [open, userProfile, storedProfile, user]);
+  }, [open, userProfile, user]);
 
   if (!open) return null;
 
@@ -77,14 +73,13 @@ export default function AccountModal({
   const handleSave = async () => {
     setSaving(true);
     try {
-      if (user) {
-        await updateProfileData({
-          name: profile.name.trim(),
-          defaultInGameId: profile.defaultInGameId?.trim() || '',
-          soundEnabled: profile.soundEnabled !== false,
-        });
-      }
-      await updateProfile(profile);
+      await updateProfileData({
+        name: profile.name.trim(),
+        email: profile.email.trim(),
+        phone: profile.phone?.trim() || '',
+        defaultInGameId: profile.defaultInGameId?.trim() || '',
+        soundEnabled: profile.soundEnabled !== false,
+      });
       showToast('✓ Profil & Pengaturan Akun berhasil disimpan!');
     } catch (err: any) {
       console.error('Save profile error:', err);
@@ -196,7 +191,7 @@ export default function AccountModal({
                 </span>
               </div>
               <p className="text-xs text-rose-300/60 mt-0.5 truncate">
-                {user?.email || profile.email || 'Belum masuk ke akun'}
+                {user?.email || profile.email || (profile.phone ? `WA: ${profile.phone}` : 'Belum masuk ke akun')}
               </p>
               <div className="flex items-center gap-2 mt-2 text-[10px] text-rose-300/60 font-semibold flex-wrap">
                 <span className="flex items-center gap-1">
@@ -277,6 +272,26 @@ export default function AccountModal({
                   Email akun login terlindungi oleh Firebase Auth.
                 </p>
               )}
+            </div>
+
+            {/* Nomor WhatsApp */}
+            <div>
+              <label className="text-[10px] font-bold text-rose-300/70 uppercase tracking-wider block mb-1">
+                Nomor WhatsApp
+              </label>
+              <div className="relative">
+                <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400/60" />
+                <input
+                  type="tel"
+                  value={profile.phone || ''}
+                  onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
+                  placeholder="08xxxxxxxxxx atau +628xxxxxxxxxx"
+                  className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-rose-900/60 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-[#220a13] text-white placeholder-rose-300/30 font-medium"
+                />
+              </div>
+              <p className="text-[10px] text-rose-300/50 mt-1">
+                Nomor WhatsApp aktif untuk koordinasi pesanan &amp; pelacakan otomatis.
+              </p>
             </div>
 
             {/* In-Game Account ID Integration */}

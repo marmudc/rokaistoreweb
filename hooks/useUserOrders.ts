@@ -4,6 +4,8 @@ import { subscribeToOrders } from '@/lib/firebaseSync';
 import { LS_KEYS, getLocalItem, setLocalItem, subscribeToStorage } from '@/lib/localStorage';
 import type { AdminOrder, UserOrder } from '@/lib/types';
 
+import { useAuth } from '@/context/AuthContext';
+
 export const defaultUserOrders: UserOrder[] = [];
 
 export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
@@ -118,6 +120,7 @@ export function mapAdminOrderToUserOrder(o: AdminOrder): UserOrder {
 }
 
 export function useUserOrders() {
+  const { user, userProfile } = useAuth();
   const [allFirestoreOrders, setAllFirestoreOrders] = useState<AdminOrder[]>([]);
   const [userOrderIds, setUserOrderIds] = useState<string[]>([]);
 
@@ -139,12 +142,51 @@ export function useUserOrders() {
     };
   }, []);
 
+  // When allFirestoreOrders, user, or userProfile changes, auto-link matched orders to userOrderIds
+  useEffect(() => {
+    if (allFirestoreOrders.length === 0) return;
+
+    const userEmail = (user?.email || userProfile.email || '').trim().toLowerCase();
+    const userPhoneClean = (userProfile.phone || '').replace(/\D/g, '');
+    const currentLocalIds = new Set(userOrderIds);
+
+    const newlyDiscoveredIds: string[] = [];
+
+    allFirestoreOrders.forEach(o => {
+      if (currentLocalIds.has(o.id)) return;
+
+      const isUserMatch = !!(user?.uid && o.userId === user.uid);
+      const isEmailMatch = !!(userEmail && o.customerEmail && o.customerEmail.trim().toLowerCase() === userEmail);
+      const isPhoneMatch = !!(userPhoneClean.length >= 8 && o.phone && o.phone.replace(/\D/g, '') === userPhoneClean);
+
+      if (isUserMatch || isEmailMatch || isPhoneMatch) {
+        newlyDiscoveredIds.push(o.id);
+      }
+    });
+
+    if (newlyDiscoveredIds.length > 0) {
+      const updated = Array.from(new Set([...userOrderIds, ...newlyDiscoveredIds]));
+      setLocalItem(LS_KEYS.USER_ORDERS, updated);
+      setUserOrderIds(updated);
+    }
+  }, [allFirestoreOrders, user, userProfile, userOrderIds]);
+
   const userOrders = useMemo(() => {
-    if (userOrderIds.length === 0) return [];
+    if (allFirestoreOrders.length === 0) return [];
+    const userEmail = (user?.email || userProfile.email || '').trim().toLowerCase();
+    const userPhoneClean = (userProfile.phone || '').replace(/\D/g, '');
+    const currentLocalIds = new Set(userOrderIds);
+
     return allFirestoreOrders
-      .filter(o => userOrderIds.includes(o.id))
+      .filter(o => {
+        if (currentLocalIds.has(o.id)) return true;
+        if (user?.uid && o.userId === user.uid) return true;
+        if (userEmail && o.customerEmail && o.customerEmail.trim().toLowerCase() === userEmail) return true;
+        if (userPhoneClean.length >= 8 && o.phone && o.phone.replace(/\D/g, '') === userPhoneClean) return true;
+        return false;
+      })
       .map(mapAdminOrderToUserOrder);
-  }, [allFirestoreOrders, userOrderIds]);
+  }, [allFirestoreOrders, userOrderIds, user, userProfile]);
 
   const addUserOrder = useCallback((order: UserOrder) => {
     const existing = getLocalItem<string[]>(LS_KEYS.USER_ORDERS, []);
