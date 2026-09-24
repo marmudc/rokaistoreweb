@@ -93,7 +93,7 @@ export default function HeroSection({
           </h1>
 
           <p className="text-white/80 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-xl">
-            Pusat layanan game, setup teknis, dan aset digital terpercaya. Transaksi instan dengan garansi 100% aman.
+            Pusat layanan game, setup teknis, dan aset digital terpercaya. Transaksi aman &amp; terpercaya dengan garansi 100%.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">

@@ -25,6 +25,7 @@ import {
 
 interface ConfirmationsTabProps {
   adminOrders: AdminOrder[];
+  loading?: boolean;
   onApprovePayment: (id: string) => void;
   onRejectProof?: (id: string, reason: string) => void;
   onCancel?: (id: string) => void;
@@ -34,6 +35,7 @@ interface ConfirmationsTabProps {
 
 export default function ConfirmationsTab({
   adminOrders,
+  loading = false,
   onApprovePayment,
   onRejectProof,
   onCancel,
@@ -95,7 +97,28 @@ export default function ConfirmationsTab({
 
       {/* Orders list */}
       <div className="space-y-3">
-        {pendingOrders.length === 0 ? (
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2].map(n => (
+              <div key={n} className="bg-[#151923] rounded-2xl border border-slate-800 p-4 sm:p-5 space-y-4 animate-pulse">
+                <div className="flex justify-between items-center pb-3 border-b border-slate-800">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-slate-800" />
+                    <div className="space-y-1.5">
+                      <div className="h-4 w-32 bg-slate-800 rounded" />
+                      <div className="h-3 w-20 bg-slate-800/60 rounded" />
+                    </div>
+                  </div>
+                  <div className="h-6 w-24 bg-slate-800 rounded-full" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="h-20 bg-[#1c2130] rounded-xl" />
+                  <div className="h-20 bg-[#1c2130] rounded-xl" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : pendingOrders.length === 0 ? (
           <div className="text-center py-14 bg-[#151923] rounded-2xl border border-slate-800 shadow-sm space-y-3">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-950/60 text-emerald-400 flex items-center justify-center border border-emerald-800/60 shadow-xs">
               <CheckCircle2 size={28} />

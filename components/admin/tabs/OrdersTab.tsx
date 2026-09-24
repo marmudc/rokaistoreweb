@@ -27,6 +27,7 @@ type OrderFilter = 'all' | 'Antrian' | 'Dalam Proses' | 'Kendala' | 'Selesai' | 
 
 interface OrdersTabProps {
   adminOrders: AdminOrder[];
+  loading?: boolean;
   onApprovePayment: (id: string) => void;
   onStartProcessing?: (id: string) => void;
   onReportIssue?: (id: string, reason: string) => void;
@@ -39,6 +40,7 @@ interface OrdersTabProps {
 
 export default function OrdersTab({
   adminOrders,
+  loading = false,
   onApprovePayment,
   onStartProcessing,
   onReportIssue,
@@ -138,7 +140,29 @@ export default function OrdersTab({
 
       {/* Orders list */}
       <div className="space-y-3">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map(n => (
+              <div key={n} className="bg-[#151923] rounded-2xl border border-slate-800 p-4 sm:p-5 space-y-4 animate-pulse">
+                <div className="flex justify-between items-center pb-3 border-b border-slate-800">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-slate-800" />
+                    <div className="space-y-1.5">
+                      <div className="h-4 w-32 bg-slate-800 rounded" />
+                      <div className="h-3 w-24 bg-slate-800/60 rounded" />
+                    </div>
+                  </div>
+                  <div className="h-6 w-28 bg-slate-800 rounded-full" />
+                </div>
+                <div className="h-16 bg-[#1c2130] rounded-xl" />
+                <div className="flex gap-2">
+                  <div className="h-8 w-24 bg-slate-800 rounded-lg" />
+                  <div className="h-8 w-24 bg-slate-800 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-12 bg-[#151923] rounded-2xl border border-slate-800 shadow-sm">
             <p className="text-sm font-bold text-slate-300">Tidak ada pesanan terkonfirmasi di kategori ini</p>
             <p className="text-xs text-slate-400 mt-1">

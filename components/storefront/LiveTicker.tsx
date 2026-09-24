@@ -50,7 +50,7 @@ export default function LiveTicker() {
         item: o.variantName ? `${o.product} (${o.variantName})` : o.product,
         amount: `Rp ${Number(o.amount || 0).toLocaleString('id-ID')}`,
         time: o.date || 'Baru Saja',
-        category: o.payment || 'QRIS Instan',
+        category: o.payment || 'QRIS',
         isCompleted,
         avatarBg,
         badgeColor: isCompleted

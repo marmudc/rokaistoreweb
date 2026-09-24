@@ -38,6 +38,7 @@ interface ProductsTabProps {
 
 export default function ProductsTab({ showToast }: ProductsTabProps) {
   const [catalog, setCatalog] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>(defaultCategoriesList);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(defaultStoreSettings);
   const [searchFilter, setSearchFilter] = useState('');
@@ -103,6 +104,7 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
   useEffect(() => {
     const unsub = subscribeToProducts((prods) => {
       setCatalog(prods);
+      setLoading(false);
     });
     const unsubSettings = subscribeToStoreSettings((settings) => {
       setStoreSettings(settings);
@@ -622,7 +624,22 @@ export default function ProductsTab({ showToast }: ProductsTabProps) {
       </div>
 
       {/* Product List */}
-      {catalog.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          {[1, 2, 3, 4].map(n => (
+            <div key={n} className="p-4 rounded-2xl bg-[#151923] border border-slate-800 animate-pulse space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-slate-800 shrink-0" />
+                <div className="space-y-1.5 flex-1">
+                  <div className="h-4 w-3/4 bg-slate-800 rounded" />
+                  <div className="h-3 w-1/3 bg-slate-800/60 rounded" />
+                </div>
+              </div>
+              <div className="h-9 bg-slate-800/40 rounded-xl" />
+            </div>
+          ))}
+        </div>
+      ) : catalog.length === 0 ? (
         <div className="p-12 text-center bg-[#151923] rounded-2xl border border-slate-800 space-y-3">
           <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-950/60 text-rose-400 flex items-center justify-center border border-rose-800/60">
             <Layers size={28} />

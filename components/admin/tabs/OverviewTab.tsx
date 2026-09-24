@@ -6,10 +6,11 @@ import { subscribeToProducts } from '@/lib/firebaseSync';
 interface OverviewTabProps {
   adminOrders: AdminOrder[];
   adminPromos: PromoCode[];
+  loading?: boolean;
 }
 
 
-export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabProps) {
+export default function OverviewTab({ adminOrders, adminPromos, loading = false }: OverviewTabProps) {
   const [productCount, setProductCount] = useState<number>(0);
 
   useEffect(() => {
@@ -136,8 +137,14 @@ export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabPro
               <span className="text-xs font-bold text-slate-400">{kpi.label}</span>
               <div className={`w-8 h-8 rounded-xl ${kpi.iconClass} flex items-center justify-center`}>{kpi.icon}</div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-slate-100 tracking-tight">{kpi.value}</div>
-            {kpi.trend ? (
+            {loading ? (
+              <div className="h-8 w-28 bg-slate-800/80 rounded-lg animate-pulse" />
+            ) : (
+              <div className="text-xl sm:text-2xl font-black text-slate-100 tracking-tight">{kpi.value}</div>
+            )}
+            {loading ? (
+              <div className="h-3.5 w-36 bg-slate-800/50 rounded animate-pulse" />
+            ) : kpi.trend ? (
               <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-bold">
                 <span>{kpi.trend}</span>
                 <span className="text-slate-400 font-normal">{kpi.trendText}</span>
@@ -156,11 +163,29 @@ export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabPro
               <h3 className="text-sm font-black text-slate-100">Aktivitas Penjualan 7 Hari Terakhir</h3>
               <p className="text-[11px] text-slate-400">Grafik omset harian transaksi Rokai Store</p>
             </div>
-            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-800/60">
-              {adminOrders.length > 0 ? `● ${adminOrders.length} Pesanan Masuk` : '● Menunggu Pesanan'}
-            </span>
+            {loading ? (
+              <div className="h-6 w-28 bg-slate-800/80 rounded-full animate-pulse" />
+            ) : (
+              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-800/60">
+                {adminOrders.length > 0 ? `● ${adminOrders.length} Pesanan Masuk` : '● Menunggu Pesanan'}
+              </span>
+            )}
           </div>
-          {adminOrders.length === 0 ? (
+          {loading ? (
+            <div className="h-48 flex items-center justify-center border-b border-slate-800">
+              <div className="flex items-end gap-3 sm:gap-5 h-36 w-full px-4 justify-between">
+                {[35, 65, 45, 80, 50, 40, 70].map((h, idx) => (
+                  <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                    <div
+                      className="w-full max-w-[36px] bg-slate-800/70 rounded-t-xl animate-pulse"
+                      style={{ height: `${h}%` }}
+                    />
+                    <div className="w-6 h-3 bg-slate-800/60 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : adminOrders.length === 0 ? (
             <div className="h-48 flex flex-col items-center justify-center gap-1.5 border-b border-slate-800 text-center px-4">
               <span className="text-2xl">📊</span>
               <p className="text-xs font-bold text-slate-300">Belum Ada Aktivitas Penjualan</p>
@@ -187,18 +212,21 @@ export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabPro
         {/* System status */}
         <div className="p-5 rounded-2xl bg-[#151923] border border-slate-800 shadow-sm space-y-4">
           <div>
-            <h3 className="text-sm font-black text-slate-100">Status Operasional Toko</h3>
-            <p className="text-[11px] text-slate-400">Kesehatan sistem &amp; gateway pembayaran</p>
+            <h3 className="text-sm font-black text-slate-100">Status Alur Operasional</h3>
+            <p className="text-[11px] text-slate-400">Penanganan pesanan manual &amp; operasional admin</p>
             <div className="mt-4 space-y-3">
               {[
-                { label: 'Gateway QRIS Instan', status: 'Aktif', color: 'emerald' },
-                { label: 'WhatsApp CS', status: 'Online', color: 'emerald' },
-                { label: 'Server Bot Proses', status: 'Running', color: 'sky' },
-                { label: 'CDN & Uptime', status: '100%', color: 'emerald' },
+                { label: 'Verifikasi Pembayaran', desc: 'Manual Cek Mutasi Admin', status: 'Siaga', color: 'emerald' },
+                { label: 'Penanganan Pesanan', desc: 'Manual & Terjadwal', status: 'Aktif', color: 'emerald' },
+                { label: 'Layanan WhatsApp CS', desc: 'Fast Response Admin', status: 'Online', color: 'emerald' },
+                { label: 'Sinkronisasi Data', desc: 'Cloud Firestore Realtime', status: 'Terhubung', color: 'emerald' },
               ].map(s => (
                 <div key={s.label} className="flex items-center justify-between text-xs p-3 rounded-xl bg-[#1c2130] border border-slate-800">
-                  <span className="font-medium text-slate-300">{s.label}</span>
-                  <span className={`flex items-center gap-1.5 font-bold ${s.color === 'emerald' ? 'text-emerald-400' : 'text-sky-400'}`}>
+                  <div className="min-w-0 pr-2">
+                    <p className="font-semibold text-slate-200">{s.label}</p>
+                    <p className="text-[10px] text-slate-400">{s.desc}</p>
+                  </div>
+                  <span className={`shrink-0 flex items-center gap-1.5 font-bold ${s.color === 'emerald' ? 'text-emerald-400' : 'text-sky-400'}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${s.color === 'emerald' ? 'bg-emerald-400' : 'bg-sky-400'} animate-pulse`} />
                     {s.status}
                   </span>
@@ -209,20 +237,30 @@ export default function OverviewTab({ adminOrders, adminPromos }: OverviewTabPro
           {/* Recent transactions */}
           <div>
             <h4 className="text-xs font-black text-slate-300 mb-2">Pesanan Terkini</h4>
-            <div className="space-y-2">
-              {adminOrders.slice(0, 3).map(o => (
-                <div key={o.id} className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-[#1c2130] border border-slate-800">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-slate-200 truncate">{o.customer}</p>
-                    <p className="text-slate-400 truncate text-[10px]">{o.product}</p>
+            {loading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map(n => (
+                  <div key={n} className="h-12 rounded-xl bg-[#1c2130] border border-slate-800 animate-pulse" />
+                ))}
+              </div>
+            ) : adminOrders.length === 0 ? (
+              <p className="text-xs text-slate-500 italic py-2">Belum ada pesanan terbaru.</p>
+            ) : (
+              <div className="space-y-2">
+                {adminOrders.slice(0, 3).map(o => (
+                  <div key={o.id} className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-[#1c2130] border border-slate-800">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-slate-200 truncate">{o.customer}</p>
+                      <p className="text-slate-400 truncate text-[10px]">{o.product}</p>
+                    </div>
+                    <div className="text-right ml-2 shrink-0">
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${o.status === 'Selesai' ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60' : 'bg-sky-950/60 text-sky-400 border border-sky-800/60'}`}>{o.status}</span>
+                      <p className="text-[10px] font-black text-rose-400 mt-0.5">Rp {o.amount.toLocaleString('id-ID')}</p>
+                    </div>
                   </div>
-                  <div className="text-right ml-2 shrink-0">
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${o.status === 'Selesai' ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60' : 'bg-sky-950/60 text-sky-400 border border-sky-800/60'}`}>{o.status}</span>
-                    <p className="text-[10px] font-black text-rose-400 mt-0.5">Rp {o.amount.toLocaleString('id-ID')}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

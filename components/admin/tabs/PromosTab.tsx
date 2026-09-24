@@ -4,6 +4,7 @@ import type { PromoCode } from '@/lib/types';
 
 interface PromosTabProps {
   adminPromos: PromoCode[];
+  loading?: boolean;
   onToggle: (code: string) => void;
   onAdd: (promo: PromoCode) => void;
   onDelete: (code: string) => void;
@@ -11,7 +12,7 @@ interface PromosTabProps {
   showToast: (msg: string) => void;
 }
 
-export default function PromosTab({ adminPromos, onToggle, onAdd, onDelete, onClearAll, showToast }: PromosTabProps) {
+export default function PromosTab({ adminPromos, loading = false, onToggle, onAdd, onDelete, onClearAll, showToast }: PromosTabProps) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ code: '', discount: '', minSpend: '0' });
 
@@ -124,7 +125,22 @@ export default function PromosTab({ adminPromos, onToggle, onAdd, onDelete, onCl
       )}
 
       {/* Promo list */}
-      {adminPromos.length === 0 ? (
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2].map(n => (
+            <div key={n} className="bg-[#151923] rounded-2xl border border-slate-800 p-4 flex items-center justify-between animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-800" />
+                <div className="space-y-1.5">
+                  <div className="h-4 w-24 bg-slate-800 rounded" />
+                  <div className="h-3 w-36 bg-slate-800/60 rounded" />
+                </div>
+              </div>
+              <div className="h-8 w-20 bg-slate-800 rounded-xl" />
+            </div>
+          ))}
+        </div>
+      ) : adminPromos.length === 0 ? (
         <div className="p-10 text-center bg-[#151923] rounded-2xl border border-slate-800 space-y-3">
           <div className="w-12 h-12 mx-auto rounded-2xl bg-rose-950/60 text-rose-400 flex items-center justify-center text-xl border border-rose-800/60">
             🏷️

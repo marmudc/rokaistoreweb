@@ -12,7 +12,6 @@ import HeroSettingsTab from '@/components/admin/tabs/HeroSettingsTab';
 import SettingsTab from '@/components/admin/tabs/SettingsTab';
 import ProofTab from '@/components/admin/tabs/ProofTab';
 import Toast from '@/components/ui/Toast';
-import AdminLoader from '@/components/ui/AdminLoader';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
 import { useToast } from '@/hooks/useToast';
 import { getLocalString, setLocalString, LS_KEYS, subscribeToStorage } from '@/lib/localStorage';
@@ -45,11 +44,11 @@ export default function AdminPage() {
     addPromo,
     deletePromo,
     clearAllPromos,
+    loading: ordersLoading,
   } = useAdminOrders();
 
   // Hydration-safe RBAC guard & store settings
   const [mounted, setMounted] = useState(false);
-  const [adminLoading, setAdminLoading] = useState(true);
   const [localRole, setLocalRole] = useState<string>('customer');
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(defaultStoreSettings);
 
@@ -65,14 +64,9 @@ export default function AdminPage() {
       setLocalRole(getLocalString(LS_KEYS.USER_ROLE, 'customer'));
     });
 
-    const timer = setTimeout(() => {
-      setAdminLoading(false);
-    }, 750);
-
     return () => {
       unsubRole();
       unsubSettings();
-      clearTimeout(timer);
     };
   }, []);
 
@@ -106,7 +100,11 @@ export default function AdminPage() {
     }
   };
 
-  if (mounted && localRole !== 'admin') {
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#0d1017]" />;
+  }
+
+  if (localRole !== 'admin') {
     return (
       <div className="min-h-screen bg-[#0d1017] flex items-center justify-center p-4 text-slate-100">
         <div className="max-w-sm w-full bg-[#151923] rounded-3xl border border-slate-800 shadow-2xl p-6 sm:p-8 text-center space-y-5">
@@ -177,7 +175,6 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#0d1017] text-slate-100">
-      <AdminLoader loading={adminLoading || !mounted} storeName={storeSettings.storeName} />
       <AdminNavbar
         activeOrdersCount={activeOrdersCount}
         onRefresh={handleRefresh}
@@ -199,11 +196,16 @@ export default function AdminPage() {
         {/* Tab content */}
         <div className="bg-[#151923] rounded-2xl border border-slate-800/90 shadow-sm p-4 sm:p-6 text-slate-100">
           {activeTab === 'overview' && (
-            <OverviewTab adminOrders={adminOrders} adminPromos={adminPromos} />
+            <OverviewTab
+              adminOrders={adminOrders}
+              adminPromos={adminPromos}
+              loading={ordersLoading}
+            />
           )}
           {activeTab === 'confirmations' && (
             <ConfirmationsTab
               adminOrders={adminOrders}
+              loading={ordersLoading}
               onApprovePayment={approvePayment}
               onRejectProof={rejectPaymentProof}
               onCancel={cancelOrder}
@@ -214,6 +216,7 @@ export default function AdminPage() {
           {activeTab === 'orders' && (
             <OrdersTab
               adminOrders={adminOrders}
+              loading={ordersLoading}
               onApprovePayment={approvePayment}
               onStartProcessing={startProcessing}
               onReportIssue={reportIssue}
@@ -230,6 +233,7 @@ export default function AdminPage() {
           {activeTab === 'promos' && (
             <PromosTab
               adminPromos={adminPromos}
+              loading={ordersLoading}
               onToggle={togglePromo}
               onAdd={addPromo}
               onDelete={deletePromo}

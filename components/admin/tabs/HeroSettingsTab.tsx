@@ -423,7 +423,7 @@ export default function HeroSettingsTab({ showToast }: HeroSettingsTabProps) {
                     Selamat Datang di Toko Kami.
                   </h2>
                   <p className="text-white/80 text-[11px] leading-relaxed max-w-xs">
-                    Pusat layanan game, setup teknis, dan aset digital terpercaya. Transaksi instan dengan garansi 100% aman.
+                    Pusat layanan game, setup teknis, dan aset digital terpercaya. Transaksi aman &amp; terpercaya dengan garansi 100%.
                   </p>
                   <div className="flex items-center gap-2 flex-wrap pt-1">
                     <span className="px-3.5 py-1.5 rounded-full bg-white text-slate-900 font-bold text-[11px] shadow">

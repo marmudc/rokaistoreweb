@@ -228,8 +228,16 @@ export default function ProofTab({ showToast }: ProofTabProps) {
 
       {/* Proofs Grid */}
       {loading ? (
-        <div className="p-12 text-center bg-[#151923] rounded-2xl border border-slate-800 shadow-sm">
-          <p className="text-xs font-bold text-slate-400">Memuat bukti transaksi dari Firestore...</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map(n => (
+            <div key={n} className="bg-[#151923] rounded-2xl border border-slate-800 overflow-hidden animate-pulse">
+              <div className="h-36 bg-slate-800/60" />
+              <div className="p-4 space-y-2">
+                <div className="h-4 w-3/4 bg-slate-800 rounded" />
+                <div className="h-3 w-1/2 bg-slate-800/60 rounded" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : filteredProofs.length === 0 ? (
         <div className="p-12 text-center bg-[#151923] rounded-2xl border border-slate-800 shadow-sm space-y-3">
