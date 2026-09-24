@@ -24,10 +24,16 @@ import { useUserOrders } from '@/hooks/useUserOrders';
 import { useToast } from '@/hooks/useToast';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
 import { useAuth } from '@/context/AuthContext';
-import type { Product, UserOrder, StoreSettings, AdminOrder } from '@/lib/types';
+import type { Product, UserOrder, StoreSettings, AdminOrder, HeroSlide } from '@/lib/types';
 import type { UserOrdersFilter } from '@/components/storefront/UserOrdersModal';
 import { storeInfo, valueProps } from '@/lib/storeData';
-import { subscribeToStoreSettings, saveOrderToFirestore, defaultStoreSettings } from '@/lib/firebaseSync';
+import {
+  subscribeToStoreSettings,
+  subscribeToProducts,
+  subscribeToHeroSettings,
+  saveOrderToFirestore,
+  defaultStoreSettings,
+} from '@/lib/firebaseSync';
 import { addNotification, playNotificationSound } from '@/lib/notifications';
 import { ShieldCheck, Clock, MessageSquareText, AlertTriangle, ArrowRight } from 'lucide-react';
 
@@ -39,7 +45,7 @@ const valueIcons: Record<string, React.ReactNode> = {
 
 export default function StorefrontPage() {
   const { role, isAdmin } = useRole();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, loading: authLoading } = useAuth();
   const { adminPromos } = useAdminOrders();
   const cart = useCart(adminPromos);
   const { userOrders, activeCount, addUserOrders, trackOrder } = useUserOrders();
@@ -62,29 +68,67 @@ export default function StorefrontPage() {
   } | null>(null);
   const [heroCategory, setHeroCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [initialLoading, setInitialLoading] = useState(true);
   const productGridRef = useRef<HTMLDivElement>(null);
 
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(defaultStoreSettings);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [heroData, setHeroData] = useState<{ slides: HeroSlide[]; theme: string }>({ slides: [], theme: 'cyber' });
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [productsLoaded, setProductsLoaded] = useState(false);
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
   const [activeIssueOrder, setActiveIssueOrder] = useState<UserOrder | null>(null);
   const [dismissedIssueIds, setDismissedIssueIds] = useState<string[]>([]);
   const prevOrderStatusesRef = useRef<Record<string, string>>({});
   const initialIssueAuditedRef = useRef(false);
 
-  // Real-time store settings sync with Cloud Firestore & Initial Loading Animation
+  // Real-time synchronization with Cloud Firestore for core storefront data
   useEffect(() => {
-    const unsub = subscribeToStoreSettings((s) => {
+    const unsubSettings = subscribeToStoreSettings((s) => {
       setStoreSettings(s);
+      setSettingsLoaded(true);
     });
 
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 750);
+    const unsubProducts = subscribeToProducts((prods) => {
+      setAllProducts(prods);
+      setProductsLoaded(true);
+    });
+
+    const unsubHero = subscribeToHeroSettings((h) => {
+      setHeroData(h);
+      setHeroLoaded(true);
+    });
 
     return () => {
-      unsub();
-      clearTimeout(timer);
+      unsubSettings();
+      unsubProducts();
+      unsubHero();
     };
+  }, []);
+
+  // Coordinated evaluation: wait until all core database data is gathered before revealing website
+  useEffect(() => {
+    const allDataGathered = settingsLoaded && productsLoaded && heroLoaded && !authLoading;
+
+    if (allDataGathered && !isReady) {
+      setIsReady(true);
+      // Give users a 300ms micro-moment to appreciate the 100% completed status bar
+      const timer = setTimeout(() => {
+        setInitialLoading(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [settingsLoaded, productsLoaded, heroLoaded, authLoading, isReady]);
+
+  // Safety fallback timeout: maximum 5 seconds in case of severe network latency or offline mode
+  useEffect(() => {
+    const safetyTimer = setTimeout(() => {
+      setIsReady(true);
+      setInitialLoading(false);
+    }, 5000);
+    return () => clearTimeout(safetyTimer);
   }, []);
 
   // Monitor user orders for Kendala (issue) transitions and initial alerts
@@ -247,9 +291,25 @@ export default function StorefrontPage() {
   }, [cart, addUserOrders, showToast, user, userProfile]);
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-100 relative">
-      <StorefrontLoader loading={initialLoading} storeName={storeName} />
-      <Navbar
+    <div className="min-h-screen bg-transparent text-slate-100 relative overflow-x-hidden">
+      <StorefrontLoader
+        loading={initialLoading}
+        storeName={storeName}
+        settingsLoaded={settingsLoaded}
+        productsLoaded={productsLoaded}
+        heroLoaded={heroLoaded}
+        authLoaded={!authLoading}
+      />
+
+      {/* Synchronized Storefront Content Wrapper with Smooth Transition Reveal */}
+      <div
+        className={`transition-all duration-700 ease-out ${
+          initialLoading
+            ? 'opacity-0 scale-[0.99] translate-y-3 pointer-events-none filter blur-[2px]'
+            : 'opacity-100 scale-100 translate-y-0 filter blur-0 animate-page-reveal'
+        }`}
+      >
+        <Navbar
         storeName={storeName}
         cartCount={cart.totalCount}
         activeOrdersCount={activeCount}
@@ -372,6 +432,8 @@ export default function StorefrontPage() {
         <HeroSection
           onCategoryFilter={handleHeroCategoryFilter}
           whatsappNumber={waNumber}
+          initialSlides={heroData.slides}
+          initialTheme={heroData.theme}
         />
 
         {/* Value Props */}
@@ -397,6 +459,8 @@ export default function StorefrontPage() {
             initialCategory={heroCategory}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
+            products={allProducts}
+            isLoaded={productsLoaded}
           />
         </div>
 
@@ -422,6 +486,7 @@ export default function StorefrontPage() {
         onOpenCart={() => setCartOpen(true)}
         onOpenAccount={() => setAccountOpen(true)}
       />
+      </div>
 
       {/* Modals */}
       {selectedProduct && (

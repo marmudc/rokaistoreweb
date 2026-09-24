@@ -18,12 +18,32 @@ const tagIconMap: Record<string, string> = {
 interface HeroSectionProps {
   onCategoryFilter: (cat: string) => void;
   whatsappNumber: string;
+  initialSlides?: HeroSlide[];
+  initialTheme?: string;
 }
 
-export default function HeroSection({ onCategoryFilter, whatsappNumber }: HeroSectionProps) {
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
-  const [theme, setTheme] = useState('cyber');
+export default function HeroSection({
+  onCategoryFilter,
+  whatsappNumber,
+  initialSlides,
+  initialTheme,
+}: HeroSectionProps) {
+  const [slides, setSlides] = useState<HeroSlide[]>(initialSlides || []);
+  const [theme, setTheme] = useState(initialTheme || 'cyber');
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Sync with initial props if provided
+  useEffect(() => {
+    if (initialSlides !== undefined) {
+      setSlides(initialSlides);
+    }
+  }, [initialSlides]);
+
+  useEffect(() => {
+    if (initialTheme !== undefined) {
+      setTheme(initialTheme);
+    }
+  }, [initialTheme]);
 
   // Real-time listener for Firestore settings/hero
   useEffect(() => {

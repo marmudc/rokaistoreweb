@@ -11,6 +11,8 @@ interface ProductGridProps {
   initialCategory?: string;
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
+  products?: Product[];
+  isLoaded?: boolean;
 }
 
 export default function ProductGrid({
@@ -18,12 +20,24 @@ export default function ProductGrid({
   initialCategory = 'all',
   searchQuery: externalSearchQuery,
   onSearchChange: externalOnSearchChange,
+  products: externalProducts,
+  isLoaded: externalLoaded,
 }: ProductGridProps) {
   const [currentCategory, setCurrentCategory] = useState(initialCategory);
   const [categoriesList, setCategoriesList] = useState<Category[]>(categories);
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allProducts, setAllProducts] = useState<Product[]>(externalProducts || []);
+  const [loading, setLoading] = useState(
+    externalLoaded !== undefined ? !externalLoaded : externalProducts ? false : true
+  );
+
+  // Sync with external products if provided
+  useEffect(() => {
+    if (externalProducts !== undefined) {
+      setAllProducts(externalProducts);
+      setLoading(false);
+    }
+  }, [externalProducts]);
 
   // Sync category when initialCategory prop changes (e.g. from Hero Banner CTA click)
   useEffect(() => {
